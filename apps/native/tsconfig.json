@@ -1,0 +1,68 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "lib": ["es2022", "dom"],
+    "types": ["vite/client"],
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "vite.config.ts"],
+  "references": [
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/runtime"
+    },
+    {
+      "path": "../../packages/provider-pdfjs"
+    },
+    {
+      "path": "../../packages/provider-pdf-lib"
+    },
+    {
+      "path": "../../packages/provider-opfs"
+    },
+    {
+      "path": "../../packages/provider-native-fs"
+    },
+    {
+      "path": "../../packages/provider-latexjs"
+    },
+    {
+      "path": "../../packages/provider-firebase"
+    },
+    {
+      "path": "../../packages/plugin-platform"
+    },
+    {
+      "path": "../../packages/index-sqlite"
+    },
+    {
+      "path": "../../packages/foundation"
+    },
+    {
+      "path": "../../packages/editor-whiteboard"
+    },
+    {
+      "path": "../../packages/editor-notebook"
+    },
+    {
+      "path": "../../packages/editor-ink"
+    },
+    {
+      "path": "../../packages/editor-codemirror"
+    },
+    {
+      "path": "../../packages/editor-blockpage"
+    },
+    {
+      "path": "../../packages/application"
+    }
+  ]
+}

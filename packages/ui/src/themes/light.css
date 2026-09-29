@@ -1,0 +1,51 @@
+/* Froglight default light theme — values for the `--fl-*` token API.
+   Warm paper neutrals (#ffffff paper on #f7f7f5 shell), ink text
+   (#37352f), Forest accent (#15803d family), hairline borders, small
+   radii, soft low shadows. A theme is values only: no selectors beyond
+   the world switch, no structure, no geometry. */
+
+:root {
+  /* Surfaces — light world (default): warm paper */
+  --fl-vault-violet: #604ae0;
+  --fl-vault-blue: #366da6;
+  --fl-vault-orange: #a75624;
+  --fl-vault-teal: #287b79;
+  --fl-surface-app: #ffffff;
+  --fl-surface-sidebar: #f7f7f5;
+  --fl-surface-sunken: #fbfbfa;
+  --fl-surface-raised: #ffffff;
+  --fl-surface-hover: rgba(55, 53, 47, 0.055);
+  --fl-surface-active: rgba(55, 53, 47, 0.09);
+  --fl-surface-editor: #ffffff;
+  --fl-surface-input: #ffffff;
+
+  /* Text */
+  --fl-text-primary: #37352f;
+  --fl-text-secondary: rgba(55, 53, 47, 0.75);
+  --fl-text-muted: rgba(55, 53, 47, 0.7);
+
+  /* Accent */
+  --fl-accent: #15803d;
+  --fl-accent-strong: #166534;
+  --fl-accent-contrast: #ffffff;
+  --fl-accent-soft: rgba(21, 128, 61, 0.12);
+
+  /* Status */
+  --fl-danger: #c4554d;
+  --fl-danger-soft: rgba(196, 85, 77, 0.1);
+  --fl-success: #448361;
+  --fl-warning: #a08430;
+
+  /* Borders */
+  --fl-border-default: rgba(55, 53, 47, 0.08);
+  --fl-border-strong: rgba(55, 53, 47, 0.16);
+
+  /* Depth */
+  --fl-shadow-low:
+    0 1px 2px rgba(25, 23, 17, 0.06), 0 0 1px rgba(25, 23, 17, 0.14);
+  --fl-shadow-medium:
+    0 4px 12px rgba(25, 23, 17, 0.08), 0 2px 4px rgba(25, 23, 17, 0.05);
+  --fl-shadow-overlay:
+    0 12px 32px rgba(25, 23, 17, 0.14), 0 4px 10px rgba(25, 23, 17, 0.06);
+  color-scheme: light;
+}

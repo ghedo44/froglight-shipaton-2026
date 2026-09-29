@@ -1,0 +1,27 @@
+/* Froglight Pro settings section — CSS module colocated with
+   ProSettingsView.tsx.
+   Classes owned: pro-section, pro-block. Hosts:
+   react/ProSettingsView.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .pro-description {
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 24px;
+    max-width: 64ch;
+  }
+
+  .pro-section {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .pro-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+}

@@ -1,0 +1,1592 @@
+@layer components {
+  .database {
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+    padding: 32px clamp(20px, 3vw, 48px) 28px;
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-app);
+  }
+  .viewCreator {
+    display: grid;
+    gap: 16px;
+  }
+  .viewCreator label {
+    display: grid;
+    gap: 6px;
+    align-items: start;
+  }
+  .viewCreator input,
+  .viewCreator select {
+    width: 100%;
+  }
+  .viewCreator button {
+    justify-self: start;
+  }
+  .database h2 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 0 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--fl-border-default) 65%, transparent);
+  }
+  .viewTabs {
+    display: flex;
+    flex: 0 1 auto;
+    align-self: stretch;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: min(44%, 520px);
+    overflow-x: auto;
+  }
+  .database .viewTabs button {
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 5px 9px;
+    border: 0;
+    border-radius: var(--fl-radius-sm);
+    background: transparent;
+    color: var(--fl-text-muted);
+    font-weight: 500;
+  }
+  .database .viewTabs .currentView {
+    color: var(--fl-text-primary);
+    background: var(--fl-accent-soft);
+    font-weight: 600;
+  }
+  .database .addView {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--fl-text-muted);
+  }
+  .database .addView:hover:not(:disabled) {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+  }
+  .toolbarRight {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+    margin-inline-start: auto;
+  }
+  .toolbarSearch {
+    display: flex;
+    flex: 1 1 150px;
+    align-items: center;
+    gap: 6px;
+    width: 178px;
+    min-width: 130px;
+    min-height: 34px;
+    padding-inline: 8px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-app);
+  }
+  .toolbarSearch:focus-within {
+    border-color: var(--fl-accent);
+  }
+  .toolbarSearch svg {
+    flex: 0 0 auto;
+  }
+  .database .toolbarSearch input[type='search'] {
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .database .toolbarSearch input[type='search']:focus-visible {
+    outline: none;
+  }
+  .toolbarActions {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    padding: 2px;
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-sunken);
+  }
+  .database .toolbarActions button {
+    min-height: 30px;
+    padding: 4px 9px;
+    border-color: transparent;
+    background: transparent;
+    color: var(--fl-text-secondary);
+    font-size: 0.875rem;
+  }
+  .database .toolbarActions button:hover:not(:disabled) {
+    background: var(--fl-surface-sunken);
+  }
+  .database .toolbarActions .activeAction {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+  }
+  .toolbarRight > .primary {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .moreMenu {
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .database .moreMenu > summary {
+    display: grid;
+    width: 34px;
+    min-height: 34px;
+    padding: 4px;
+    place-items: center;
+    border-radius: var(--fl-radius-sm);
+    color: var(--fl-text-muted);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .database .moreMenu > summary::-webkit-details-marker {
+    display: none;
+  }
+  .database .moreMenu > summary:hover {
+    background: var(--fl-surface-sunken);
+  }
+  .moreMenuItems {
+    composes: surface from './DialogSurface.module.css';
+    position: absolute;
+    z-index: 5;
+    inset-block-start: calc(100% + 6px);
+    inset-inline-end: 0;
+    display: grid;
+    min-width: 190px;
+    padding: 4px;
+  }
+  .database .moreMenuItems button {
+    min-height: 36px;
+    padding: 7px 9px;
+    border: 0;
+    background: transparent;
+    text-align: start;
+  }
+  .database .moreMenuItems button:hover:not(:disabled) {
+    background: var(--fl-surface-sunken);
+  }
+  .undoNotice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    max-width: 100%;
+    margin-block: 0 12px;
+    padding: 6px 8px 6px 12px;
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-sunken);
+    border-radius: 8px;
+  }
+  .undoNotice span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .database .undoNotice button {
+    min-height: 30px;
+    padding-block: 3px;
+    color: var(--fl-accent);
+    background: transparent;
+    border: 0;
+    font-weight: 600;
+  }
+  .database input,
+  .database select,
+  .database button {
+    font: inherit;
+    color: inherit;
+    background: var(--fl-surface-app);
+    border: 1px solid var(--fl-border-default);
+    border-radius: 6px;
+    min-height: 36px;
+    padding: 6px 10px;
+    max-width: 100%;
+  }
+  .database button {
+    cursor: pointer;
+  }
+  .database button:hover:not(:disabled) {
+    background: var(--fl-surface-sunken);
+  }
+  .database :global([data-fl-document-name]) button,
+  .database :global([data-fl-document-name]) input {
+    min-height: 0;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    background: transparent;
+    font-size: clamp(26px, 2.5vw, 34px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+  .database :global([data-fl-document-name]) button:hover:not(:disabled) {
+    background: transparent;
+    color: var(--fl-text-secondary);
+  }
+  .database .activeAction {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+    border-color: var(--fl-accent);
+  }
+  .propertyForm {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+  }
+  .propertyForm > label {
+    display: grid;
+    gap: 6px;
+    align-items: start;
+    color: var(--fl-text-secondary);
+    font-size: 0.82rem;
+  }
+  .propertyForm > label > input,
+  .propertyForm > label > select {
+    width: 100%;
+  }
+  .propertyForm > button {
+    justify-self: start;
+  }
+  .database dialog h2 {
+    font-size: 1.1rem;
+  }
+  .database [data-fl-component='icon-button'] {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    background: transparent;
+  }
+  .database .primary {
+    background: var(--fl-accent);
+    color: var(--fl-surface-app);
+    border-color: var(--fl-accent);
+    font-weight: 600;
+  }
+  .database .primary:hover:not(:disabled) {
+    background: var(--fl-accent);
+    filter: brightness(0.93);
+  }
+  .database button:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  .database :focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+  .database label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings {
+    display: grid;
+    grid-template-columns: 156px minmax(0, 1fr);
+    align-items: start;
+    column-gap: 22px;
+    row-gap: 10px;
+    width: 100%;
+    padding: 0;
+  }
+  .settings > :not(.settingsNav) {
+    grid-column: 2;
+  }
+  .settingsNav {
+    position: sticky;
+    top: 0;
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    order: -2;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 4px 0;
+  }
+  .database .settingsNav button {
+    min-height: 34px;
+    padding: 7px 9px;
+    border: 0;
+    background: transparent;
+    color: var(--fl-text-secondary);
+    text-align: start;
+    font-weight: 500;
+  }
+  .database .settingsNav button:hover {
+    background: var(--fl-surface-sunken);
+  }
+  .settings > section {
+    width: 100%;
+    min-width: 0;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--fl-border-default);
+    scroll-margin-top: 12px;
+  }
+  .settings > section > h4,
+  .viewOptions > h4 {
+    margin: 0 0 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .settingsGroupHeading {
+    order: 0;
+    margin: 8px 0 0;
+    font-size: 0.92rem;
+  }
+  .settingsHint {
+    margin: 0;
+    color: var(--fl-text-muted);
+    font-size: 0.82rem;
+  }
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .viewSettings {
+    order: -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 18px 20px;
+    width: 100%;
+    padding: 0 0 22px;
+    border-bottom: 1px solid var(--fl-border-default);
+    scroll-margin-top: 12px;
+  }
+  .viewSettingsHeading {
+    grid-column: 1 / -1;
+  }
+  .viewSettingsHeading h3 {
+    margin: 0 0 4px;
+    font-size: 0.92rem;
+  }
+  .viewSettingsHeading p {
+    margin: 0;
+    color: var(--fl-text-muted);
+    font-size: 0.82rem;
+  }
+  .viewSettings > label {
+    display: grid;
+    align-items: start;
+    gap: 6px;
+    color: var(--fl-text-secondary);
+    font-size: 0.82rem;
+  }
+  .viewSettings > label > input,
+  .viewSettings > label > select {
+    width: 100%;
+  }
+  .viewOptions {
+    grid-column: 1 / -1;
+    min-width: 0;
+    padding: 12px 0;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .viewOptions > h4 {
+    margin-bottom: 8px;
+  }
+  .viewOptions > fieldset {
+    min-width: 0;
+    margin: 12px 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .settingsDisclosure {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+  .portableActions {
+    display: grid;
+    gap: 20px;
+  }
+  .portableActions > p {
+    margin: 0;
+    color: var(--fl-text-secondary);
+  }
+  .portableActions > fieldset {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+    padding: 14px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+  }
+  .portableActions > fieldset > button {
+    justify-self: start;
+  }
+  .settings form,
+  .settings fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .settings .viewOptions > fieldset {
+    display: grid;
+  }
+  .settings .viewOptions button {
+    justify-self: start;
+  }
+  .viewActions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .viewActions button:last-child {
+    color: var(--fl-danger, var(--fl-text-secondary));
+  }
+  .settings .formulaEditor {
+    display: grid;
+    flex: 1 0 100%;
+    min-width: 0;
+    padding: 10px 0;
+    border: 0;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .formulaEditor legend {
+    padding-inline: 4px;
+    font-weight: 600;
+  }
+  .formulaInsertions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+  .formulaInsertions label {
+    flex: 1 1 210px;
+    min-width: 0;
+  }
+  .formulaInsertions select,
+  .formulaEditor textarea {
+    min-width: 0;
+    width: 100%;
+  }
+  .formulaEditor textarea {
+    resize: vertical;
+    min-height: 72px;
+    padding: 8px 10px;
+    color: inherit;
+    background: var(--fl-surface-app);
+    border: 1px solid var(--fl-border-default);
+    border-radius: 6px;
+    font-family: var(--fl-font-mono);
+    line-height: 1.5;
+  }
+  .formulaEditor textarea[aria-invalid='true'] {
+    border-color: var(--fl-danger);
+  }
+  .formulaHelp,
+  .formulaStatus,
+  .formulaError {
+    overflow-wrap: anywhere;
+    color: var(--fl-text-muted);
+  }
+  .formulaError {
+    color: var(--fl-danger);
+  }
+  .templateManager,
+  .templateEditor {
+    display: grid;
+    flex: 1 0 100%;
+    gap: 12px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 8px;
+    background: var(--fl-surface-app);
+  }
+  .templateSectionHeading,
+  .templateHeader,
+  .templateRow,
+  .templateActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .templateSectionHeading > div,
+  .templateHeader > div,
+  .templateRow > div {
+    display: grid;
+    min-width: 0;
+  }
+  .templateSectionHeading small,
+  .templateHeader small,
+  .templateRow small {
+    color: var(--fl-text-muted);
+  }
+  .templateHeader > span {
+    color: var(--fl-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .templateList {
+    display: grid;
+    border-block: 1px solid var(--fl-border-default);
+  }
+  .templateRow {
+    min-height: 48px;
+    padding-block: 6px;
+  }
+  .templateRow + .templateRow {
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .templateCreate {
+    display: grid !important;
+    grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) auto;
+    align-items: end;
+  }
+  .templateCreate label,
+  .templateName,
+  .templateDefaults > div {
+    display: grid;
+    align-items: start;
+    gap: 5px;
+  }
+  .templateCreate input,
+  .templateCreate select,
+  .templateName input,
+  .templateDefaults > div > input,
+  .templateDefaults > div > select {
+    width: 100%;
+  }
+  .templateContent,
+  .templateDefaults {
+    display: grid !important;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 8px;
+    background: var(--fl-surface-sunken);
+  }
+  .templateProviderHost {
+    min-height: 300px;
+    max-height: min(560px, 64vh);
+    overflow: auto;
+    background: var(--fl-surface-app);
+    border: 1px solid var(--fl-border-default);
+    border-radius: 6px;
+  }
+  .templateDefaults {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .templateDefaults legend {
+    padding-inline: 4px;
+    font-weight: 600;
+  }
+  .templateDefaults .templateNotice,
+  .templateDefaults .templateError {
+    grid-column: 1 / -1;
+  }
+  .templateNotice,
+  .templateError {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--fl-text-muted);
+  }
+  .templateError {
+    color: var(--fl-danger);
+  }
+  .templateActions {
+    justify-content: flex-end;
+  }
+  .sortRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .bulkSelectionDisclosure {
+    margin-block: 8px;
+  }
+  .bulkSelectionDisclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    min-height: 32px;
+    color: var(--fl-text-muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .bulkSelectionDisclosure > summary span {
+    color: var(--fl-text-default);
+    font-variant-numeric: tabular-nums;
+  }
+  .bulkSelectionBar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 6px 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 8px;
+    background: var(--fl-surface-sunken);
+  }
+  .bulkSelectionBar label {
+    font-size: 0.8rem;
+    color: var(--fl-text-muted);
+  }
+  .bulkSelectionBar > span {
+    margin-inline-start: auto;
+    color: var(--fl-text-muted);
+    font-size: 0.85rem;
+  }
+  .clipboardBar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--fl-border-default);
+    border-top: 0;
+    background: var(--fl-surface-sunken);
+  }
+  .clipboardBar > span {
+    color: var(--fl-text-muted);
+    font-size: 0.85rem;
+  }
+  .clipboardBar small {
+    color: var(--fl-text-muted);
+  }
+  .clipboardBar small[role='alert'] {
+    color: var(--fl-danger);
+  }
+  .clipboardPanel {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 0 0 10px 10px;
+    background: var(--fl-surface-app);
+  }
+  .bulkPanel {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 0 0 10px 10px;
+    background: var(--fl-surface-app);
+    box-shadow: 0 10px 28px
+      color-mix(in srgb, var(--fl-text-primary) 8%, transparent);
+  }
+  .bulkPanelHeading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .bulkPanelHeading h2,
+  .bulkPanelHeading p {
+    margin: 0;
+  }
+  .bulkPanelHeading p {
+    margin-top: 4px;
+    max-width: 68ch;
+    color: var(--fl-text-muted);
+    font-size: 0.85rem;
+  }
+  .bulkFields {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.7fr) minmax(240px, 1.3fr);
+    gap: 12px;
+    max-width: 760px;
+  }
+  .bulkFields label,
+  .bulkValue {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--fl-text-muted);
+  }
+  .bulkFields select,
+  .bulkValue input:not([type='checkbox']) {
+    width: 100%;
+  }
+  .bulkPreview,
+  .bulkReport {
+    display: grid;
+    gap: 5px;
+    max-width: 760px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--fl-surface-sunken);
+  }
+  .bulkPreview span,
+  .bulkReport > span {
+    color: var(--fl-text-muted);
+    font-size: 0.85rem;
+  }
+  .bulkConfirmation {
+    align-items: flex-start !important;
+    max-width: 760px;
+    color: var(--fl-text-muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .database .bulkConfirmation input,
+  .database .selectionCell input {
+    width: 16px;
+    min-height: 16px;
+    height: 16px;
+    padding: 0;
+    accent-color: var(--fl-accent);
+  }
+  .selectionCell {
+    text-align: center;
+  }
+  .bulkActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .bulkFailures {
+    display: grid;
+    gap: 6px;
+    margin: 4px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bulkFailures li {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.4fr) minmax(180px, 1fr);
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid var(--fl-border-default);
+    color: var(--fl-danger);
+    font-size: 0.85rem;
+  }
+  .clipboardFailures {
+    display: grid;
+    gap: 6px;
+    max-height: 240px;
+    margin: 4px 0;
+    padding: 0;
+    overflow: auto;
+    list-style: none;
+  }
+  .clipboardFailures li {
+    display: grid;
+    grid-template-columns: minmax(140px, 0.5fr) minmax(180px, 1fr);
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid var(--fl-border-default);
+    color: var(--fl-danger);
+    font-size: 0.85rem;
+  }
+  .bulkError {
+    margin: 0;
+    color: var(--fl-danger);
+  }
+  .scroll {
+    overflow: auto;
+    width: 100%;
+    border-block: 1px solid var(--fl-border-default);
+    background: transparent;
+  }
+  .database table {
+    width: 100%;
+    min-width: 640px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    text-align: start;
+    font-variant-numeric: tabular-nums;
+  }
+  .database th,
+  .database td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--fl-border-default);
+    vertical-align: middle;
+  }
+  .database th {
+    font-weight: 500;
+    color: var(--fl-text-muted);
+    text-align: start;
+    white-space: nowrap;
+  }
+  .database thead {
+    background: transparent;
+  }
+  .database tbody tr:hover {
+    background: color-mix(in srgb, var(--fl-surface-sunken) 55%, transparent);
+  }
+  .columnHeader {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .columnHeader > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .database .columnMenu {
+    margin-inline-start: auto;
+    width: 68px;
+    min-width: 68px;
+    min-height: 28px;
+    padding: 2px;
+    font-size: 0.75rem;
+    background: transparent;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .database th .columnMenu {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .database th:hover .columnMenu,
+    .database th:focus-within .columnMenu {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+  .database .resizeHandle {
+    flex: 0 0 14px;
+    width: 14px;
+    min-width: 14px;
+    min-height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  .database .resizeHandle::after {
+    content: '';
+    display: block;
+    height: 18px;
+    width: 2px;
+    margin: auto;
+    background: var(--fl-border-default);
+  }
+  .database .resizeHandle:hover::after,
+  .database .resizeHandle:focus-visible::after {
+    background: var(--fl-accent);
+  }
+  .visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .cell {
+    min-width: 0;
+  }
+  .cell input:not([type='checkbox']),
+  .cell select {
+    width: 100%;
+  }
+  .cell small {
+    display: block;
+    max-width: 30ch;
+  }
+  .title {
+    text-align: start;
+    font-weight: 600 !important;
+    border: 0 !important;
+    background: transparent !important;
+    padding-inline: 2px !important;
+  }
+  .titleEditor {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .titleEditor input {
+    min-width: 8ch;
+    max-width: 22ch;
+  }
+  .database .titleEditor {
+    gap: 2px 8px;
+  }
+  .database .titleRename {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    opacity: 0;
+  }
+  .database tr:hover .titleRename,
+  .database tr:focus-within .titleRename {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .database .titleRename {
+      opacity: 1;
+    }
+  }
+  .titleEditor small {
+    flex-basis: 100%;
+    color: var(--fl-danger);
+  }
+  .titleRename {
+    border: 0;
+    background: transparent;
+    color: var(--fl-text-muted);
+    font-size: 0.75rem;
+  }
+  .titleRename:hover,
+  .titleRename:focus-visible {
+    color: var(--fl-text-primary);
+    text-decoration: underline;
+  }
+  .database td,
+  .database tbody th {
+    overflow-wrap: anywhere;
+  }
+  .database .cellDisplay,
+  .database .inlineNew {
+    width: 100%;
+    min-height: 32px;
+    padding: 4px 6px;
+    border: 0;
+    background: transparent;
+    text-align: start;
+    font-weight: 400;
+  }
+  .database .cellDisplay:hover,
+  .database .inlineNew:hover {
+    background: var(--fl-surface-sunken);
+  }
+  .database .cellDisplay:focus-visible,
+  .database .title:focus-visible {
+    background: var(--fl-accent-soft) !important;
+    outline-offset: -2px;
+  }
+  .database .inlineNew {
+    color: var(--fl-text-muted);
+  }
+  .database .rowAction {
+    border: 0;
+    background: transparent;
+    color: var(--fl-text-muted);
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+  .database td .rowAction {
+    width: 30px;
+    min-width: 30px;
+  }
+  .board {
+    display: flex;
+    gap: 28px;
+    overflow: auto;
+    align-items: start;
+  }
+  .lane {
+    flex: 0 0 280px;
+    min-height: 160px;
+    padding: 0 4px;
+    background: transparent;
+    border-radius: 0;
+  }
+  .lane h2[data-option-color] {
+    display: flex;
+    align-items: center;
+    margin: 0 0 10px;
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--fl-border-default);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .lane h2[data-option-color]::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-inline-end: 8px;
+    border-radius: 50%;
+    background: var(--fl-text-muted);
+  }
+  .lane h2[data-option-color='blue']::before {
+    background: var(--fl-accent);
+  }
+  .lane h2[data-option-color='green']::before {
+    background: var(--fl-success);
+  }
+  .lane h2[data-option-color='red']::before {
+    background: var(--fl-danger);
+  }
+  .lane h2[data-option-color='yellow']::before {
+    background: var(--fl-warning);
+  }
+  .lane h2[data-option-color='orange']::before {
+    background: color-mix(in srgb, var(--fl-warning), var(--fl-danger));
+  }
+  .lane h2[data-option-color='purple']::before {
+    background: color-mix(in srgb, var(--fl-accent), var(--fl-danger));
+  }
+  .lane h2[data-option-color='pink']::before {
+    background: color-mix(in srgb, var(--fl-danger), var(--fl-surface-app));
+  }
+  .card {
+    position: relative;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .cardDragHandle {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: 2px;
+    display: grid;
+    grid-template-columns: repeat(2, 3px);
+    gap: 2px;
+    width: 20px;
+    height: 24px;
+    place-content: center;
+    border-radius: 4px;
+    color: var(--fl-text-muted);
+    cursor: grab;
+    touch-action: none;
+  }
+  .cardDragHandle:active {
+    cursor: grabbing;
+  }
+  .cardDragHandle > span {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .board .card > .title {
+    padding-inline-end: 28px !important;
+  }
+  .board .card {
+    margin-block-end: 8px;
+    padding: 12px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+  }
+  .board .card:hover {
+    border-color: var(--fl-border-strong, var(--fl-border-default));
+  }
+  .cardWriteStatus,
+  .cardWriteFailure {
+    display: block;
+    margin: 6px 0;
+  }
+  .cardWriteStatus {
+    color: var(--fl-text-muted);
+  }
+  .cardWriteFailure {
+    color: var(--fl-danger);
+  }
+  .database .laneMore {
+    width: 100%;
+    margin-top: 10px;
+    color: var(--fl-text-muted);
+    background: transparent;
+    border-style: dashed;
+  }
+  .cardField {
+    display: grid;
+    grid-template-columns: minmax(70px, 1fr) minmax(100px, 2fr);
+    margin-top: 6px;
+    font-size: 0.875rem;
+  }
+  .cardActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2px;
+    margin-top: 8px;
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .gallery .card {
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 12px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-raised);
+    overflow: hidden;
+  }
+  .gallery .cardActions {
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .gallery .card > :not(.galleryPreview) {
+    margin-inline: 12px;
+  }
+  .galleryPreview {
+    order: -1;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 8px;
+    min-height: 148px;
+    margin-bottom: 8px;
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-sunken);
+    text-transform: capitalize;
+  }
+  .galleryPreview img {
+    display: block;
+    width: 100%;
+    height: 148px;
+    object-fit: cover;
+  }
+  .galleryPreview p {
+    display: -webkit-box;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+    color: var(--fl-text-primary);
+    font-size: 0.875rem;
+    line-height: 1.45;
+    text-transform: none;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+  .cardPath {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fl-text-muted);
+  }
+  .moreRows {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    color: var(--fl-text-muted);
+  }
+  .list {
+    max-width: 900px;
+  }
+  .listRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    min-height: 52px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .listRow > .title {
+    flex: 1 1 180px;
+  }
+  .listRow > small,
+  .listRow > span {
+    flex: 0 1 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fl-text-muted);
+  }
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(140px, 1fr));
+    overflow: auto;
+    gap: 12px;
+  }
+  .day {
+    border: 0;
+    border-top: 1px solid var(--fl-border-default);
+    padding: 8px;
+    min-height: 140px;
+  }
+  .day > h2 {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    margin: 0 0 6px;
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-app);
+    font-size: 0.75rem;
+  }
+  .day .card label {
+    display: block;
+  }
+  .timeline {
+    display: grid;
+    gap: 8px;
+    min-width: max-content;
+  }
+  .timeline > time {
+    text-align: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .timelineRow {
+    display: contents;
+  }
+  .interval {
+    align-self: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    background: var(--fl-surface-sunken);
+    border: 0;
+    border-radius: var(--fl-radius-sm);
+    overflow: hidden;
+  }
+  .interval span {
+    white-space: nowrap;
+  }
+  .scheduleControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 0.875rem;
+  }
+  .scheduleControls > small {
+    flex: 1 0 100%;
+    color: var(--fl-text-muted);
+  }
+  .scheduleItem {
+    position: relative;
+    min-width: 0;
+    padding-block: 4px;
+  }
+  .scheduleDragHandle {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    margin-block-end: 4px;
+    padding: 2px 8px;
+    border: 1px dashed var(--fl-border-default);
+    border-radius: 6px;
+    color: var(--fl-text-muted);
+    cursor: grab;
+    font-size: 0.75rem;
+    user-select: none;
+  }
+  .scheduleDragHandle:active {
+    cursor: grabbing;
+  }
+  .scheduleError {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid color-mix(in srgb, var(--fl-danger), transparent 60%);
+    border-radius: 6px;
+    color: var(--fl-danger);
+    overflow-wrap: anywhere;
+  }
+  .scheduleError > strong,
+  .scheduleError > small {
+    flex: 1 0 100%;
+  }
+  .dateBucket {
+    max-width: 760px;
+    margin-block-start: 20px;
+    padding-block-start: 12px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .dateBucket > h2 {
+    margin: 0;
+  }
+  .dateBucket > p {
+    margin: 4px 0 10px;
+    color: var(--fl-text-muted);
+  }
+  .empty {
+    margin: 0;
+    padding: 16px 6px;
+    color: var(--fl-text-muted);
+  }
+  .database footer {
+    padding-top: 16px;
+    font-size: 0.875rem;
+    color: var(--fl-text-muted);
+  }
+  .embeddedDatabase {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    overflow: visible;
+    background: var(--fl-surface-raised);
+  }
+  .embedHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .embedIdentity {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .embedIdentity strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 1rem;
+  }
+  .embedIdentity span {
+    color: var(--fl-text-muted);
+    font-size: 0.8rem;
+    text-transform: capitalize;
+  }
+  .embedTabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    margin-top: -12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .embeddedDatabase .embedTabs button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--fl-text-muted);
+    background: transparent;
+  }
+  .embeddedDatabase .embedTabs button[aria-current='page'] {
+    color: var(--fl-text-primary);
+    border-bottom-color: var(--fl-accent);
+    font-weight: 650;
+  }
+  .embeddedDatabase .scroll {
+    margin-top: 4px;
+  }
+  .embeddedDatabase .settingsDisclosure {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    background: var(--fl-surface-sunken);
+    border-radius: 6px;
+  }
+  .embeddedDatabase .settings {
+    border: 0;
+  }
+  .embeddedDatabase table {
+    min-width: 640px;
+  }
+  @media (any-pointer: coarse) {
+    .database input:not([type='checkbox']),
+    .database select,
+    .database button {
+      min-height: 44px;
+    }
+    .database [data-fl-component='icon-button'] {
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
+    }
+    .database .moreMenu > summary {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .database .titleRename {
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
+      min-height: 44px;
+      opacity: 1;
+    }
+    .database .resizeHandle {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .cardDragHandle {
+      width: 44px;
+      height: 44px;
+    }
+    .scheduleDragHandle {
+      min-height: 44px;
+      padding-inline: 12px;
+    }
+  }
+  @media (max-width: 600px) {
+    .database {
+      padding: 32px 16px 16px;
+    }
+    .embeddedDatabase {
+      padding: 0;
+    }
+    .embedHeader {
+      flex-wrap: wrap;
+    }
+    .database input,
+    .database select,
+    .database button {
+      min-height: 44px;
+    }
+    .database [data-fl-component='icon-button'] {
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
+      min-height: 44px;
+    }
+    .toolbar {
+      align-items: stretch;
+    }
+    .toolbarRight {
+      flex: 1 0 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+    }
+    .toolbarActions {
+      grid-column: 1;
+      grid-row: 2;
+      width: fit-content;
+    }
+    .toolbarSearch {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      width: 100%;
+    }
+    .toolbarRight > .primary {
+      grid-column: 2;
+      grid-row: 2;
+    }
+    .toolbarRight > .moreMenu {
+      grid-column: 3;
+      grid-row: 2;
+    }
+    .viewTabs {
+      flex: 1 1 0;
+      max-width: calc(100% - 44px);
+      order: -1;
+    }
+    .addView {
+      order: -1;
+    }
+    .toolbar {
+      gap: 8px;
+    }
+    .moreMenu {
+      margin-inline-start: 0;
+    }
+    .bulkSelectionBar > span {
+      flex: 1 0 100%;
+    }
+    .bulkSelectionBar label {
+      font-size: 0;
+    }
+    .bulkSelectionBar label select {
+      font-size: 0.85rem;
+    }
+    .bulkSelectionBar {
+      align-items: stretch;
+    }
+    .bulkSelectionBar > span {
+      margin-inline-start: 0;
+      align-self: center;
+    }
+    .bulkPanelHeading,
+    .bulkFields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .bulkPanelHeading {
+      display: grid;
+    }
+    .bulkFailures li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+    .settings {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    .settingsNav {
+      position: static;
+      grid-row: auto;
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--fl-border-default);
+    }
+    .database .settingsNav button {
+      flex: 0 0 auto;
+    }
+    .settings > :not(.settingsNav) {
+      grid-column: 1;
+    }
+    .settings form {
+      flex-direction: column;
+    }
+    .viewSettings {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .templateCreate,
+    .templateDefaults {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .templateProviderHost {
+      min-height: 240px;
+      max-height: 56vh;
+    }
+    .database .resizeHandle {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .scheduleDragHandle {
+      min-height: 44px;
+      padding-inline: 12px;
+    }
+    .gallery {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

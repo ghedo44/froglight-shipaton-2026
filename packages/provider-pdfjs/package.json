@@ -1,0 +1,32 @@
+{
+  "name": "@froglight/provider-pdfjs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "provider-pdfjs",
+    "tags": ["layer:provider", "platform:shared", "authority:trusted", "domain:pdf"]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "pdfjs-dist": "6.3.289",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "pdf-lib": "1.17.1",
+    "vitest": "~4.1.0"
+  }
+}

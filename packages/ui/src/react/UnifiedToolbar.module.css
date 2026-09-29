@@ -1,0 +1,1041 @@
+/* Unified document toolbar — CSS module colocated with
+   UnifiedToolbar.tsx (`import styles from './UnifiedToolbar.module.css'`),
+   so the import trail names the stylesheet; correctness comes from the
+   `components` cascade layer, never source order. One in-flow top-bar
+   center plus a pane-scoped floating overlay with eight geometric anchors.
+   Providers expose semantic state and commands only; editor/canvas DOM
+   stays inside the pane body. Control primitives (groups, tools, choice,
+   input, number, range, colors, swatches, badges, status) are shared with
+   tool-controls.tsx, which imports this module. No visible context labels:
+   snapshot context survives only as accessible metadata. Classes owned:
+   fl-topbar-center, fl-floating-layer/island. Vars consumed:
+   --fl-surface-*, --fl-text-*, --fl-border-*, --fl-radius-*,
+    --fl-shadow-*, --fl-accent-*, --fl-motion/--fl-ease-*,
+    --fl-safe-area-*. Hosts: react/UnifiedToolbar.tsx, react/tool-controls.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  /* In-flow center of the single pane top bar: one row, never two.
+     `safe center` keeps tools centered when they fit while guaranteeing the
+     row start stays reachable by scroll on narrow viewports (plain `center`
+     would clip the first controls beyond a negative scroll origin). */
+  .fl-topbar-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: safe center;
+    gap: 7px;
+    min-width: 0;
+    /* Stable single-row geometry: reserve the row height up front so the
+       async JS compaction (show-all → priority overflow) never changes the
+       bar height, and isolate layout so measuring one surface never
+       reflows the editor. */
+    min-height: 30px;
+    contain: layout style;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .fl-topbar-center::-webkit-scrollbar {
+    display: none;
+  }
+  .fl-toolbar-categories {
+    gap: 2px;
+    /* The strip scrolls internally like the rest of the top bar (never a
+       second row): overflow menus portal into the pane layer, so no inline
+       absolute menu needs `overflow: visible` here. Narrow split panes keep
+       every category reachable instead of clipped. */
+  }
+  .fl-writing-direct {
+    gap: 4px;
+  }
+  .fl-writing-style-select {
+    min-width: 108px;
+    max-width: 148px;
+    min-height: 32px;
+    padding: 3px 22px 3px 9px;
+    border: 1px solid transparent;
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .fl-writing-style-select:hover,
+  .fl-writing-style-select:focus-visible {
+    border-color: var(--fl-border-default);
+    outline-color: var(--fl-accent);
+  }
+  .fl-object-menu-primary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .fl-object-menu-primary > * {
+    flex-shrink: 0;
+  }
+  .fl-object-menu-primary + .fl-toolbar-overflow-wrap {
+    flex-shrink: 0;
+  }
+  .fl-object-menu-more {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    max-width: min(360px, 88vw);
+    padding: 10px;
+  }
+  .fl-toolbar-category {
+    min-width: 34px;
+    min-height: 30px;
+    padding: 2px 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    background: transparent;
+    color: var(--fl-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 550;
+    white-space: nowrap;
+    /* Pencil/finger taps must never double-tap-zoom or drag-scroll the
+ bar: taps activate immediately.*/
+    touch-action: manipulation;
+  }
+  .fl-toolbar-category:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .fl-toolbar-category[aria-pressed='true'] {
+    background: var(--fl-accent-soft);
+    color: var(--fl-accent-strong);
+  }
+  /* Active-tool marker while browsing another category: the pressed wash
+     belongs to the browsed category, so the category holding the actual
+     tool keeps a quiet underline instead of competing with it. Without
+     this the attribute is emitted but invisible and tool context is lost
+     the moment the user browses. */
+  .fl-toolbar-category[data-contains-active-tool='true']:not(
+      [aria-pressed='true']
+    ) {
+    color: var(--fl-accent-strong);
+    box-shadow: inset 0 -2px 0 var(--fl-accent);
+  }
+  .fl-toolbar-inline-menu button[data-contains-active-tool='true'] {
+    color: var(--fl-accent-strong);
+    font-weight: 700;
+  }
+  .fl-toolbar-category:focus-visible {
+    outline: 2px solid var(--fl-focus-ring);
+    outline-offset: 1px;
+  }
+  .fl-toolbar-overflow-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+  .fl-toolbar-inline-menu {
+    position: absolute;
+    z-index: 12;
+    top: calc(100% + 7px);
+    right: 0;
+    min-width: 150px;
+    display: grid;
+    gap: 2px;
+    padding: 5px;
+  }
+  .fl-toolbar-inline-menu button {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-radius: var(--fl-radius-sm);
+    padding: 6px 9px;
+    background: transparent;
+    color: var(--fl-text-primary);
+    font: inherit;
+    text-align: left;
+    touch-action: manipulation;
+  }
+  .fl-toolbar-inline-menu button:hover {
+    background: var(--fl-surface-hover);
+  }
+  .fl-toolbar-inline-menu button:focus-visible {
+    outline: 2px solid var(--fl-focus-ring);
+    outline-offset: 1px;
+  }
+
+  /* Pane-scoped overlay: stable coordinate space over the editor viewport.
+     The layer itself is transparent to pointer events; only islands and
+     their popovers receive them, so drawing, selection, scrolling, and pen
+     input are never blocked by invisible chrome. */
+  .fl-floating-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: clip;
+    /* Contextual selection anchors are expressed in viewport coordinates.
+       Layout containment would make fixed descendants use this pane as their
+       containing block and offset the toolbar away from the selection. */
+    contain: style;
+  }
+  /* One flex strip per horizontal edge: start/center/end slots share the
+     row by construction, so same-edge islands compact instead of overlapping.
+     Side slots keep their content; the center slot shrinks with internal
+     scroll when squeezed. A second full-width toolbar row is never created:
+     the strips float over the viewport and add no document-flow height. */
+  .fl-floating-strip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
+    column-gap: 4px;
+    pointer-events: none;
+    contain: layout style;
+  }
+  .fl-floating-strip.strip-top {
+    top: 8px;
+    padding-left: max(8px, var(--fl-safe-area-left));
+    padding-right: max(8px, var(--fl-safe-area-right));
+  }
+  .fl-blockpage-primary {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    height: 100%;
+  }
+  .fl-blockpage-primary .fl-document-tool {
+    min-width: 32px;
+  }
+  .fl-floating-strip.strip-bottom {
+    /* Pane-local edge: the floating layer lives inside the shortened dock
+       (`.fl-main` already ends at the keyboard top) — so this clears only
+       the pane edge plus keyboard-aware safe area (safe area while closed,
+       nothing extra above a docked keyboard), never the keyboard inset
+       again. */
+    bottom: max(8px, var(--fl-keyboard-aware-bottom, 0px));
+    padding-left: max(8px, var(--fl-safe-area-left));
+    padding-right: max(8px, var(--fl-safe-area-right));
+  }
+  .fl-floating-strip.strip-bottom .fl-floating-slot {
+    align-items: flex-end;
+  }
+  .fl-floating-slot {
+    min-width: 0;
+    display: flex;
+    pointer-events: none;
+  }
+  .fl-floating-slot.slot-start {
+    justify-content: flex-start;
+  }
+  .fl-floating-slot.slot-center {
+    justify-content: center;
+  }
+  .fl-contextual-stack {
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 160ms ease-out,
+      visibility 0s linear;
+  }
+  .fl-contextual-stack[data-open='false'] {
+    transform: translateY(calc(-100% - 8px));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 170ms ease-in,
+      opacity 130ms ease-in,
+      visibility 0s linear 170ms;
+  }
+  .fl-floating-slot.slot-end {
+    justify-content: flex-end;
+  }
+  /* Left/right-center anchors hold single isolated islands at the pane's
+     vertical middle; nothing else shares their row. */
+  .fl-floating-slot-float {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: calc(100% - 16px);
+    display: flex;
+    pointer-events: none;
+  }
+  .fl-floating-slot-float.slot-left {
+    left: max(8px, var(--fl-safe-area-left));
+  }
+  .fl-floating-slot-float.slot-right {
+    right: max(8px, var(--fl-safe-area-right));
+  }
+  .fl-selection-toolbar-slot {
+    position: fixed;
+    z-index: 4;
+    max-width: min(520px, calc(100vw - 24px));
+    transform: translate(-50%, calc(-100% - 10px));
+    pointer-events: none;
+  }
+  .fl-selection-toolbar-slot .fl-floating-island {
+    max-width: min(520px, calc(100vw - 24px));
+    /* Viewport-anchored (provider selection coords): stay inside notches
+       and above the software keyboard instead of sliding underneath. */
+    max-height: min(
+      320px,
+      calc(
+        100vh - var(--fl-safe-area-top, 0px) -
+          var(--fl-keyboard-safe-bottom, 0px) - 24px
+      )
+    );
+    overflow: auto;
+  }
+  .fl-selection-toolbar-slot:not(
+    [data-selection-toolbar-kind='froglight.blockpage']
+  ) {
+    position: absolute;
+    transform: none;
+    width: max-content;
+  }
+  .fl-selection-toolbar-slot:not(
+      [data-selection-toolbar-kind='froglight.blockpage']
+    )
+    .fl-floating-island {
+    max-width: 100%;
+  }
+  @media (any-pointer: coarse) {
+    :global(:root[data-fl-keyboard-open='true'])
+      .fl-selection-toolbar-slot[data-selection-toolbar-kind='froglight.blockpage'] {
+      left: 50% !important;
+      top: auto !important;
+      bottom: var(--fl-keyboard-safe-bottom, 0px);
+      transform: translateX(-50%);
+      max-width: calc(100vw - 16px);
+    }
+    :global(:root[data-fl-keyboard-open='true'])
+      .fl-selection-toolbar-slot[data-selection-toolbar-kind='froglight.blockpage']
+      .fl-floating-island {
+      max-width: calc(100vw - 16px);
+    }
+  }
+  .fl-document-tool-choice-icon {
+    position: relative;
+    cursor: pointer;
+  }
+  .fl-document-tool-choice-icon select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  /* One material for all floating document chrome: history, zoom, tool
+     shelf, overflow menus, and the dialogs opened by tool or slot controls. */
+  .fl-floating-island {
+    composes: surface from './DialogSurface.module.css';
+  }
+  .fl-document-tool-popover {
+    composes: surface from './DialogSurface.module.css';
+  }
+  .fl-toolbar-inline-menu {
+    composes: surface from './DialogSurface.module.css';
+  }
+  .fl-floating-island {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    max-width: 100%;
+    /* Reserve the shared row height so contextual tool changes never shift
+       neighboring islands. */
+    min-height: 38px;
+    contain: layout style;
+    padding: 4px 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  /* One authored entrance moment, not eight: only the contextual top-center
+     island (active-tool properties, selection format) appears and disappears
+     as editing context changes, so only it settles in. Persistent chrome —
+     history, navigation, zoom, canvas settings — is simply there, which
+     also stops every tab switch replaying eight simultaneous entrances. */
+  .fl-floating-island[data-anchor='float.top-center'] {
+    animation: fl-floating-island-in var(--fl-motion-fast)
+      var(--fl-ease-standard) both;
+  }
+  .fl-floating-island[data-anchor='float.top-left']:not(
+      :has(button:not(:disabled))
+    ) {
+    display: none;
+  }
+  .fl-tool-shelf {
+    flex: 0 1 auto;
+    border: 0;
+    border-radius: var(--fl-radius-xl);
+    padding: 5px 8px;
+    box-shadow:
+      var(--fl-shadow-medium),
+      inset 0 1px 0
+        color-mix(in srgb, var(--fl-surface-raised) 70%, transparent),
+      inset 0 0 0 1px
+        color-mix(in srgb, var(--fl-border-strong) 55%, transparent);
+  }
+  @supports (
+    (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+  ) {
+    .fl-tool-shelf {
+      background: color-mix(in srgb, var(--fl-surface-raised) 78%, transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(1.25);
+      backdrop-filter: blur(20px) saturate(1.25);
+    }
+  }
+  .fl-tool-shelf-grip {
+    flex: none;
+    border: 0;
+    border-right: 1px solid var(--fl-border-default);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--fl-text-muted);
+    cursor: grab;
+    font-size: 15px;
+    min-width: 20px;
+    min-height: 30px;
+    padding: 0;
+    touch-action: none;
+  }
+  .fl-tool-shelf-grip:active {
+    cursor: grabbing;
+  }
+  .fl-tool-shelf-grip:focus-visible {
+    outline: 2px solid var(--fl-focus-ring);
+  }
+  .fl-docked-tool-menu {
+    position: absolute;
+    z-index: 4;
+    max-width: calc(100% - 20px);
+    pointer-events: none;
+    transition:
+      opacity 150ms ease,
+      visibility 150ms ease;
+  }
+  .fl-docked-tool-menu[data-open='false'] {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .fl-docked-tool-menu[data-dock='right'] {
+    right: max(8px, var(--fl-safe-area-right));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .fl-docked-tool-menu[data-dock='left'] {
+    left: max(8px, var(--fl-safe-area-left));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .fl-docked-tool-menu .fl-tool-shelf {
+    max-width: min(520px, calc(100vw - 20px));
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right']) {
+    max-height: calc(100% - 24px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    pointer-events: auto;
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-xl);
+    box-shadow:
+      var(--fl-shadow-medium),
+      inset 0 1px 0
+        color-mix(in srgb, var(--fl-surface-raised) 70%, transparent);
+  }
+  @supports (
+    (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+  ) {
+    .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right']) {
+      background: color-mix(in srgb, var(--fl-surface-raised) 78%, transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(1.25);
+      backdrop-filter: blur(20px) saturate(1.25);
+    }
+  }
+  .fl-docked-tool-menu:is(
+      [data-dock='left'],
+      [data-dock='right']
+    )::-webkit-scrollbar {
+    display: none;
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right'])
+    .fl-tool-shelf {
+    flex-direction: column;
+    overflow: visible;
+    width: max-content;
+    max-width: 100%;
+    padding: 8px 5px;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right'])
+    :is(.fl-shelf-slots, .fl-shelf-quick) {
+    flex-direction: column;
+    padding-left: 0;
+    padding-top: 8px;
+    border-left: 0;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right'])
+    .fl-tool-shelf-grip {
+    align-self: stretch;
+    border-right: 0;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .fl-tool-shelf-grip + .fl-shelf-slots {
+    border-left: 0;
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right'])
+    .fl-tool-shelf-grip
+    + .fl-shelf-slots {
+    border-top: 0;
+  }
+  .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right'])
+    .fl-tool-shelf
+    > .fl-shelf-slots:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .fl-docked-tool-menu[data-dock='bottom'] {
+    position: relative;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .fl-docked-tool-menu[data-dock='bottom'] .fl-tool-shelf {
+    max-width: 100%;
+  }
+  .fl-docked-tool-menu.fl-tool-menu-drag-preview {
+    position: absolute;
+    z-index: 6;
+    right: auto;
+    bottom: auto;
+    max-width: calc(100% - 20px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+  }
+  .fl-tool-menu-drag-preview .fl-tool-shelf {
+    pointer-events: none;
+  }
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    .fl-tool-shelf,
+    .fl-docked-tool-menu:is([data-dock='left'], [data-dock='right']) {
+      background: var(--fl-surface-raised);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  /* Shelf tools read as one cluster: each item arrives wrapped in its own
+     group, but per-tool hairlines are excess chrome here — quick groups
+     already separate with their own leading divider. */
+  .fl-tool-shelf > .fl-document-tool-group {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .fl-floating-island::-webkit-scrollbar {
+    display: none;
+  }
+  @keyframes fl-floating-island-in {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .fl-contextual-stack,
+    :global(:root:not([data-fl-motion='on'])) .fl-contextual-stack[data-open='false'] {
+      transform: none;
+      transition:
+        opacity 120ms ease-out,
+        visibility 0s linear 120ms;
+    }
+    :global(:root:not([data-fl-motion='on'])) .fl-contextual-stack[data-open='true'] {
+      transition:
+        opacity 120ms ease-out,
+        visibility 0s linear;
+    }
+  }
+  /* Keep the category strip proportionate to the editor header on touch
+     and hybrid hosts. */
+
+  /* Compact projection (matches TOOLBAR_COMPACT_QUERY / COMPACT_MAX_WIDTH):
+     shelf-only contextual properties. The same
+     composition graph projects differently — never a second toolbar row. */
+  @media (max-width: 760px) {
+    .fl-toolbar-categories {
+      justify-content: safe center;
+    }
+    .fl-toolbar-category {
+      min-width: 34px;
+    }
+    .fl-contextual-stack > .fl-floating-island:not(.fl-tool-shelf) {
+      display: none;
+    }
+  }
+  /* Pane-driven compact projection: mirrors the window media
+     query above for narrow panes inside wide windows. The strip carries
+     `data-compact` from the pane-width decision (`useToolbarCompact`),
+     so Split View / Stage Manager panes compact even though the viewport
+     never crosses 760px. The window query stays as the first-paint and
+     no-measurement fallback. */
+  .fl-toolbar-categories[data-compact='true'] {
+    justify-content: safe center;
+  }
+  .fl-toolbar-categories[data-compact='true'] .fl-toolbar-category {
+    min-width: 34px;
+  }
+  /* Geometry notes: anchors never imply a hard-coded feature category.
+     The strips own edge geometry in pane-local coordinates (the keyboard
+     inset is consumed once by `.fl-main`, so every pane inherits the
+     shortened dock and pane children clear only pane edges plus the
+     viewport safe area); top insets skip the window top safe area the shell grid already reserves, and horizontal/bottom insets keep
+     islands reachable around notches and home indicators. Empty slots
+     collapse to zero and cost nothing. */
+  /* Pane-scoped popover layer: one React-owned layer per pane (portal target).
+     Never clips (unlike scrollable islands); popovers position with
+     flip/shift/clamp inside pane bounds and stay reachable. */
+  [data-popover-layer] {
+    pointer-events: none;
+  }
+  [data-popover-layer] .fl-document-tool-popover {
+    pointer-events: auto;
+  }
+  /* Portaled category/shelf More menus ride the same layer: the layer
+     itself stays pointer-transparent (canvas gestures pass through) but
+     every menu must hit-test, or production overflow items are
+     pointer-dead while the layer-less test fallback keeps working. */
+  [data-popover-layer] .fl-toolbar-inline-menu {
+    pointer-events: auto;
+  }
+
+  /* Shared semantic control primitives (see tool-controls.tsx). */
+  .fl-document-tool-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding-right: 7px;
+    border-right: 1px solid var(--fl-border-default);
+    flex: 0 0 auto;
+  }
+  .fl-document-tool-group:last-of-type {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .fl-document-tool {
+    min-width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    /* Compact zoom-reset shows a live % (e.g. 100%); tabular figures keep
+       the island width stable as the value changes. */
+    font-variant-numeric: tabular-nums;
+    /* Immediate tap activation for touch/pen; hover stays supplemental
+ (tooltip/highlight only, never required).*/
+    touch-action: manipulation;
+  }
+  .fl-document-tool:hover:not(:disabled) {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .fl-document-tool[data-reordering='true'] {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+  .fl-document-tool[aria-pressed='true'] {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+  }
+  /* Provider-computed mixed/indeterminate formatting: distinct from active,
+     exposed as `aria-pressed="mixed"` for screen readers. */
+  .fl-document-tool[aria-pressed='mixed'] {
+    color: var(--fl-accent-strong);
+    background: color-mix(in srgb, var(--fl-accent-soft) 55%, transparent);
+    box-shadow: inset 0 0 0 1px var(--fl-accent);
+  }
+  .fl-document-tool:focus-visible,
+  .fl-document-tool-choice select:focus-visible,
+  .fl-document-color:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .fl-document-tool:disabled,
+  .fl-document-tool-choice select:disabled,
+  .fl-document-color:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .fl-document-tool-choice select {
+    height: 30px;
+    max-width: 150px;
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    padding: 0 26px 0 8px;
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-secondary);
+    font: inherit;
+    font-size: 12px;
+  }
+  .fl-document-tool-input {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .fl-document-tool-input input {
+    /* Fluid instead of a hard 148px → 110px swap at 760px, which flashed
+       the island big/small while crossing the phone breakpoint. */
+    width: clamp(110px, 24vw, 148px);
+    height: 30px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 8px;
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-primary);
+    font: inherit;
+    font-size: 12px;
+  }
+  .fl-document-tool-input input:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+  .fl-document-tool-number {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    /* Same AA rationale as .fl-document-tool-status above. */
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .fl-document-tool-number input {
+    width: 68px;
+    height: 30px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 5px;
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-primary);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .fl-toolbar-slider {
+    --fl-slider-width: clamp(80px, 10vw, 132px);
+  }
+  .fl-document-tool-number input:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .fl-document-colors {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .fl-text-color-slot {
+    position: relative;
+    display: inline-flex;
+  }
+  .fl-text-color-picker {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .fl-document-color {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--fl-border-strong);
+    touch-action: manipulation;
+  }
+  .fl-document-color[aria-pressed='true'] {
+    box-shadow:
+      0 0 0 2px var(--fl-surface-raised),
+      0 0 0 4px var(--fl-accent);
+  }
+  /* Tool buttons keep their glyph legible; a live style value (e.g. the pen
+     color) rides along as a small corner badge instead of replacing it. */
+  .fl-document-tool-iconwrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fl-document-tool-badge {
+    position: absolute;
+    right: -4px;
+    bottom: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 2px var(--fl-surface-raised),
+      inset 0 0 0 1px var(--fl-border-strong);
+  }
+  .fl-document-tool-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 1px var(--fl-border-strong);
+  }
+  .fl-document-tool-status {
+    /* Functional micro-label (zoom %, diagnostics state): muted fails AA
+       (2.4:1 light / 3.2:1 dark); secondary passes (5.6:1 / 6.5:1). */
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Focus-preserving submitted-input popover (link + future prompts). The
+     wrapper is inline so the trigger keeps its toolbar position; the dialog
+     floats above without adding a second toolbar row. */
+  .fl-document-tool-popover-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+  .fl-document-tool-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    padding: 6px;
+  }
+  .fl-table-tool-popover form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: min(240px, 75vw);
+  }
+  .fl-table-tool-dimensions {
+    display: flex;
+    gap: 8px;
+  }
+  .fl-table-tool-dimensions .fl-document-tool-number {
+    flex: 1;
+    min-width: 0;
+  }
+  .fl-table-tool-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    font-size: 12px;
+  }
+  .fl-table-tool-popover button[type='submit'] {
+    justify-content: center;
+  }
+  /* Generic diagnostics list popover (LaTeX first; any future diagnostics
+     provider reuses it). Compact scrollable list; entries are full-width
+     buttons when navigable, plain text otherwise. */
+  .fl-document-tool-diagnostics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: min(320px, 70vw);
+    max-height: 240px;
+    overflow: auto;
+  }
+  .fl-document-tool-diagnostics li {
+    display: flex;
+    min-width: 0;
+  }
+  .fl-document-tool-diagnostics .fl-document-tool {
+    justify-content: flex-start;
+    text-align: start;
+    white-space: normal;
+  }
+  /* Active-tool settings popover (slice 8): one labeled row per property
+     group (type/size/color/pressure/…), stacking vertically so selects,
+     swatch rows, sliders, and toggles keep touch-sized targets without a
+     second toolbar row. */
+  .fl-tool-settings-popover {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-width: min(280px, 70vw);
+    max-width: min(340px, 86vw);
+    max-height: min(60vh, 420px);
+    overflow: auto;
+    padding: 10px 12px;
+  }
+  /* Tool-specific settings and slot editors share the same compact surface.
+     Segmented rows reuse toolbar buttons and their touch/focus behavior. */
+  .fl-slot-edit-popover .fl-document-tool-status {
+    margin: 0;
+  }
+  .fl-slot-edit-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fl-tool-settings-title {
+    margin: 0;
+    color: var(--fl-text-primary);
+    font-size: 14px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Direct flex item of the scrolling popover: `overflow: hidden`
+       zeroes its automatic minimum size, so without this it flex-shrinks
+       to zero height exactly when content overflows (rich saved styles) —
+       the one state where the title matters most. */
+    flex: 0 0 auto;
+  }
+  .fl-tool-settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .fl-segmented-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fl-size-readout {
+    color: var(--fl-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+  .fl-color-more {
+    align-self: flex-start;
+  }
+  /* Contextual shelf quick cells: favorite styles,
+     quick widths/colors, eraser/lasso mode — bounded groups separated by
+     a divider, reusing `.fl-document-tool` hit targets. */
+  .fl-shelf-quick {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 0;
+    padding-left: 8px;
+    border-left: 1px solid var(--fl-border-default);
+  }
+  .fl-eraser-size-glyph {
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+  .fl-width-bar {
+    display: block;
+    width: 26px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  /* GoodNotes-style fixed slot shelf: one
+     single-row icon-first group per slot family. Fixed positions in
+     verbatim composition order — empty placeholders keep their width so
+     assigning a slot never shifts siblings. Lives inside the floating
+     shelf island (which owns scrolling); this row itself never wraps and
+     never creates a second row. Triggers reuse `.fl-document-tool`, so
+     compact geometry, `:focus-visible` rings, and pressed washes
+     apply unchanged. Token-only: `var(--fl-*)` throughout. */
+  .fl-shelf-slots {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    padding-left: 8px;
+    border-left: 1px solid var(--fl-border-default);
+  }
+  .fl-tool-shelf > .fl-shelf-slots:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  /* Fixed slot geometry: every inline trigger — live or
+     placeholder — shares one fixed box, so assigning a slot never shifts
+     siblings. Child combinators scope the box to inline triggers only:
+     portaled dialogs (and the inline portal fallback in tests) render
+     deeper and keep their own layout. */
+  .fl-shelf-slots > .fl-document-tool,
+  .fl-shelf-slots > .fl-document-tool-popover-wrap > .fl-document-tool {
+    width: 32px;
+    min-width: 32px;
+    flex: 0 0 auto;
+    padding: 0;
+    overflow: hidden;
+  }
+  .fl-shelf-slot-empty {
+    border: 1px dashed var(--fl-border-default);
+    background: transparent;
+    color: var(--fl-text-secondary);
+  }
+
+  .fl-tool-settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fl-tool-settings-popover .fl-tool-settings-group {
+    padding: 4px 0;
+  }
+  .fl-tool-settings-popover .fl-toolbar-slider {
+    --fl-slider-width: 100%;
+  }
+  .fl-tool-settings-popover .fl-tool-settings-group:has(> button) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .fl-tool-settings-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+  }
+  /* Reduced motion: contextual appearance must not distract. */
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .fl-floating-island,
+    :global(:root:not([data-fl-motion='on'])) .fl-floating-island[data-anchor='float.top-center'] {
+      animation: none;
+    }
+  }
+}

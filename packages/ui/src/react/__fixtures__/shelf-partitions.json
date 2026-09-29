@@ -1,0 +1,190 @@
+{
+  "$comment": "F4 linkage fixture (T4-REPAIR): React partition source of truth for geometry proofs. Cells/budgets MUST deep-equal estimateShelfCells/estimateShelfQuickBudgets/shelfCapacityBudget output (pinned by the F4 block in toolbar-touch-medium.spec.tsx); scenarios MUST deep-equal the rendered CompositionShelf partition per paneWidth (same block). Regenerate intentionally after any estimator/planner/shelf change — never hand-edit values. Playwright (apps/web/tests/toolbar-touch-medium.spec.ts) builds shelf/menu HTML from `scenarios` and asserts geometry, so a React change fails Vitest first and can never silently diverge from the harness.",
+  "writeShelf": {
+    "_comment": "Pen-active shelf: four pen tools + 2 favorites + 3 widths + 5 colors. Selected tool opens settings; no gear cell.",
+    "toolIds": [
+      "ink.tool.pen",
+      "ink.tool.fountain",
+      "ink.tool.brush",
+      "ink.tool.pencil"
+    ],
+    "activeToolId": "ink.tool.pen",
+    "cells": {
+      "touch": [
+        {
+          "id": "shelf:tool:ink.tool.pen",
+          "order": 0,
+          "priority": 100,
+          "width": 34,
+          "required": true
+        },
+        {
+          "id": "shelf:tool:ink.tool.fountain",
+          "order": 1,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:tool:ink.tool.brush",
+          "order": 2,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:tool:ink.tool.pencil",
+          "order": 3,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:favorites",
+          "order": 4,
+          "priority": 70,
+          "width": 136,
+          "required": false
+        },
+        {
+          "id": "shelf:widths",
+          "order": 5,
+          "priority": 60,
+          "width": 106,
+          "required": false
+        },
+        {
+          "id": "shelf:colors",
+          "order": 6,
+          "priority": 55,
+          "width": 133,
+          "required": false
+        }
+      ],
+      "fine": [
+        {
+          "id": "shelf:tool:ink.tool.pen",
+          "order": 0,
+          "priority": 100,
+          "width": 34,
+          "required": true
+        },
+        {
+          "id": "shelf:tool:ink.tool.fountain",
+          "order": 1,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:tool:ink.tool.brush",
+          "order": 2,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:tool:ink.tool.pencil",
+          "order": 3,
+          "priority": 90,
+          "width": 34,
+          "required": false
+        },
+        {
+          "id": "shelf:favorites",
+          "order": 4,
+          "priority": 70,
+          "width": 136,
+          "required": false
+        },
+        {
+          "id": "shelf:widths",
+          "order": 5,
+          "priority": 60,
+          "width": 106,
+          "required": false
+        },
+        {
+          "id": "shelf:colors",
+          "order": 6,
+          "priority": 55,
+          "width": 133,
+          "required": false
+        }
+      ]
+    },
+    "budgets": {
+      "touch": {
+        "390": 174,
+        "500": 284,
+        "768": 552,
+        "820": 604,
+        "834": 618,
+        "1024": 808,
+        "1400": 1184
+      },
+      "fine": {
+        "390": 174,
+        "500": 284,
+        "768": 552,
+        "820": 604,
+        "834": 618,
+        "1024": 808,
+        "1400": 1184
+      }
+    }
+  },
+  "scenarios": {
+    "_comment": "Rendered CompositionShelf partitions (aria-labels, document order). Selected tool opens settings; inlineSettings is null. Quicks are ShelfQuickGroup labels.",
+    "768-touch": {
+      "paneWidth": 768,
+      "touch": true,
+      "compact": false,
+      "inlineTools": ["Ball Pen", "Fountain Pen", "Brush Pen", "Pencil"],
+      "inlineSettings": null,
+      "inlineQuicks": ["Favorite styles", "Quick widths", "Quick colors"],
+      "menuTools": [],
+      "menuQuicks": [],
+      "moreVisible": false
+    },
+    "1024-touch": {
+      "paneWidth": 1024,
+      "touch": true,
+      "compact": false,
+      "inlineTools": ["Ball Pen", "Fountain Pen", "Brush Pen", "Pencil"],
+      "inlineSettings": null,
+      "inlineQuicks": ["Favorite styles", "Quick widths", "Quick colors"],
+      "menuTools": [],
+      "menuQuicks": [],
+      "moreVisible": false
+    },
+    "500-touch": {
+      "paneWidth": 500,
+      "touch": true,
+      "compact": true,
+      "inlineTools": ["Ball Pen", "Fountain Pen", "Brush Pen", "Pencil"],
+      "inlineSettings": null,
+      "inlineQuicks": ["Quick widths"],
+      "menuTools": [],
+      "menuQuicks": ["Favorite styles", "Quick colors", "Edit quick colors"],
+      "moreVisible": true
+    },
+    "390-touch": {
+      "paneWidth": 390,
+      "touch": true,
+      "compact": true,
+      "inlineTools": ["Ball Pen", "Fountain Pen", "Brush Pen", "Pencil"],
+      "inlineSettings": null,
+      "inlineQuicks": [],
+      "menuTools": [],
+      "menuQuicks": [
+        "Favorite styles",
+        "Quick widths",
+        "Edit quick widths",
+        "Quick colors",
+        "Edit quick colors"
+      ],
+      "moreVisible": true
+    }
+  }
+}

@@ -1,0 +1,110 @@
+/* Launcher sign-in dialog. Uses shared shell tokens and account form controls. */
+@layer components {
+  .backdrop {
+    z-index: 1000;
+  }
+  .dialog {
+    composes: frame from './DialogSurface.module.css';
+    composes: surface from './DialogSurface.module.css';
+    position: relative;
+    width: min(420px, 100%);
+    max-height: 100%;
+    overflow: hidden;
+    padding: 28px;
+  }
+  .header {
+    display: block;
+    padding-right: 28px;
+  }
+  .close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+  .mark {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 14px;
+  }
+  .mark :global(.froglight-frog-mark) {
+    width: 100%;
+    height: 100%;
+  }
+  .dialog h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+  .intro {
+    margin: 7px 0 22px;
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .dialog :global([data-fl-component='account-settings']) {
+    width: 100%;
+  }
+  .dialog :global([data-testid='account-email-input']),
+  .dialog :global([data-testid='account-password-input']) {
+    width: 100%;
+    max-width: none;
+  }
+  .dialog :global([data-testid='account-sign-in-submit']),
+  .dialog :global([data-testid='account-create-submit']) {
+    width: 100%;
+    min-height: 38px;
+  }
+  /* Scroll-container focus allowance. DialogBody is `overflow-y: auto`,
+     so the input focus halo (globals `box-shadow` ring) would clip at the
+     body's inline edges — the cut outline in the report. 4px of inner
+     padding reserves ring room; the -4px margin keeps the content box (and
+     input width) visually identical inside the 28px dialog padding. */
+  .content {
+    padding: 4px;
+    margin: -4px;
+  }
+  .unavailableForm {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .unavailableForm label {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .unavailableForm input {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-input);
+    color: var(--fl-text-muted);
+  }
+  /* Appearance comes from the shared Button (variant=primary); this rule
+     only keeps the fallback submit full-width like the live form. */
+  .unavailableForm :global([data-fl-component='button']) {
+    width: 100%;
+    min-height: 38px;
+    margin-top: 2px;
+  }
+  @media (max-width: 520px) {
+    .dialog {
+      width: 100%;
+      max-height: 100%;
+      padding: 24px max(20px, var(--fl-safe-area-right, 0px))
+        calc(24px + var(--fl-safe-area-bottom, 0px))
+        max(20px, var(--fl-safe-area-left, 0px));
+    }
+  }
+  @media (any-pointer: coarse) {
+    .close,
+    .dialog :global([data-testid='account-sign-in-submit']),
+    .dialog :global([data-testid='account-create-submit']) {
+      min-height: 44px;
+    }
+  }
+}

@@ -1,0 +1,122 @@
+/* Block page host — CSS module colocated with BlockpageHostSkeleton.tsx
+   and owned by the block page editor provider. The React skeleton renders
+   the local host class; ProseMirror-owned DOM (`.ProseMirror` surface) is
+   matched through functional `:global()` hooks scoped under the local
+   host where the engine guarantees ancestry. Engine-emitted content hooks
+   (`.flbp-block`, `.flbp-content`, handle, table, image, opaque, …) live
+   in the plain provider stylesheet styles/prose-mirror.css: only local
+   classes ship reliably from CSS modules in production builds, while
+   plain stylesheets ship every rule. Third-party ProseMirror-owned DOM
+   stays exempt from the React rule; only the visible host wrapper is
+   component-owned.
+   Classes owned: froglight-blockpage (local) + scoped ProseMirror hooks.
+   Vars consumed: --fl-surface-*, --fl-text-*, --fl-border-*,
+   --fl-radius-*, --fl-accent-*, --fl-danger-*, --fl-font-*,
+   --fl-editor-font-size, --fl-motion/--fl-ease-*. Hosts:
+   react/BlockpageHostSkeleton.tsx.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .froglight-blockpage {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    background: var(--fl-surface-editor);
+    color: var(--fl-text-primary);
+    font-family: var(--fl-font-sans);
+    /* Responsive editor geometry must follow the pane, not the viewport:
+       split panes can be narrow inside a wide desktop window. */
+    container-type: inline-size;
+    container-name: flbp-pane;
+    padding: 0 clamp(20px, 8%, 76px) 45vh;
+    /* Reserve the complete side-control gutter, including collapse. Every
+       block shares this measure so toggles never shift their text to make room. */
+    padding-inline-start: max(96px, 8%);
+    animation: fl-fade-in var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  @media (hover: none), (pointer: coarse) {
+    .froglight-blockpage {
+      padding-inline-start: max(144px, 8%);
+    }
+  }
+  @keyframes fl-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  /* The block page shares the writing column: same centered measure as the
+     CodeMirror host so switching families never moves the margins. The
+     ProseMirror surface is a flex child of the editor area, so it needs
+     explicit sizing or an empty page collapses to zero width. */
+  .froglight-blockpage :global(.ProseMirror) {
+    flex: 1;
+    min-width: 0;
+    /* DocumentName uses the same measure and editor font metrics. */
+    max-width: 71.36ch;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: var(--fl-editor-font-size, 16px);
+    line-height: 1.65;
+    color: var(--fl-text-primary);
+  }
+  .froglight-blockpage :global(.ProseMirror) ::selection {
+    background: var(--fl-accent-soft);
+  }
+  /* ProseMirror block rhythm, headings, and list geometry are owned by
+     styles/prose-mirror.css. Keep this module focused on the React host and
+     non-overlapping scoped presentation so cascade order cannot fork metrics. */
+  .froglight-blockpage :global(.ProseMirror) blockquote {
+    border-inline-start: 2px solid var(--fl-border-strong);
+    padding-inline-start: 14px;
+    margin-block: 0.8em;
+    color: var(--fl-text-secondary);
+  }
+  .froglight-blockpage :global(.ProseMirror) pre {
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-lg);
+    padding: 12px 16px;
+    font-family: var(--fl-font-mono);
+    font-size: 0.86em;
+    line-height: 1.62;
+    overflow-x: auto;
+  }
+  .froglight-blockpage :global(.ProseMirror) code {
+    font-family: var(--fl-font-mono);
+    font-size: 0.85em;
+    background: var(--fl-surface-sunken);
+    border-radius: var(--fl-radius-sm);
+    padding: 2px 5px;
+    color: var(--fl-text-primary);
+  }
+  .froglight-blockpage :global(.ProseMirror) pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  .froglight-blockpage :global(.ProseMirror) hr {
+    border: 0;
+    border-top: 1px solid var(--fl-border-strong);
+    margin: 10px 0;
+  }
+  .froglight-blockpage :global(.ProseMirror) li::marker {
+    color: var(--fl-text-secondary);
+  }
+  .froglight-blockpage :global(.ProseMirror) figure {
+    margin: 6px 0;
+  }
+
+  /* Editor content areas must remain selectable despite the shell's global
+     no-select reset. */
+  .froglight-blockpage :global(.ProseMirror) {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}

@@ -1,0 +1,39 @@
+/* Froglight design tokens — the stable public theme API.
+   A "theme" assigns values to these `--fl-*` names and nothing else:
+   no selectors, no structure, no layout geometry. Components consume
+   these variables and never redefine them (see theme-shell.spec.ts).
+   Semantic names, not palette names: a theme may radically change its
+   visual language without touching component CSS.
+   Categories: theme tokens (color/surface/text/accent/border/depth/
+   radius/motion/typography) are theme-overridable — mode-dependent color
+   worlds live in `themes/light.css` and `themes/dark.css`. Layout metrics
+   live in `styles/layout.css` and platform environment in
+   `platform/platform.css`; themes must not change geometry.
+   Private component variables use the `--_*` namespace and are never
+   part of this contract. */
+
+/* Mode-independent tokens: radii, motion, and type are identical in both
+   worlds, so they live here rather than being duplicated per theme. */
+:root {
+  /* Geometry (theme-overridable radii only; sidebar/tab geometry lives in
+     styles/layout.css and is not theme API) */
+  --fl-radius-sm: 4px;
+  --fl-radius-md: 6px;
+  --fl-radius-lg: 8px;
+  --fl-radius-xl: 12px;
+
+  /* Type */
+  --fl-font-sans:
+    'Inter var', 'Inter', -apple-system, BlinkMacSystemFont,
+    'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --fl-font-mono:
+    ui-monospace, 'JetBrains Mono', 'Fira Code', 'Cascadia Mono', monospace;
+  --fl-editor-font-size: 16px;
+
+  /* Motion — one quiet system */
+  --fl-motion-fast: 120ms;
+  --fl-motion-normal: 180ms;
+  --fl-motion-slow: 280ms;
+  --fl-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --fl-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}

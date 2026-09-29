@@ -1,0 +1,75 @@
+/**
+ * Froglight Pro vault sync — Cloud Storage Security Rules (plan1 §36–§38).
+ *
+ * Data plane: immutable manifests + content-addressed blobs at
+ * `users/{uid}/vaults/{cloudVaultId}/{blobs,manifests}/...` (plan1 §20).
+ * Per-user/per-vault isolation — no global cross-user blob dedup
+ * (plan1 §20): isolation and simple rules beat theoretical savings.
+ *
+ * Authorization model (mirrors Firestore):
+ *
+ * - Reads (`get`, `list`) require the authenticated owner only, so an
+ *   expired subscription never blocks recovery of the cloud replica
+ *   (plan1 §37).
+ * - Writes require the authenticated owner AND the trusted RevenueCat
+ *   `revenueCatEntitlements` custom claim containing `"pro"`.
+ * - Deletes are denied in V1 (plan1 §79).
+ *
+ * Object constraints (plan1 §36):
+ *
+ * - Blobs: raw content hash hex names (`^[0-9a-f]{64}$`), ≤ 512 MiB.
+ * - Manifests: `<revision>-<hash>.json` names, JSON content type,
+ *   ≤ 8 MiB. These bounds mirror `SYNC_LIMITS` in
+ *   `packages/foundation/src/sync/manifest.ts`; change them together.
+ */
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Authenticated owner of the UID path segment.
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Trusted Pro entitlement (RevenueCat Firebase Extension custom
+    // claim). In CEL, `in` tests list membership and map-key presence;
+    // both guards must pass or the write is denied.
+    function hasProEntitlement() {
+      return request.auth != null
+        && 'revenueCatEntitlements' in request.auth.token
+        && 'pro' in request.auth.token.revenueCatEntitlements;
+    }
+
+    // Content-addressed blob objects: hex digest names, bounded size.
+    // Blobs and manifests are immutable: only `create` is allowed, never
+    // `update` — overwriting a content-addressed object would break the
+    // hash contract every replica verifies (plan1 §76). The
+    // `resource == null` conjunct states the immutability in the rule
+    // itself (an existing object is never writable), independent of how a
+    // client classifies the write.
+    match /users/{uid}/vaults/{vaultId}/blobs/{hash} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && hasProEntitlement()
+        && resource == null
+        && hash.matches('^[0-9a-f]{64}$')
+        && request.resource.size <= 512 * 1024 * 1024;
+      allow update, delete: if false;
+    }
+
+    // Immutable versioned manifests: `<revision>-<hash>.json`, JSON only.
+    // `resource == null` states the immutability in the rule itself (see
+    // the blob match above).
+    match /users/{uid}/vaults/{vaultId}/manifests/{file} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && hasProEntitlement()
+        && resource == null
+        && file.matches('^[1-9][0-9]*-[0-9a-f]{64}\\.json$')
+        && request.resource.contentType == 'application/json'
+        && request.resource.size <= 8 * 1024 * 1024;
+      allow update, delete: if false;
+    }
+  }
+}

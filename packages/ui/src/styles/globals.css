@@ -1,0 +1,194 @@
+/* Froglight global defaults — element resets and unlayered document
+   behavior. No tokens are defined here and no component structure lives
+   here: this layer sits above tokens and below components, so component
+   rules always win structurally. Values are consumed through the
+   canonical `--fl-*` token API. */
+
+* {
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
+}
+/* Make non-editor descendants inherit the shell's selection policy. Keep this
+   below component rules so editor providers can opt back into text selection. */
+@layer globals {
+  * {
+    -webkit-user-select: inherit;
+    user-select: inherit;
+  }
+}
+html {
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+html,
+body,
+#app {
+  width: 100%;
+  overflow-x: clip;
+}
+html,
+body {
+  height: 100%;
+}
+#app {
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  overflow: clip;
+}
+body {
+  margin: 0;
+  font-family: var(--fl-font-sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  background: var(--fl-surface-sidebar);
+  color: var(--fl-text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+  /* Native-feel chrome: the shell is not selectable. Only editor surfaces,
+     previews, and explicit text fields opt back into selection. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+::selection {
+  background: color-mix(in srgb, var(--fl-accent) 22%, transparent);
+}
+/* Outline only — the ring must never mutate the control's own shape. */
+:focus-visible {
+  outline: 2px solid var(--fl-accent);
+  outline-offset: 1px;
+}
+
+/* Quiet overlay-style scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--fl-border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--fl-border-strong);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  border-width: 2px;
+}
+*::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+input,
+select {
+  background: var(--fl-surface-input);
+  border: 1px solid var(--fl-border-strong);
+  border-radius: var(--fl-radius-md);
+  padding: 6px 10px;
+  min-height: 32px;
+  transition:
+    border-color var(--fl-motion-fast) var(--fl-ease-standard),
+    box-shadow var(--fl-motion-fast) var(--fl-ease-standard);
+  -webkit-user-select: text;
+  user-select: text;
+}
+input:hover,
+select:hover {
+  border-color: color-mix(in srgb, var(--fl-text-primary) 30%, transparent);
+}
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--fl-accent);
+  box-shadow: 0 0 0 2.5px var(--fl-accent-soft);
+}
+input::placeholder {
+  color: var(--fl-text-secondary);
+}
+
+kbd {
+  font-family: var(--fl-font-sans);
+  font-size: 10.5px;
+  font-weight: 550;
+  color: var(--fl-text-muted);
+  background: var(--fl-surface-sunken);
+  border: 1px solid var(--fl-border-default);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* Icon system hook (see react/Icon.tsx) and screen-reader utility. Global
+   by design: icons render in every component including third-party hosts. */
+.froglight-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-fl-motion='on']) *,
+  :root:not([data-fl-motion='on']) *::before,
+  :root:not([data-fl-motion='on']) *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Explicit Off also overrides a system that allows motion. Preserve final
+   states while suppressing animation, transitions and smooth scrolling. */
+:root[data-fl-motion='off'],
+:root[data-fl-motion='off'] *,
+:root[data-fl-motion='off'] *::before,
+:root[data-fl-motion='off'] *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}

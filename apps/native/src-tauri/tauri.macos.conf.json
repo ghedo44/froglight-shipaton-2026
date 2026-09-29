@@ -1,0 +1,14 @@
+{
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Froglight",
+        "width": 900,
+        "height": 700,
+        "decorations": true,
+        "titleBarStyle": "Overlay"
+      }
+    ]
+  }
+}

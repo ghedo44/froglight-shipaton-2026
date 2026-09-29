@@ -1,0 +1,65 @@
+/* LaTeX source-editor skeleton — CSS module colocated with
+   LatexEditorSkeleton.tsx and owned by the codemirror editor provider.
+   The React skeleton renders the wrapper and a single source pane; the
+   engine mounts the CodeMirror view into the source pane. Diagnostic and
+   status information lives in the unified toolbar as semantic controls, so
+   edit mode keeps no permanent provider-owned strip.
+   Classes owned: froglight-latex-editor, froglight-latex-source
+   (stable global hooks consumed by the engine and tests; scoped under @layer components).
+   Third-party CodeMirror-owned DOM (`.cm-*`) is matched through descendant
+   hooks scoped under the source pane — engine internals stay exempt from
+   the React rule; only the visible source wrapper is component-owned.
+   Hosts: react/LatexEditorSkeleton.tsx.
+   This file must not define :root tokens. */
+@layer components {
+  .froglight-latex-editor {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  /* Quiet, theme-aware source ink. No shared CM selectors or palette overrides. */
+  .froglight-latex-source .fl-latex-command {
+    color: var(--fl-accent-strong);
+  }
+  .froglight-latex-source .fl-latex-atom {
+    color: var(--fl-accent-strong);
+    font-weight: 600;
+  }
+  .froglight-latex-source .fl-latex-math {
+    color: color-mix(in srgb, var(--fl-success) 80%, var(--fl-text-primary));
+    font-style: italic;
+  }
+  .froglight-latex-source .fl-latex-comment {
+    color: var(--fl-text-secondary);
+    font-style: italic;
+  }
+  .froglight-latex-source .fl-latex-literal,
+  .froglight-latex-source .fl-latex-bracket {
+    color: var(--fl-text-secondary);
+  }
+  .froglight-latex-source {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  /* Scroll ownership (mirrors the Markdown host reference): the source
+     pane is the flex-constrained box, the CodeMirror editor fills it, and
+     only `.cm-scroller` scrolls — vertical scrolling falls out of the
+     engine base (`overflow-x: auto` computes `overflow-y` to `auto`), so no
+     provider `overflow-y` rule may compete. Internal headspace keeps
+     unscrolled first lines clear of the islands, then scrolls beneath them;
+     end pasture (45vh) keeps final lines reachable. The engine theme owns
+     the writing measure so its unlayered layout rules cannot override it. */
+  .froglight-latex-source .cm-editor {
+    height: 100%;
+    min-height: 0;
+  }
+  .froglight-latex-source .cm-scroller {
+    padding: max(44px, var(--_fl-editor-floating-top, 0px)) 0 45vh;
+  }
+}

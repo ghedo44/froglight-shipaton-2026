@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "declaration": true, "emitDeclarationOnly": false },
+  "exclude": ["src/**/*.spec.ts"],
+  "references": [{ "path": "../foundation/tsconfig.lib.json" }]
+}

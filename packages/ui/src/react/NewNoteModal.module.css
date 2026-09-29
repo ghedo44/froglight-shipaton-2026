@@ -1,0 +1,211 @@
+/* New-note picker — CSS module colocated with NewNoteModal.tsx.
+   Imported explicitly by the component (`import styles from
+   './NewNoteModal.module.css'`); correctness comes from the `components`
+   cascade layer, never source order.
+   Classes owned: new-note-backdrop/new-note/input/kinds (+role=radio
+   states)/icon (+future)/kind-main/label/description/side/ext/soon/
+   footer/hints/actions. Vars consumed: --fl-surface-*, --fl-text-*,
+   --fl-border-*, --fl-radius-*, --fl-shadow-*, --fl-font-*,
+   --fl-motion/--fl-ease-*, --fl-accent-*, --fl-safe-area-*,
+   --fl-keyboard-*. Hosts:
+   react/NewNoteModal.tsx. The phone bottom-sheet rules moved here from
+   shell/responsive.css with the component.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .new-note-backdrop { z-index: 1100; }
+  .new-note {
+    composes: surface from './DialogSurface.module.css';
+    width: min(460px, 100%);
+    /* Tall pickers never exceed the usable content box: short pickers stay
+       content-sized, tall pickers scroll internally. */
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .new-note-input {
+    flex-shrink: 0;
+    width: 100%;
+    height: 54px;
+    border: none;
+    border-bottom: 1px solid var(--fl-border-default);
+    border-radius: 0;
+    background: transparent;
+    font-size: 16.5px;
+    font-weight: 550;
+    letter-spacing: -0.01em;
+    padding: 0 18px;
+  }
+  .new-note-input:focus-visible {
+    box-shadow: none;
+  }
+  .new-note-input::placeholder {
+    font-weight: 450;
+  }
+  .new-note-kinds [role='radio']:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .new-note-kinds {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px;
+    display: grid;
+    gap: 2px;
+  }
+  .new-note-kinds [role='radio'] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    min-height: 52px;
+    border-radius: var(--fl-radius-lg);
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .new-note-kinds [role='radio'][data-available='true']:hover,
+  .new-note-kinds [role='radio'][data-selected='true'] {
+    background: var(--fl-surface-hover);
+  }
+  .new-note-kinds [role='radio'][data-selected='true'] {
+    background: var(--fl-accent-soft);
+  }
+  .new-note-icon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    color: var(--fl-text-muted);
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      border-color var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .new-note-icon.future {
+    border-style: dashed;
+    background: transparent;
+  }
+  .new-note-kinds [role='radio'][data-selected='true'] .new-note-icon {
+    color: var(--fl-accent-strong);
+    border-color: color-mix(in srgb, var(--fl-accent-strong) 32%, transparent);
+    background: var(--fl-surface-raised);
+  }
+  .new-note-kind-main {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+  .new-note-kind-label {
+    font-size: 13.5px;
+    font-weight: 550;
+    color: var(--fl-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .new-note-kind-description {
+    font-size: 11.5px;
+    color: var(--fl-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .new-note-kind-side {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .new-note-ext {
+    font-family: var(--fl-font-mono);
+    font-size: 10.5px;
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-sm);
+    padding: 2px 6px;
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      border-color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .new-note-kinds [role='radio'][data-selected='true'] .new-note-ext {
+    color: var(--fl-accent-strong);
+    background: var(--fl-surface-raised);
+    border-color: color-mix(in srgb, var(--fl-accent-strong) 32%, transparent);
+  }
+  .new-note-soon {
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fl-text-muted);
+    border: 1px solid var(--fl-border-strong);
+    border-radius: 999px;
+    padding: 3px 9px;
+  }
+  .new-note-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .new-note-hints {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--fl-text-muted);
+  }
+  .new-note-hints span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .new-note-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  @media (max-width: 760px) {
+    /* Narrow screens retain the shared dialog placement; touch targets grow. */
+    .new-note {
+      width: min(480px, calc(100% - 20px));
+    }
+    .new-note-input {
+      height: 56px;
+      padding: 0 16px;
+    }
+    .new-note-kinds [role='radio'] {
+      min-height: 60px;
+      padding: 10px 12px;
+      align-items: center;
+    }
+    .new-note-icon {
+      width: 40px;
+      height: 40px;
+    }
+    .new-note-kind-main {
+      gap: 2px;
+    }
+    .new-note-kind-description {
+      white-space: normal;
+    }
+    .new-note-hints {
+      display: none;
+    }
+    .new-note-footer {
+      justify-content: flex-end;
+    }
+  }
+}

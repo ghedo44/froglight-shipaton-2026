@@ -1,0 +1,12 @@
+/* Froglight cascade layers — declared exactly once.
+   Precedence comes from this order, never from import or concatenation
+   order: public tokens first, global element defaults next, component
+   structure above globals, window-geometry platform overrides above
+   components, runtime token overrides above everything structural.
+   This file is imported for its side effect at the top of both package
+   entries (`src/index.ts`, `src/react/index.ts`) so the declaration is
+   the first layered rule in the static bundle: layer order follows first
+   declaration, and a runtime-injected `<style>` can never reorder it.
+   `themeLayerOrder` in `src/theme.ts` mirrors this list for the runtime
+   bundle (pinned by `theme-shell.spec.ts`); edit both together. */
+@layer tokens, globals, components, platform, theme-overrides;

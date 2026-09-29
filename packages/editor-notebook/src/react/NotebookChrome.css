@@ -1,0 +1,209 @@
+/* Notebook pager chrome — provider stylesheet colocated with NotebookChrome.tsx
+   and owned by the notebook editor provider. The React chrome renders the
+   stable pager structure; the engine appends engine-owned dynamic content
+   (page shells, empty notes, PDF bases, ink surfaces)
+   into it and never re-renders the stable nodes.
+   Classes owned: fl-nb, fl-nb-main, fl-nb-scroll, fl-nb-stack, fl-nb-shell,
+   fl-nb-pdf-base, fl-nb-pdf-placeholder, fl-nb-empty,
+   fl-nb-pdf-import-error
+   (stable global hooks consumed by the engine and tests; scoped under @layer components).
+   Hosts: react/NotebookChrome.tsx.
+   This file must not define :root tokens. */
+@layer components {
+  .fl-nb {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    outline: none;
+    background: var(--fl-surface-app, #fff);
+    font-family: var(--fl-font-sans, -apple-system, system-ui, sans-serif);
+    color: var(--fl-text-primary, #37352f);
+  }
+  .fl-nb-main {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--fl-surface-app, #fff);
+  }
+  .fl-nb-scroll {
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+    padding: max(28px, var(--_fl-editor-floating-top, 0px))
+      clamp(20px, 5vw, 72px) 28px;
+    scroll-padding-top: max(28px, var(--_fl-editor-floating-top, 0px));
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
+  .fl-nb-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    --fl-nb-gap-base: 28px;
+    gap: calc(var(--fl-nb-gap-base) * var(--fl-nb-zoom, 1));
+    min-width: 100%;
+    width: max-content;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+  .fl-nb-pull-add {
+    position: absolute;
+    left: 50%;
+    z-index: 7;
+    --fl-pull-progress: 0;
+    --fl-pull-edge: 1;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    opacity: var(--fl-pull-progress);
+    transform: translate(
+        -50%,
+        calc(var(--fl-pull-edge) * -64px * var(--fl-pull-progress))
+      )
+      scale(calc(0.45 + 0.55 * var(--fl-pull-progress)));
+    border-radius: var(--fl-radius-pill, 999px);
+    background: var(--fl-surface-raised, #fff);
+    color: var(--fl-accent-strong, #604ae0);
+    box-shadow: var(--fl-shadow-medium, 0 4px 16px rgba(0, 0, 0, 0.14));
+    transition:
+      background-color 160ms ease-out,
+      color 160ms ease-out;
+    pointer-events: none;
+  }
+  .fl-nb-pull-add[hidden] {
+    display: none;
+  }
+  .fl-nb-pull-add[data-edge='top'] {
+    --fl-pull-edge: -1;
+    top: calc(max(28px, var(--_fl-editor-floating-top, 0px)) + 12px);
+  }
+  .fl-nb-pull-add[data-edge='bottom'] {
+    bottom: 72px;
+  }
+  .fl-nb-pull-add[data-armed='true'] {
+    background: var(--fl-accent-strong, #604ae0);
+    color: var(--fl-accent-contrast, #fff);
+  }
+  .fl-nb-pull-add svg {
+    grid-area: 1 / 1;
+    width: 24px;
+    height: 24px;
+    transition:
+      opacity 150ms ease-out,
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fl-nb-pull-add[data-edge='top'] .fl-nb-pull-add-arrow {
+    rotate: 180deg;
+  }
+  .fl-nb-pull-add-page {
+    opacity: 0;
+    transform: translateY(6px) scale(0.7);
+  }
+  .fl-nb-pull-add[data-armed='true'] .fl-nb-pull-add-arrow {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.7);
+  }
+  .fl-nb-pull-add[data-armed='true'] .fl-nb-pull-add-page {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .fl-nb-pull-add-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fl-nb-pull-add {
+      transform: translateX(-50%);
+    }
+    .fl-nb-pull-add svg {
+      transition: opacity 100ms ease-out;
+      transform: none !important;
+    }
+  }
+  .fl-nb-shell {
+    position: relative;
+    flex: 0 0 auto;
+    width: 840px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--fl-border-strong, rgba(55, 53, 47, 0.16));
+    box-shadow:
+      0 8px 28px rgba(32, 29, 24, 0.13),
+      0 1px 4px rgba(32, 29, 24, 0.08);
+    margin: 0 auto;
+  }
+  .fl-nb-pdf-base {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: #fff;
+    overflow: hidden;
+  }
+  .fl-nb-pdf-base[data-recovery='true'] {
+    background: transparent;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .fl-nb-pdf-base[data-recovery='true'] .fl-nb-pdf-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .fl-nb-pdf-unlock {
+    pointer-events: auto;
+    min-height: 44px;
+    padding: 0 16px;
+    margin: 12px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+  .fl-nb-pdf-unlock:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+  .fl-nb-pdf-placeholder {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+    color: var(--fl-text-secondary, #777);
+  }
+  .fl-nb-shell[data-current='true'] {
+    box-shadow:
+      0 8px 28px rgba(32, 29, 24, 0.13),
+      0 1px 4px rgba(32, 29, 24, 0.08);
+  }
+  .fl-nb-empty {
+    padding: 30px;
+    text-align: center;
+    color: var(--fl-text-muted, rgba(55, 53, 47, 0.45));
+    font-size: 13px;
+  }
+  @media (max-width: 720px) {
+    .fl-nb-scroll {
+      padding: 18px 12px;
+    }
+    .fl-nb-stack {
+      --fl-nb-gap-base: 18px;
+    }
+  }
+}

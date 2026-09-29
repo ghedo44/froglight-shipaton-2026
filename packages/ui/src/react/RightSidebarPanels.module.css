@@ -1,0 +1,839 @@
+/* Document sidebar panels — CSS module colocated with
+   RightSidebarPanels.tsx and shared explicitly by the outline and document
+   settings panels it renders. Correctness comes from the `components`
+   cascade layer, never source order. The sidebar SHELL (rails, tabs,
+   drawers) belongs to WorkspaceView.module.css; this module owns panel
+   content only. DatabaseDocumentProperties also owns the searchable relation
+   picker, schema disclosure, safe value actions and bounded undo notice.
+   Classes owned: right-sidebar-panel/heading/empty (+document-empty),
+   outline-tree/entry, document-settings-group, document-setting-row
+   (+readonly/value/copy/hint), document-setting-row select/input,
+   document-export-button, fl-print-frame. The outline indent reads the
+   private `--_outline-depth` variable set inline per entry. Vars consumed:
+   --fl-surface-*, --fl-text-*, --fl-border-*, --fl-radius-*,
+   --fl-accent-*. Hosts: react/RightSidebarPanels.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .right-sidebar-panel {
+    min-height: 100%;
+    padding: 16px 14px 24px;
+  }
+  .right-sidebar-group > section {
+    min-width: 0;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .right-sidebar-group > section .right-sidebar-panel {
+    min-height: 0;
+    padding-block: 16px 18px;
+  }
+  .right-sidebar-group > section:last-child {
+    border-bottom: 0;
+  }
+  .right-sidebar-group .right-sidebar-empty {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .right-sidebar-heading {
+    margin: 0 0 14px;
+    padding: 0 2px;
+    color: var(--fl-text-primary);
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .document-inspector-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .document-inspector-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+  }
+  .document-inspector-row > span {
+    min-width: 0;
+    flex: 1;
+  }
+  .document-inspector-row > :last-child {
+    min-width: 0;
+    max-width: 65%;
+  }
+  .document-inspector-select {
+    min-width: 108px;
+    min-height: 44px;
+    padding: 4px 8px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font: inherit;
+    text-overflow: ellipsis;
+  }
+  .document-inspector-select:focus-visible {
+    outline: 2px solid var(--fl-accent);
+  }
+  .page-settings-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .page-settings-actions button {
+    min-height: 38px;
+    padding: 6px 8px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+  }
+  .page-settings-actions button:hover:not(:disabled),
+  .page-settings-actions button:focus-visible {
+    border-color: var(--fl-accent);
+    color: var(--fl-text-primary);
+  }
+  .page-settings-actions button:disabled {
+    opacity: 0.45;
+  }
+  @media (any-pointer: coarse) {
+    .page-settings-actions button {
+      min-height: 44px;
+    }
+  }
+  .page-browser {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .page-browser-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 10px;
+    padding: 3px;
+  }
+  .page-browser-item {
+    position: relative;
+    min-width: 0;
+  }
+  .page-browser-item[data-drop-target]::after {
+    position: absolute;
+    z-index: 2;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--fl-accent);
+    content: '';
+    pointer-events: none;
+  }
+  .page-browser-item[data-drop-target='before']::after {
+    left: -5px;
+  }
+  .page-browser-item[data-drop-target='after']::after {
+    right: -5px;
+  }
+  .page-browser-item[data-drop-axis='vertical'][data-drop-target]::after {
+    left: 4px;
+    right: 4px;
+    width: auto;
+    height: 3px;
+  }
+  .page-browser-item[data-drop-axis='vertical'][data-drop-target='before']::after {
+    top: -5px;
+    bottom: auto;
+  }
+  .page-browser-item[data-drop-axis='vertical'][data-drop-target='after']::after {
+    top: auto;
+    bottom: -5px;
+  }
+  .page-browser-thumb {
+    touch-action: pan-y;
+    -webkit-touch-callout: none;
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    min-height: 112px;
+    width: 100%;
+    padding: 5px 5px 0;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+    text-align: center;
+    user-select: none;
+  }
+  .page-browser-thumb > span:last-child {
+    display: grid;
+    place-items: center;
+    height: 32px;
+    font-variant-numeric: tabular-nums;
+  }
+  .page-browser-thumb[data-current='true'],
+  .page-browser-thumb[aria-pressed='true'] {
+    border-color: var(--fl-accent);
+  }
+  .page-browser-thumb[data-dragging='true'] {
+    opacity: 0.3;
+  }
+  .page-browser-thumb:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .page-browser-preview {
+    display: grid;
+    place-items: center;
+    height: 110px;
+    overflow: hidden;
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-hover);
+  }
+  .page-browser-preview img {
+    display: block;
+    max-width: 100%;
+    max-height: 110px;
+    object-fit: contain;
+  }
+  .page-browser-menu-trigger {
+    display: grid;
+    place-items: center;
+    touch-action: manipulation;
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: var(--fl-radius-sm);
+    background: transparent;
+    color: var(--fl-text-secondary);
+    font-size: 18px;
+    line-height: 1;
+  }
+  .page-browser-drag-handle {
+    position: absolute;
+    z-index: 1;
+    bottom: 3px;
+    left: 3px;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 0;
+    border-radius: var(--fl-radius-sm);
+    background: transparent;
+    color: var(--fl-text-secondary);
+    cursor: grab;
+    touch-action: none;
+  }
+  .page-browser-drag-handle:hover {
+    background: var(--fl-surface-hover);
+  }
+  .page-browser-drag-handle:active {
+    cursor: grabbing;
+  }
+  .page-browser-drag-handle:focus-visible {
+    outline: 2px solid var(--fl-accent);
+  }
+
+  .page-browser-menu-trigger:hover,
+  .page-browser-menu-trigger[aria-expanded='true'] {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .page-browser-menu-trigger:focus-visible {
+    outline: 2px solid var(--fl-accent);
+  }
+
+  .page-browser-menu {
+    composes: surface from './DialogSurface.module.css';
+    position: fixed;
+    z-index: 100;
+    display: grid;
+    min-width: 156px;
+    padding: 4px;
+  }
+  .page-browser-menu button {
+    min-height: 36px;
+    padding: 6px 10px;
+    border-radius: var(--fl-radius-sm);
+    color: var(--fl-text-primary);
+    text-align: left;
+  }
+  .page-browser-menu button:hover,
+  .page-browser-menu button:focus-visible {
+    background: var(--fl-surface-hover);
+  }
+  .page-browser-menu button:disabled {
+    opacity: 0.45;
+  }
+  .page-browser-drag-preview {
+    position: fixed;
+    z-index: 101;
+    display: grid;
+    gap: 4px;
+    min-height: 112px;
+    padding: 5px;
+    border: 1px solid var(--fl-accent);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    box-shadow: var(--fl-shadow-medium);
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    transform: rotate(-2deg) scale(1.02);
+    transform-origin: top left;
+  }
+  @media (any-pointer: coarse) {
+    .page-browser-menu button {
+      min-height: 44px;
+    }
+  }
+  .right-sidebar-empty {
+    margin: 0;
+    padding: 8px 2px;
+    color: var(--fl-text-muted);
+    font-size: 12.5px;
+  }
+  .right-sidebar-empty.document-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+  }
+  .outline-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .outline-entry {
+    width: 100%;
+    /* (reversed per user ruling 2026-09-17):
+    panel rows (outline + knowledge) keep a >=44px touch target, and the
+    document settings controls below now meet the same floor: rows,
+    selects, and the export button carry 44px directly, while the checkbox
+    keeps a 20px visual box inside its 44px toggle label row (the row is
+    the native touch target via label activation). Shared with knowledge
+    rows via `.outline-entry`. */
+    min-height: 44px;
+    padding: 5px 8px 5px calc(8px + var(--_outline-depth) * 14px);
+    overflow: hidden;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.45;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      transform var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .outline-entry:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .outline-entry:active {
+    transform: translateX(1px);
+  }
+  .outline-entry:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: -2px;
+  }
+  .connection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .connection-group {
+    min-width: 0;
+    border-bottom: 1px solid var(--fl-border-default);
+    padding-bottom: 7px;
+  }
+  .connection-primary {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 8px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-secondary);
+    text-align: start;
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  button.connection-primary:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .connection-primary:focus-visible,
+  .connection-occurrence button:focus-visible,
+  .connection-occurrences summary:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: -2px;
+  }
+  .connection-primary.unresolved {
+    color: var(--fl-danger);
+    background: var(--fl-danger-soft);
+  }
+  .connection-copy {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .connection-copy strong,
+  .connection-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .connection-copy strong {
+    color: inherit;
+    font-size: 12.5px;
+    font-weight: 550;
+  }
+  .connection-copy small {
+    color: var(--fl-text-muted);
+    font-size: 11px;
+  }
+  .connection-count {
+    display: grid;
+    min-width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: var(--fl-radius-pill);
+    background: var(--fl-surface-active);
+    color: var(--fl-text-secondary);
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .connection-occurrences {
+    margin: 1px 6px 0 34px;
+    color: var(--fl-text-muted);
+    font-size: 11px;
+  }
+  .connection-occurrences summary {
+    min-height: 30px;
+    padding: 7px 4px;
+    border-radius: var(--fl-radius-sm);
+    cursor: pointer;
+  }
+  .connection-occurrence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 2px 0 6px;
+  }
+  .connection-occurrence {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 6px 0;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .connection-occurrence-copy {
+    display: flex;
+    min-width: 100%;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .connection-occurrence-copy strong {
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .connection-occurrence-copy small {
+    overflow: hidden;
+    color: var(--fl-text-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .connection-occurrence button {
+    min-height: 32px;
+    padding: 4px 7px;
+    border-radius: var(--fl-radius-sm);
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+  }
+  .connection-occurrence button:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .document-settings-group {
+    padding: 14px 2px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .document-settings-group:first-of-type {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .document-settings-group h3 {
+    margin: 0 0 10px;
+    color: var(--fl-text-muted);
+    font-size: 10.5px;
+    font-weight: 650;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+  }
+  .document-settings-group h4 {
+    margin: 12px 0 4px;
+    color: var(--fl-text-muted);
+    font-size: 11px;
+    font-weight: 650;
+  }
+  .document-properties-heading {
+    display: flex;
+    min-height: 32px;
+    align-items: start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .document-properties-heading h3 {
+    margin-top: 8px;
+  }
+  .document-properties-heading button {
+    min-height: 32px;
+    padding: 4px 8px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+    font-size: 11px;
+  }
+  .document-properties-heading button:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .document-properties-heading button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: -2px;
+  }
+  .document-properties-search {
+    width: 100%;
+    min-height: 40px;
+    margin: 6px 0 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 10px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+    font: inherit;
+  }
+  .document-properties-undo {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 8px 0;
+    border-radius: var(--fl-radius-md);
+    padding: 6px 8px;
+    background: var(--fl-accent-soft);
+    color: var(--fl-text-secondary);
+    font-size: 11px;
+  }
+  .document-properties-undo button {
+    min-height: 40px;
+    flex: 0 0 auto;
+    border-radius: var(--fl-radius-sm);
+    padding: 3px 9px;
+    color: var(--fl-accent-strong);
+    font-weight: 600;
+  }
+  .document-properties-undo button:hover {
+    background: var(--fl-surface-hover);
+  }
+  .document-properties-undo button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .document-properties-open {
+    min-height: 40px;
+    margin: 0 0 8px;
+    padding: 4px 8px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-secondary);
+    font-size: 12px;
+  }
+  .document-properties-open:hover {
+    background: var(--fl-surface-hover);
+  }
+  .document-properties-open:focus-visible {
+    outline: 2px solid var(--fl-accent);
+  }
+  .document-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    /* (reversed 2026-09-17): 44px floor (was 34px).*/
+    min-height: 44px;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+  }
+  .document-property-arrangement {
+    margin-top: 10px;
+    border-top: 1px solid var(--fl-border-default);
+    padding-top: 8px;
+    color: var(--fl-text-secondary);
+    font-size: 12px;
+  }
+  .document-property-arrangement summary {
+    min-height: 40px;
+    cursor: pointer;
+    padding: 8px 2px;
+  }
+  .document-property-arrangement-row {
+    display: grid;
+    gap: 6px;
+    border-top: 1px solid var(--fl-border-default);
+    padding: 10px 0;
+  }
+  .document-property-arrangement-row strong {
+    color: var(--fl-text-primary);
+  }
+  .document-property-arrangement-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .document-property-arrangement-actions button {
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: var(--fl-radius-sm);
+    padding: 4px 8px;
+    background: var(--fl-surface-hover);
+  }
+  .document-property-arrangement-row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .document-property-arrangement-row input[type='text'] {
+    min-width: 0;
+    min-height: 36px;
+    flex: 1;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-sm);
+    padding: 4px 8px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+  }
+  .document-settings-group .document-setting-row > div {
+    min-width: 0;
+    max-width: 62%;
+    text-align: right;
+  }
+  .document-property-action {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    margin-top: 4px;
+    border-radius: var(--fl-radius-sm);
+    padding: 3px 7px;
+    color: var(--fl-accent-strong);
+    font-size: 11px;
+    text-decoration: none;
+  }
+  .document-property-action:hover {
+    background: var(--fl-accent-soft);
+  }
+  .document-property-action:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .document-relation-picker {
+    position: relative;
+    min-width: min(190px, 100%);
+  }
+  .document-relation-picker > button {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 5px 9px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+    font: inherit;
+    text-align: start;
+  }
+  .document-relation-picker > button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .document-relation-options {
+    display: flex;
+    max-height: min(320px, 50vh);
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 5px;
+    overflow: auto;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 8px;
+    background: var(--fl-surface-raised);
+    text-align: start;
+  }
+  .document-relation-options > label:first-child {
+    color: var(--fl-text-muted);
+    font-size: 11px;
+  }
+  .document-relation-options input[type='search'] {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 8px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+    font: inherit;
+  }
+  .document-relation-options > label:not(:first-child) {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--fl-radius-sm);
+    padding: 4px 6px;
+    cursor: pointer;
+  }
+  .document-relation-options > label:not(:first-child):hover {
+    background: var(--fl-surface-hover);
+  }
+  .document-relation-options input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    accent-color: var(--fl-accent-strong);
+  }
+  .document-settings-group .document-setting-row [role='alert'],
+  .document-settings-group .document-setting-row [role='status'] {
+    display: block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .document-setting-row.readonly {
+    /* (reversed 2026-09-17): same 44px floor for the
+    non-interactive details/count rows (was 28px) so settings density
+    stays uniform. */
+    min-height: 44px;
+  }
+  .document-setting-value {
+    min-width: 0;
+    max-width: 62%;
+    overflow: hidden;
+    color: var(--fl-text-muted);
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .document-setting-row select {
+    min-width: 104px;
+    /* (reversed 2026-09-17): 44px floor (was a fixed
+    28px height); min-height keeps single-line selects at 44px while
+    still allowing content growth. */
+    min-height: 44px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 26px 0 8px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+    font: inherit;
+  }
+  .document-setting-row select:focus-visible,
+  .document-setting-row input:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .document-setting-row.toggle {
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .document-setting-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .document-setting-copy small {
+    max-width: 180px;
+    color: var(--fl-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .document-setting-hint {
+    margin: 8px 0 0;
+    color: var(--fl-text-muted);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .document-setting-row input[type='checkbox'] {
+    /* (reversed 2026-09-17): 20px visual box (was 16px) for
+    the larger row density; the >=44px touch target is the wrapping
+    toggle label row above — native label activation makes the whole row
+    toggle this input, so the box itself stays a coherent 20px. */
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    accent-color: var(--fl-accent-strong);
+  }
+  .document-export-button {
+    width: 100%;
+    /* (reversed 2026-09-17): 44px floor over the shared
+    .btn base (height: 30px); min-height wins over height, so the base
+    Button stays untouched. */
+    min-height: 44px;
+    margin-top: 10px;
+  }
+  .document-export-button:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .fl-print-frame {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    inset: auto auto 0 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 760px) {
+    .document-settings-group h3,
+    .document-setting-value,
+    .document-setting-copy small {
+      color: var(--fl-text-secondary);
+    }
+  }
+
+  @media (any-pointer: coarse) {
+    .document-properties-heading button,
+    .document-properties-undo button,
+    .document-properties-open,
+    .document-property-arrangement summary,
+    .document-property-arrangement-actions button,
+    .document-property-action,
+    .connection-occurrences summary,
+    .connection-occurrence button {
+      min-height: 44px;
+    }
+    .document-property-arrangement-actions button {
+      min-width: 44px;
+    }
+  }
+}

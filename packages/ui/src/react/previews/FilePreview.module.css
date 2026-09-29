@@ -1,0 +1,227 @@
+/* File previews — CSS module shared explicitly by react/previews/*.
+   Each preview component imports this module (`import styles from
+   './FilePreview.module.css'`), so the import trail names the stylesheet;
+   correctness comes from the `components` cascade layer, never source
+   order. The stage kind (`file-preview-image/video/audio/pdf/text/binary`)
+   is data-driven from the file kind; every variant is defined here.
+   Classes owned: file-preview/stage (+kind variants)/controls/fallback/
+   loading/meta, image-viewer/zoom-controls/level, no-wrap. Vars consumed:
+   --fl-surface-*, --fl-text-*, --fl-border-*, --fl-radius-*,
+   --fl-shadow-*, --fl-accent-*, --fl-motion/--fl-ease-*. Hosts:
+   react/previews/RawFilePreview.tsx, ImagePreview.tsx, VideoPreview.tsx,
+   AudioPreview.tsx, PdfPreview.tsx, TextPreview.tsx, BinaryPreview.tsx.
+   (The `.fl-pane-view > .fl-pane-view-fill` composition rule lives in
+   WorkspaceView.module.css — it belongs to the pane layout, not the
+   preview.) Fixed dark scrims (#000, #525659, white) are documented
+   media-chrome constants, not theme API.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .file-preview {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+  .file-preview-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-lg);
+    display: grid;
+    place-items: center;
+    padding: 12px;
+  }
+  .file-preview-stage.file-preview-text {
+    display: block;
+    place-items: initial;
+    padding: 0;
+    overflow: auto;
+  }
+  .file-preview-stage.file-preview-text pre {
+    margin: 0;
+    padding: 14px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--fl-text-primary);
+  }
+  .file-preview-stage.file-preview-text pre.no-wrap {
+    white-space: pre;
+    word-break: normal;
+  }
+  .file-preview-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .file-preview-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 360px;
+    text-align: center;
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+  }
+  .file-preview-loading {
+    width: 100%;
+    min-height: 120px;
+  }
+  /* Photos sit directly on the pane, not on a card: no border, no shadow,
+     contained to the full stage height. */
+  .file-preview-stage.file-preview-image {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: auto;
+  }
+  /* Media stages center with flex, not grid: a grid auto track sizes from its
+     content, leaving percentage max-bounds with nothing definite to resolve
+     against — tall media then overflows and scrolls instead of fitting. Flex
+     gives both bounds a definite box, and `margin: auto` centers while keeping
+     overflow scrollable from the top (no `safe` keyword needed). */
+  .file-preview-stage.file-preview-image,
+  .file-preview-stage.file-preview-video,
+  .file-preview-stage.file-preview-pdf {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-preview-stage.file-preview-image img,
+  .file-preview-stage.file-preview-video video {
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    object-fit: contain;
+  }
+  .file-preview-stage.file-preview-image img {
+    height: auto;
+    width: auto;
+    display: block;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  /* Zoomable image viewer: owns the whole stage, clips panned overflow, and
+     owns touch gestures outright so pinches never fight pane scrolling. */
+  .image-viewer {
+    position: relative;
+    flex: 1 1 auto;
+    align-self: stretch;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    touch-action: none;
+    outline-offset: -2px;
+  }
+  .image-viewer:focus-visible {
+    outline: 2px solid var(--fl-accent);
+  }
+  .image-viewer img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+  }
+  .image-zoom-controls {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-strong);
+    border-radius: 999px;
+    box-shadow: var(--fl-shadow-medium);
+    padding: 3px;
+    opacity: 0;
+    transition: opacity var(--fl-motion-fast) var(--fl-ease-standard);
+    z-index: 2;
+  }
+  .image-viewer:hover .image-zoom-controls,
+  .image-viewer:focus-within .image-zoom-controls {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .image-zoom-controls {
+      opacity: 1;
+    }
+  }
+  .image-zoom-level {
+    min-width: 52px;
+    padding: 4px 6px;
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    color: var(--fl-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    cursor: pointer;
+  }
+  .image-zoom-level:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .image-viewer img {
+      transition: none !important;
+    }
+  }
+  .file-preview-stage.file-preview-video video {
+    width: auto;
+    border-radius: var(--fl-radius-md);
+    background: #000;
+  }
+  .file-preview-stage.file-preview-audio {
+    padding: 24px 16px;
+  }
+  .file-preview-stage.file-preview-audio audio {
+    width: 100%;
+  }
+  .file-preview-stage.file-preview-pdf {
+    padding: 0;
+    background: #525659;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .file-preview-stage.file-preview-pdf iframe {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    height: auto;
+    border: 0;
+    border-radius: var(--fl-radius-lg);
+    background: white;
+  }
+  .file-preview-stage.file-preview-binary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    place-items: center;
+    text-align: center;
+    padding: 32px 20px;
+  }
+  .file-preview-meta {
+    font-size: 12px;
+    color: var(--fl-text-muted);
+  }
+}

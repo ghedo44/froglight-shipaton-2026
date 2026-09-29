@@ -1,0 +1,44 @@
+{
+  "name": "@froglight/editor-codemirror",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "editor-codemirror",
+    "tags": [
+      "layer:provider",
+      "platform:shared",
+      "authority:trusted",
+      "domain:editors"
+    ]
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.11.0",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/legacy-modes": "^6.5.1",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.9",
+    "@froglight/foundation": "workspace:*",
+    "@froglight/runtime": "workspace:*",
+    "@lezer/highlight": "^1.2.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "vitest": "~4.1.0"
+  }
+}

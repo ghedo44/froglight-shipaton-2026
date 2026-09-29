@@ -1,0 +1,52 @@
+{
+  "name": "@froglight/ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "froglight": "./src/react/index.ts",
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "default": "./dist/react/index.js"
+    },
+    "./testing": {
+      "froglight": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    }
+  },
+  "nx": {
+    "name": "ui",
+    "tags": [
+      "layer:plugin",
+      "platform:shared",
+      "authority:portable",
+      "domain:ui"
+    ]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "@froglight/plugin-platform": "workspace:*",
+    "@froglight/runtime": "workspace:*",
+    "@froglight/sdk": "workspace:*",
+    "katex": "0.18.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1"
+  }
+}

@@ -1,0 +1,1160 @@
+/* BlockPage provider chrome — global provider stylesheet colocated under styles/ and owned by the blockpage editor provider. Imported explicitly by react/BlockpageHostSkeleton.tsx. Froglight-owned host/chrome (flbp-host sizing contract) lives in react/BlockpageHost.module.css; this file styles DOM owned by ProseMirror/Tiptap (ProseMirror surface, engine-emitted flbp-* chrome, slash menu, drag handles, callouts, opaque blocks, compositions) through explicit global selectors. Third-party ProseMirror-owned DOM stays engine-owned; only presentation of provider chrome is component-owned here. This file consumes var(--fl-*) theme tokens only and must not define :root tokens. The to-do check glyph keeps a fixed white stroke inside its data-URI art (fixed glyph, not theme). */
+@layer components {
+  .flbp-host {
+    position: relative;
+  }
+  /* Recovery fallback host (editor.ts): a missing or detached pane host gets
+   a visible fixed host so the document stays editable. Positioning lives
+   here — never as inline styles — while the React skeleton still owns the
+   chrome committed inside it. */
+  .flbp-fallback-host {
+    position: fixed;
+    inset: 64px 16px 16px 30%;
+    z-index: 60;
+    overflow: auto;
+    padding: 24px;
+    background: var(--fl-surface-editor);
+    color: var(--fl-text-primary);
+  }
+  .flbp-host .ProseMirror {
+    outline: none;
+    min-height: 140px;
+    padding-block: 8px 32px;
+    caret-color: var(--fl-accent);
+    line-height: 1.65;
+    scrollbar-color: var(--fl-border-strong) transparent;
+    scrollbar-width: thin;
+  }
+  .flbp-host[data-read-only='true'] .ProseMirror {
+    caret-color: transparent;
+    line-height: 1.75;
+    padding-block: 18px 40px;
+  }
+  .flbp-host[data-read-only='true'] .flbp-list-drag-handle,
+  .flbp-host[data-read-only='true'] .flbp-drag-handle,
+  .flbp-host[data-read-only='true'] .flbp-add-block,
+  .flbp-host[data-read-only='true'] .flbp-slash,
+  .flbp-host[data-read-only='true'] .flbp-media-pick-row {
+    display: none;
+  }
+  .flbp-host[data-read-only='true'] .ProseMirror > p + p {
+    margin-top: 0.72em;
+  }
+  .flbp-host[data-read-only='true'] .ProseMirror > :first-child {
+    margin-top: 0;
+  }
+  .flbp-host[data-read-only='true'] .ProseMirror h1:first-child {
+    margin-top: 0.25em;
+  }
+
+  /* Decoration follows the caret; generated text never enters the document. */
+  .flbp-host:not([data-read-only='true']) .ProseMirror-focused .flbp-active-empty::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    max-width: 100%;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    color: var(--fl-text-muted);
+    font-style: italic;
+    font-weight: 400;
+    pointer-events: none;
+  }
+
+  /* Collapse behavior + gutter chevrons (widget renders before its block). */
+  .flbp-toggle.collapsed > :not(:first-child),
+  ul[data-sub-collapsed='true'] li ol,
+  ul[data-sub-collapsed='true'] li ul,
+  ol[data-sub-collapsed='true'] li ol,
+  ol[data-sub-collapsed='true'] li ul {
+    display: none;
+  }
+  .flbp-host .ProseMirror > * {
+    margin-block: 0;
+  }
+  .flbp-host .ProseMirror > * + *,
+  .flbp-group > * + * {
+    margin-top: 12px;
+  }
+  .flbp-host .ProseMirror p {
+    margin-block: 0;
+    padding-block: 2px;
+  }
+  /* Shared BlockPage heading scale (1.8/1.45/1.2/1.05em) — identical steps
+     in react/BlockpageHost.module.css and the .flbp-content engine path
+     below, so headings never shift between render paths. */
+  .flbp-host .ProseMirror h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 1.45em 0 0.3em;
+  }
+  .flbp-host .ProseMirror h2 {
+    font-size: 1.45em;
+    font-weight: 700;
+    letter-spacing: -0.017em;
+    line-height: 1.3;
+    margin: 1.3em 0 0.28em;
+  }
+  .flbp-host .ProseMirror h3 {
+    font-size: 1.2em;
+    font-weight: 650;
+    letter-spacing: -0.012em;
+    line-height: 1.35;
+    margin: 1.1em 0 0.24em;
+  }
+  .flbp-host .ProseMirror h4,
+  .flbp-host .ProseMirror h5,
+  .flbp-host .ProseMirror h6 {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin: 0.95em 0 0.2em;
+  }
+  .flbp-host .ProseMirror ul,
+  .flbp-host .ProseMirror ol {
+    margin-block: 4px;
+    padding-left: 28px;
+  }
+  .flbp-host .ProseMirror li + li {
+    margin-top: 6px;
+  }
+  .flbp-group {
+    margin-left: 24px;
+    padding: 2px 0 2px 10px;
+    border-left: 1px solid transparent;
+    transition: border-color 120ms ease;
+  }
+  .flbp-group:hover,
+  .flbp-group:focus-within {
+    border-left-color: var(--fl-border-default);
+  }
+  .flbp-host .ProseMirror .flbp-toggle {
+    --flbp-toggle-indent: 28px;
+    position: relative;
+  }
+  .flbp-toggle > p:first-child {
+    padding-inline-start: var(--flbp-toggle-indent);
+    font-weight: 400;
+    min-height: 28px;
+  }
+  /* Nesting changes indentation only. Each block keeps its own padding,
+     borders and typography, including headings, lists, media and callouts. */
+  .flbp-toggle > :not(:first-child) {
+    margin-left: var(--flbp-toggle-indent);
+  }
+  .flbp-toggle > * + * {
+    margin-top: 12px;
+  }
+  .flbp-toggle-empty {
+    display: block;
+    padding: 2px 0;
+    border: 0;
+    background: transparent;
+    color: var(--fl-text-muted);
+    font: inherit;
+    text-align: left;
+    cursor: text;
+  }
+  .flbp-toggle-empty:hover { color: var(--fl-text-secondary); }
+  .flbp-toggle-empty:focus-visible { outline: 2px solid var(--fl-accent); }
+  .flbp-host[data-read-only='true'] .flbp-toggle-empty { display: none; }
+  .flbp-chevron {
+    cursor: pointer;
+    user-select: none;
+    position: absolute;
+    left: -28px;
+    top: 1px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-left: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    background: transparent;
+    color: var(--fl-text-muted);
+    touch-action: manipulation;
+  }
+  .flbp-toggle > p:first-child > .flbp-chevron {
+    left: 0;
+  }
+  .flbp-chevron svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.12s ease;
+  }
+  .flbp-chevron:hover {
+    color: var(--fl-text-secondary);
+    background: var(--fl-surface-hover);
+  }
+  .flbp-chevron:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+  .flbp-chevron[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+  }
+  .flbp-host .ProseMirror :is(ul, ol)[data-list-id] {
+    position: relative;
+  }
+
+  /* Opaque plugin block wrapper. */
+  .flbp-opaque {
+    border: 1px dashed var(--fl-border-strong);
+    padding: 10px 12px;
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+    margin: 4px 0;
+  }
+  /* Transient exact-reveal highlight (link follow): ephemeral only,
+     cleared by the handle after ~1.2s. Never canonical, never focus. */
+  .flbp-reveal {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+    border-radius: var(--fl-radius-sm);
+  }
+  .flbp-chip {
+    display: inline-block;
+    font-family: var(--fl-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    background: var(--fl-accent-soft);
+    color: var(--fl-accent-strong);
+    border-radius: var(--fl-radius-sm);
+    padding: 2px 6px;
+    margin-bottom: 6px;
+  }
+  .flbp-resource-mark {
+    color: var(--fl-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .flbp-host .ProseMirror a {
+    color: var(--fl-accent-strong);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+  }
+  .flbp-host .ProseMirror a:focus-visible,
+  .flbp-host .ProseMirror [tabindex]:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+    border-radius: var(--fl-radius-sm);
+  }
+  .flbp-composition {
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-lg);
+    padding: 14px 16px;
+    margin: 1em 0;
+    background: var(--fl-surface-editor);
+    overflow: hidden;
+  }
+  .flbp-composition[data-state='placeholder'] {
+    border-style: dashed;
+    color: var(--fl-text-secondary);
+  }
+  .flbp-composition-database {
+    padding: 12px 14px;
+    background: var(--fl-surface-editor);
+    border-radius: var(--fl-radius-lg);
+    overflow: visible;
+  }
+  .flbp-composition-title {
+    font-size: 0.95em;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    color: var(--fl-text-primary);
+  }
+  .flbp-composition-summary {
+    margin-top: 4px;
+    font-size: 0.86em;
+    line-height: 1.55;
+    color: var(--fl-text-secondary);
+    white-space: pre-wrap;
+  }
+  .flbp-composition-image {
+    display: block;
+    width: calc(100% + 28px);
+    height: auto;
+    max-height: min(560px, 72vh);
+    object-fit: contain;
+    margin: -12px -14px 12px;
+    background: var(--fl-surface-raised);
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .flbp-composition-pages {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 12px;
+  }
+  .flbp-composition-page {
+    min-width: 0;
+    margin: 0;
+  }
+  .flbp-composition-page img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(560px, 72vh);
+    object-fit: contain;
+    border: 1px solid var(--fl-border-default);
+    background: var(--fl-surface-raised);
+  }
+  .flbp-composition button {
+    margin-top: 6px;
+  }
+
+  /* Callout: Notion-style tinted card, no border bar. */
+  .flbp-callout {
+    background: var(--fl-accent-soft);
+    border-radius: var(--fl-radius-lg);
+    padding: 12px 16px;
+    margin: 4px 0;
+  }
+
+  /* Image placeholder. */
+  .flbp-image-ph {
+    height: 80px;
+    border: 1.5px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-image figcaption {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+    margin-top: 6px;
+  }
+
+  /* Math/diagram source blocks: figure wrapper, sandboxed preview
+    host (sanitized content only), inspectable source fallback, typed
+    status. Source text is monospace; rendered output inherits the
+    document flow (KaTeX display math centers via its own CSS). */
+  .flbp-math,
+  .flbp-diagram {
+    margin: 6px 0 2px;
+  }
+  .flbp-md-preview {
+    overflow-x: auto;
+    padding: 8px 12px;
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-md-preview[hidden] {
+    display: none;
+  }
+  .flbp-md-src {
+    font-family: var(--fl-font-mono);
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 8px 12px;
+    border: 1px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-secondary);
+  }
+  .flbp-md-src[hidden] {
+    display: none;
+  }
+  .flbp-md-status {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+    margin-top: 6px;
+  }
+  /* Math/diagram source overlay:
+     engine-owned textarea overlay reusing the slash chrome pattern:
+     an absolute host child anchored to the live figure/caret
+     rect, same raised surface + overlay shadow as the slash menu. The
+     container never sets touch-action: none and never blocks scroll —
+ overscroll stays contained, buttons alone carry manipulation (
+     coarse contract). All presentation rides on --fl-* tokens. */
+  .flbp-md-overlay {
+    position: absolute;
+    z-index: 30;
+    box-sizing: border-box;
+    min-width: 280px;
+    width: min(420px, calc(100% - 16px));
+    max-height: 320px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-xl);
+    padding: 10px;
+    box-shadow: var(--fl-shadow-overlay);
+  }
+  .flbp-md-overlay-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    margin-bottom: 6px;
+  }
+  .flbp-md-editor {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+    font-family: var(--fl-font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-input);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 8px 10px;
+  }
+  .flbp-md-editor:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 1px;
+  }
+  .flbp-md-overlay .flbp-md-preview {
+    margin-top: 8px;
+  }
+  .flbp-md-overlay .flbp-md-status {
+    margin-top: 6px;
+  }
+  .flbp-md-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .flbp-md-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 6px 14px;
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .flbp-md-action:hover {
+    background: var(--fl-surface-hover);
+  }
+  .flbp-md-action:active {
+    background: var(--fl-surface-active);
+  }
+  .flbp-md-action:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+  .flbp-md-action:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .flbp-md-commit {
+    background: var(--fl-accent);
+    border-color: var(--fl-accent-strong);
+    color: var(--fl-accent-contrast);
+  }
+  .flbp-md-commit:hover {
+    background: var(--fl-accent-strong);
+  }
+  /* Touch pass: overlay actions meet the 44px coarse
+     contract with no double-tap-zoom delay. Desktop keeps the compact
+     32px rhythm above; coarse pointers get the full target. The editor
+     keeps a 16px floor so iOS never auto-zooms on focus, and the overlay
+     never takes touch-action: none so page scroll keeps working. */
+  @media (hover: none), (pointer: coarse) {
+    .flbp-md-action {
+      min-height: 44px;
+      min-width: 44px;
+      padding-block: 10px;
+      touch-action: manipulation;
+    }
+    .flbp-md-editor {
+      min-height: 44px;
+      font-size: 16px;
+    }
+  }
+
+  /* Slash menu. */
+  .flbp-slash {
+    position: absolute;
+    z-index: 30;
+    box-sizing: border-box;
+    min-width: 280px;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-xl);
+    padding: 6px;
+    box-shadow: var(--fl-shadow-overlay);
+    animation: flbp-pop 0.12s ease-out;
+  }
+  /* Drag-handle turn-into menu: same chrome as the slash menu,
+     anchored to the frozen gutter handle. Shares .flbp-slash-item rows so
+     keyboard/touch parity stays identical. */
+  .flbp-turninto-menu {
+    z-index: 31;
+    min-width: 240px;
+  }
+  .flbp-menu-group-label {
+    padding: 8px 10px 4px;
+    color: var(--fl-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .flbp-menu-group-label + .flbp-slash-item {
+    margin-top: 2px;
+  }
+  .flbp-slash:not(.flbp-turninto-menu):not(.flbp-resource-menu):not(
+      .flbp-table-menu
+    )
+    .flbp-slash-item {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 10px;
+    min-height: 52px;
+    white-space: normal;
+  }
+  .flbp-slash-item[data-symbol]::before {
+    content: attr(data-symbol);
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .flbp-slash-item[data-description]::after {
+    content: attr(data-description);
+    grid-column: 2;
+    color: var(--fl-text-muted);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.3;
+  }
+  .flbp-slash-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--fl-radius-md);
+    font-size: 14px;
+    line-height: 1.4;
+    cursor: pointer;
+    color: var(--fl-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* no double-tap-zoom delay on tap-to-commit rows, on every
+       pointer (coarse keeps its own 44px sizing hunk below untouched). */
+    touch-action: manipulation;
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .flbp-slash-item:hover {
+    background: var(--fl-surface-hover);
+  }
+  .flbp-slash-item:active {
+    background: var(--fl-surface-active);
+  }
+  /* Active-row cue is never color-only: the accent-soft fill +
+     accent-strong text (5.2:1 on light, token-driven in both worlds) pairs
+     with a semibold weight, and aria-selected parity keeps the selected
+     style even if a consumer reads state from the attribute alone.
+     Presentation only — filter/commit/dismiss logic is untouched. */
+  .flbp-slash-item.active,
+  .flbp-slash-item[aria-selected='true'] {
+    background: var(--fl-accent-soft);
+    color: var(--fl-accent-strong);
+    font-weight: 600;
+  }
+  .flbp-slash-item:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flbp-slash {
+      animation: none;
+    }
+  }
+
+  /* A single side affordance follows the active block. */
+  .flbp-list-drag-handle,
+  .flbp-drag-handle,
+  .flbp-add-block {
+    position: absolute;
+    z-index: 20;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--fl-text-muted);
+    border-radius: var(--fl-radius-md);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .flbp-list-drag-handle,
+  .flbp-drag-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+  .flbp-list-drag-handle svg,
+  .flbp-drag-handle svg,
+  .flbp-add-block svg {
+    width: 20px;
+    height: 20px;
+  }
+  .flbp-add-block {
+    cursor: pointer;
+  }
+  .flbp-drag-source {
+    opacity: 0.28;
+  }
+  .flbp-drag-preview {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    max-height: min(60vh, 560px);
+    overflow: hidden;
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-raised);
+    box-shadow: var(--fl-shadow-medium);
+    opacity: 0.96;
+    pointer-events: none;
+  }
+  .flbp-drag-preview > * {
+    margin: 0;
+    opacity: 1;
+  }
+  .flbp-drop-preview {
+    position: absolute;
+    z-index: 12;
+    height: 3px;
+    box-sizing: border-box;
+    border: 1px dashed var(--fl-accent);
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-accent-soft);
+    pointer-events: none;
+  }
+  .flbp-drop-content {
+    display: block;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 2px 8px;
+    color: var(--fl-text-secondary);
+    font: inherit;
+  }
+  .flbp-drop-preview::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 4px;
+    bottom: 100%;
+    padding: 2px 6px;
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font-size: 11px;
+  }
+  .flbp-drop-preview[hidden] { display: none; }
+  .flbp-list-drag-handle.visible,
+  .flbp-drag-handle.visible,
+  .flbp-add-block.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .flbp-list-drag-handle:hover,
+  .flbp-drag-handle:hover,
+  .flbp-add-block:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-secondary);
+  }
+  .flbp-list-drag-handle:active,
+  .flbp-drag-handle:active {
+    cursor: grabbing;
+  }
+  .flbp-list-drag-handle:focus-visible,
+  .flbp-drag-handle:focus-visible,
+  .flbp-add-block:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .flbp-list-drag-handle,
+    .flbp-drag-handle,
+    .flbp-add-block {
+      width: 44px;
+      height: 44px;
+    }
+    .flbp-add-block {
+      touch-action: manipulation;
+    }
+    .flbp-list-drag-handle.visible,
+    .flbp-drag-handle.visible {
+      opacity: 1;
+    }
+    .flbp-slash-item {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      padding-block: 10px;
+      /* no double-tap-zoom delay on tap-to-commit rows.*/
+      touch-action: manipulation;
+    }
+    .flbp-host .ProseMirror .flbp-toggle {
+      --flbp-toggle-indent: 44px;
+    }
+    .flbp-chevron {
+      width: 44px;
+      height: 44px;
+      left: -40px;
+      top: -7px;
+    }
+    /* To-do rows: the row carries the
+       forgiving coarse target; the absolutely positioned box remains tied
+       to the first line rather than centering against a wrapped row. */
+    li[data-checked] {
+      box-sizing: border-box;
+      min-height: 44px;
+      padding-block: calc((44px - 1.65em) / 2);
+      touch-action: manipulation;
+    }
+  }
+
+  @keyframes flbp-pop {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+  }
+
+  /* To-do rows: drawn checkbox instead of a glyph. List-item children are
+     block paragraphs, so an inline pseudo-element would occupy a separate
+     line. Absolute positioning anchors the box to the first text line while
+     preserving normal flow for wrapping and nested lists. */
+  li[data-checked] {
+    list-style: none;
+    position: relative;
+    margin-inline-start: -22px;
+    padding-inline-start: 22px;
+  }
+  li[data-checked]::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: calc((1.65em - 14px) / 2 + 2px);
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-sm);
+    background: transparent;
+    box-sizing: border-box;
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      border-color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  li[data-checked='true']::before {
+    border-color: var(--fl-accent-strong);
+    /* Fixed white check glyph (data-URI art, not theme): the accent fill
+       comes from the token above in both worlds. */
+    background: var(--fl-accent-strong)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 7.5l2.5 2.5 4.5-5.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / 12px no-repeat;
+  }
+  @media (hover: none), (pointer: coarse) {
+    li[data-checked]::before {
+      top: calc((44px - 14px) / 2);
+    }
+  }
+
+  /* Engine-emitted block content hooks (moved from
+   react/BlockpageHost.module.css): the engine creates, queries, and
+   toggles these nodes itself. Plain selectors ship in production;
+   block-form :global in CSS modules does not. */
+  .flbp-block {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
+  .flbp-block + .flbp-block {
+    margin-top: 2px;
+  }
+  .flbp-content {
+    flex: 1;
+    min-width: 0;
+    outline: none;
+    padding: 3px 2px;
+    line-height: 1.65;
+    caret-color: var(--fl-accent);
+  }
+  .flbp-content:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fl-text-muted);
+    pointer-events: none;
+  }
+  h1.flbp-content {
+    font-size: 1.8em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 12px 0 4px;
+    line-height: 1.25;
+  }
+  h2.flbp-content {
+    font-size: 1.45em;
+    font-weight: 700;
+    letter-spacing: -0.017em;
+    margin: 10px 0 4px;
+    line-height: 1.3;
+  }
+  h3.flbp-content {
+    font-size: 1.2em;
+    font-weight: 650;
+    letter-spacing: -0.012em;
+    margin: 8px 0 4px;
+    line-height: 1.35;
+  }
+  h4.flbp-content,
+  h5.flbp-content,
+  h6.flbp-content {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin: 6px 0 4px;
+  }
+  .flbp-code {
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-lg);
+    padding: 10px 12px;
+    overflow-x: auto;
+  }
+  .flbp-code code {
+    font-family: var(--fl-font-mono);
+    font-size: 0.86em;
+    line-height: 1.62;
+  }
+  ul.flbp-list,
+  ol.flbp-list {
+    flex: 1;
+    min-width: 0;
+    padding-left: 24px;
+    display: grid;
+    gap: 6px;
+  }
+  .flbp-item {
+    padding: 2px 2px 2px 0;
+    border-radius: var(--fl-radius-sm);
+  }
+  .flbp-item:empty::before {
+    content: 'List item';
+    color: var(--fl-text-muted);
+    pointer-events: none;
+  }
+  .flbp-static .flbp-content {
+    color: var(--fl-text-secondary);
+  }
+  .flbp-table-wrap {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 4px 0;
+  }
+  /* Retired atom renderer: kept so old snapshots degrade
+     gracefully; the live grid uses .flbp-table-grid below. */
+  .flbp-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.85em;
+  }
+  .flbp-table td,
+  .flbp-table th {
+    border-bottom: 1px solid var(--fl-border-default);
+    padding: 6px 10px;
+    min-width: 84px;
+    vertical-align: top;
+  }
+  .flbp-table th {
+    background: var(--fl-surface-editor);
+    border-bottom-color: var(--fl-border-strong);
+    text-align: left;
+    font-weight: 600;
+  }
+  /* Editable grid: header cells render distinctly via `th`.*/
+  .flbp-table-grid {
+    /* The live ProseMirror table is the scroll region. The retired static
+       renderer used .flbp-table-wrap, but the editable grid has no wrapper;
+       keeping overflow here prevents wide grids from widening/clipping the
+       whole document while preserving native cell editing. */
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    width: 100%;
+    font-size: 0.85em;
+  }
+  .flbp-host .ProseMirror > .flbp-table-grid {
+    margin-top: 44px;
+  }
+  .flbp-host .ProseMirror > .flbp-table-grid + * {
+    margin-top: 36px;
+  }
+  @media (pointer: coarse) {
+    .flbp-host .ProseMirror > .flbp-table-grid {
+      margin-top: 60px;
+    }
+    .flbp-host .ProseMirror > .flbp-table-grid + * {
+      margin-top: 60px;
+    }
+  }
+  .flbp-table-grid tbody {
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+  .flbp-table-grid .flbp-td,
+  .flbp-table-grid .flbp-th {
+    border: 1px solid var(--fl-border-default);
+    padding: 9px 12px;
+    min-width: 84px;
+    vertical-align: top;
+  }
+  .flbp-table-grid .flbp-td:focus-within,
+  .flbp-table-grid .flbp-th:focus-within {
+    background: var(--fl-accent-soft);
+  }
+  .flbp-table-grid .flbp-th {
+    background: var(--fl-surface-editor);
+    border-bottom-color: var(--fl-border-strong);
+    font-weight: 600;
+    /* Header alignment base: per-column
+       alignment arrives as inline `text-align` from the canonical
+       table-level align (authoritative); unaligned headers fall back to
+       left — the retired atom rhythm — never the UA centered default, so
+       header alignment renders deterministically. */
+    text-align: left;
+  }
+  .flbp-table-grid .flbp-cell-para {
+    margin: 0;
+  }
+  .flbp-image {
+    margin: 6px 0 2px;
+  }
+  .flbp-image-box {
+    display: grid;
+    place-items: center;
+    width: min(420px, 100%);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--fl-radius-lg);
+    border: 1px dashed var(--fl-border-strong);
+    color: var(--fl-text-muted);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-image figcaption {
+    display: grid;
+    gap: 2px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--fl-text-muted);
+  }
+  .flbp-image-src,
+  .flbp-image-alt {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Media blocks: video/audio/file figures mirror the
+     image figure treatment (dashed placeholder + muted text-only caption).
+     Runtime hydration rows from media-view.ts use the flbp-media-* classes
+     below; the third-party-contact disclosure stays always-visible text
+ never hover-only. All presentation rides on theme tokens.*/
+  .flbp-video,
+  .flbp-audio,
+  .flbp-file {
+    margin: 6px 0 2px;
+  }
+  .flbp-video-ph,
+  .flbp-audio-ph,
+  .flbp-file-ph {
+    height: 56px;
+    border: 1.5px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-file-ph {
+    height: 44px;
+  }
+  /* The placeholder is part of the stable ProseMirror DOM skeleton, but it
+     must stop contributing geometry once runtime hydration has produced the
+     real media. Keeping it in the DOM lets a later load failure return to a
+     complete recovery card without rewriting the editor-owned node. */
+  [data-flbp-media-hydrated='live'] > .flbp-image-ph,
+  [data-flbp-media-hydrated='live'] > .flbp-video-ph,
+  [data-flbp-media-hydrated='live'] > .flbp-audio-ph,
+  [data-flbp-media-hydrated='live'] > .flbp-file-ph {
+    display: none;
+  }
+  .flbp-video figcaption,
+  .flbp-audio figcaption,
+  .flbp-file figcaption {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+    margin-top: 6px;
+  }
+  .flbp-media-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+  .flbp-media-message {
+    flex: 1 1 280px;
+    min-width: 0;
+    white-space: pre-wrap;
+  }
+  .flbp-media-disclosure {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+  }
+  .flbp-media-action {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 6px 14px;
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .flbp-media-action:hover {
+    background: var(--fl-surface-hover);
+  }
+  .flbp-media-action:active {
+    background: var(--fl-surface-active);
+  }
+  .flbp-media-action:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+  /* Empty-card picker row: Add + Capture share one
+     wrapped row so the card keeps its rhythm at narrow widths. */
+  .flbp-media-pick-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .flbp-media-pick-row .flbp-media-action {
+    justify-self: auto;
+  }
+  /* Host-owned file chooser: React-committed, never
+     displayed; engine buttons click it programmatically in-task. */
+  input[data-flbp-media-picker][hidden] {
+    display: none;
+  }
+  /* Touch pass: media actions meet the 44px coarse
+     contract with no double-tap-zoom delay. Desktop keeps the compact
+     32px rhythm above; coarse pointers get the full target. */
+  @media (hover: none), (pointer: coarse) {
+    .flbp-media-action {
+      min-height: 44px;
+      min-width: 44px;
+      padding-block: 10px;
+      touch-action: manipulation;
+    }
+  }
+  .flbp-media-img,
+  .flbp-media-video {
+    display: block;
+    width: min(420px, 100%);
+    height: auto;
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-media-audio {
+    width: min(420px, 100%);
+  }
+  .flbp-media-file {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-media-file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .flbp-media-file-size {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+    white-space: nowrap;
+  }
+  .flbp-opaque {
+    margin: 6px 0 2px;
+  }
+  .flbp-opaque-payload {
+    display: none;
+  }
+  .flbp-opaque-body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border: 1px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-sunken);
+  }
+  .flbp-opaque-type {
+    font-family: var(--fl-font-mono);
+    font-size: 11px;
+    color: var(--fl-text-secondary);
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-sm);
+    padding: 2px 7px;
+  }
+  .flbp-opaque-hint {
+    font-size: 11px;
+    color: var(--fl-text-muted);
+  }
+  .flbp-endzone {
+    min-height: 38vh;
+    cursor: text;
+  }
+}

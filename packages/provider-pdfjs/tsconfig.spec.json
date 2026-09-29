@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "emitDeclarationOnly": true },
+  "include": ["src/**/*.spec.{ts,tsx}"],
+  "references": [{ "path": "./tsconfig.lib.json" }]
+}

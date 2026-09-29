@@ -1,0 +1,38 @@
+/* Froglight platform environment — OS-owned insets, not theme API.
+   Keep OS-owned safe areas out of the product layout: components clear
+   these insets but themes and layout metrics never redefine them.
+ The soft keyboard overlays the full-size WebView; the shell
+   maintains `--fl-keyboard-inset-height` once per transition,
+   `--fl-keyboard-safe-bottom` is the keyboard-aware bottom clearance for
+   viewport-relative elements, and `--fl-keyboard-aware-bottom` is the
+   bottom clearance for containers whose own bottom already ends at the
+   keyboard top (safe area while closed, zero while docked). */
+
+:root {
+  --fl-safe-area-top: env(safe-area-inset-top, 0px);
+  --fl-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --fl-safe-area-left: env(safe-area-inset-left, 0px);
+  --fl-safe-area-right: env(safe-area-inset-right, 0px);
+  --fl-keyboard-inset-height: 0px;
+  /* Visual-viewport pan compatibility (iOS WebKit): consumed by
+     `[data-fl-viewport-overlay]` self-translation and owned by
+     ios-viewport-pan-guard.ts. Never a theme token. */
+  --fl-visual-viewport-pan-y: 0px;
+  /* Effective bottom reservation for global fixed overlays: the keyboard
+     inset plus any positive visual-viewport pan painted after layout.
+     Backdrops reserve this before translation so the final painted bottom
+     lands at the keyboard top and tall dialogs can scroll against the true
+     usable height. Never a theme token. */
+  --fl-keyboard-overlay-bottom: calc(
+    var(--fl-keyboard-inset-height, 0px) +
+      max(0px, var(--fl-visual-viewport-pan-y, 0px))
+  );
+  --fl-keyboard-safe-bottom: max(
+    var(--fl-keyboard-inset-height, 0px),
+    env(safe-area-inset-bottom, 0px)
+  );
+  --fl-keyboard-aware-bottom: max(
+    0px,
+    var(--fl-safe-area-bottom, 0px) - var(--fl-keyboard-inset-height, 0px)
+  );
+}

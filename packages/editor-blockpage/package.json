@@ -1,0 +1,44 @@
+{
+  "name": "@froglight/editor-blockpage",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "editor-blockpage",
+    "tags": [
+      "layer:provider",
+      "platform:shared",
+      "authority:trusted",
+      "domain:editors"
+    ]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "@froglight/runtime": "workspace:*",
+    "@tiptap/core": "^3.30.3",
+    "@tiptap/extension-list": "^3.30.3",
+    "@tiptap/pm": "^3.30.3",
+    "@tiptap/starter-kit": "^3.30.3",
+    "dompurify": "3.4.15",
+    "katex": "0.18.7",
+    "mermaid": "12.0.0",
+    "prosemirror-tables": "^1.8.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "vitest": "~4.1.0"
+  }
+}

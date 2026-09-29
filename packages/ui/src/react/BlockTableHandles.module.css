@@ -1,0 +1,158 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  pointer-events: none;
+}
+
+.handle {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-raised);
+  color: var(--fl-text-muted);
+  box-shadow: var(--fl-shadow-small);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.handle:hover,
+.handle[aria-expanded='true'],
+.handle[data-drop='true'] {
+  border-color: var(--fl-accent);
+  color: var(--fl-accent-strong);
+  background: var(--fl-accent-soft);
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.handle[data-visible='false'] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.dragPreview,
+.targetPreview {
+  position: fixed;
+  z-index: 2;
+  overflow: hidden;
+  box-sizing: border-box;
+  pointer-events: none;
+  border-radius: var(--fl-radius-md);
+}
+
+.dragPreview {
+  background: var(--fl-surface-raised);
+  box-shadow: var(--fl-shadow-medium);
+  opacity: 0.94;
+}
+
+.targetPreview {
+  background: var(--fl-accent-soft);
+  outline: 1px solid var(--fl-accent);
+  opacity: 0.45;
+}
+
+.dragPreview table,
+.targetPreview table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.insertRow,
+.insertColumn {
+  position: fixed;
+  border: 0;
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-hover);
+  color: var(--fl-text-muted);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.insertRow {
+  height: 20px;
+  transform: translateY(2px);
+}
+
+.insertColumn {
+  width: 20px;
+}
+
+.insertRow:hover,
+.insertColumn:hover {
+  background: var(--fl-accent-soft);
+  color: var(--fl-accent-strong);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.menu {
+  position: fixed;
+  z-index: 1;
+  min-width: 180px;
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--fl-border-default);
+  border-radius: var(--fl-radius-lg);
+  background: var(--fl-surface-raised);
+  box-shadow: var(--fl-shadow-medium);
+  pointer-events: auto;
+}
+
+.heading {
+  padding: 5px 8px;
+  color: var(--fl-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.menu button {
+  min-height: 32px;
+  border: 0;
+  border-radius: var(--fl-radius-md);
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--fl-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu button:hover:not(:disabled) {
+  background: var(--fl-surface-hover);
+}
+
+.menu button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@media (pointer: coarse) {
+  .handle {
+    width: 44px;
+    height: 44px;
+  }
+  .insertRow {
+    height: 44px;
+  }
+  .insertColumn {
+    width: 44px;
+  }
+}

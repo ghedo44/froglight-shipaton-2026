@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Froglight Ink release benchmark</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f7f7f5;
+        font-family: monospace;
+      }
+      #bench-root {
+        position: relative;
+        width: 1280px;
+        height: 800px;
+        overflow: hidden;
+      }
+      #bench-status {
+        padding: 8px;
+        white-space: pre-wrap;
+      }
+      .fl-ink-root {
+        position: absolute;
+        inset: 0;
+      }
+      .fl-ink-page {
+        position: absolute;
+        inset: 0;
+      }
+      .fl-ink-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bench-status">loading</div>
+    <div id="bench-root"></div>
+    <script type="module" src="/bench/ink-release-bench.ts"></script>
+  </body>
+</html>

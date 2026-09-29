@@ -1,0 +1,118 @@
+/* Button primitives — CSS module colocated with Button.tsx.
+   Imported explicitly by the component (`import styles from
+   './Button.module.css'`); appearance, semantics, and accessibility
+   defaults are one unit (`<Button>`, `<IconButton>`). Variants select
+   through `data-variant`, never global class names.
+   Classes owned: btn (+data-variant), icon-button. Vars consumed:
+   --fl-surface-*, --fl-text-*, --fl-border-*, --fl-radius-*,
+   --fl-accent-*, --fl-danger-*, --fl-motion/--fl-ease-*. Hosts:
+   react/Button.tsx (every `btn`/`icon-button` call site renders through
+   it). Controls share the same compact geometry across input methods.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .btn {
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: var(--fl-radius-md);
+    padding: 0 12px;
+    height: 30px;
+    font-weight: 500;
+    font-size: 13px;
+    border: 1px solid var(--fl-border-strong);
+    background: var(--fl-surface-raised);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      border-color var(--fl-motion-fast) var(--fl-ease-standard),
+      box-shadow var(--fl-motion-fast) var(--fl-ease-standard),
+      transform var(--fl-motion-fast) var(--fl-ease-standard);
+    white-space: nowrap;
+  }
+  /* Hover never applies to disabled buttons: a generic `:disabled:hover`
+     override would need to repeat every variant background, and at equal
+     specificity source order would let it clobber e.g. primary's accent
+     fill (disabled primary flashing white on hover). */
+  .btn:not(:disabled):hover {
+    background: var(--fl-surface-hover);
+    border-color: color-mix(in srgb, var(--fl-text-primary) 26%, transparent);
+  }
+  .btn:active {
+    background: var(--fl-surface-active);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1.5px;
+  }
+  .btn[data-variant='primary'] {
+    background: var(--fl-accent-strong);
+    border-color: transparent;
+    color: var(--fl-accent-contrast);
+    font-weight: 550;
+  }
+  .btn[data-variant='primary']:not(:disabled):hover {
+    background: color-mix(
+      in srgb,
+      var(--fl-accent-strong) 90%,
+      var(--fl-text-primary)
+    );
+  }
+  .btn[data-variant='secondary'] {
+    background: var(--fl-surface-sunken);
+  }
+  .btn[data-variant='ghost'] {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .btn[data-variant='ghost']:not(:disabled):hover {
+    background: var(--fl-surface-hover);
+  }
+  .btn[data-variant='danger'] {
+    background: transparent;
+    border-color: transparent;
+    color: var(--fl-danger);
+  }
+  .btn[data-variant='danger']:not(:disabled):hover {
+    background: var(--fl-danger-soft);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+  }
+
+  .icon-button {
+    touch-action: manipulation;
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .icon-button:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .icon-button:active {
+    background: var(--fl-surface-active);
+  }
+  .icon-button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1.5px;
+  }
+  .icon-button:disabled {
+    opacity: 0.35;
+  }
+  .icon-button:disabled:hover {
+    background: none;
+    color: var(--fl-text-muted);
+  }
+}

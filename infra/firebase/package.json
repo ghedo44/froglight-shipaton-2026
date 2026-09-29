@@ -1,0 +1,22 @@
+{
+  "name": "@froglight/firebase-infra",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Reproducible Firebase backend for Froglight Pro vault sync (plan1 slice E). Standalone package: backend config plus Emulator Suite Security Rules tests. Not part of the app pnpm workspace.",
+  "scripts": {
+    "test": "vitest run",
+    "test:emulators": "firebase emulators:exec --only firestore,storage --project demo-froglight-sync-test \"vitest run\"",
+    "test:emulators:provider": "firebase emulators:exec --only auth,firestore,storage --project demo-froglight-sync-test \"sh ./scripts/test-provider-emulators.sh\"",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage",
+    "deploy:extensions": "firebase deploy --only extensions"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "@types/node": "^22.0.0",
+    "firebase": "^12.18.0",
+    "firebase-tools": "15.23.0",
+    "typescript": "~6.0.3",
+    "vitest": "~4.1.0"
+  }
+}

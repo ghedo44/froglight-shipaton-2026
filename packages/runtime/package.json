@@ -1,0 +1,32 @@
+{
+  "name": "@froglight/runtime",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "runtime",
+    "tags": [
+      "layer:runtime",
+      "platform:shared",
+      "authority:trusted"
+    ]
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@froglight/runtime": "workspace:*"
+  }
+}

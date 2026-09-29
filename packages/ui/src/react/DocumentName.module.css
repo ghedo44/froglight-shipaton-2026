@@ -1,0 +1,111 @@
+@layer components {
+  .name {
+    flex: 0 0 auto;
+    min-width: 0;
+    color: var(--fl-text-primary);
+  }
+  .name h1 {
+    margin: 0;
+    font-family: var(--fl-font-sans);
+    font-size: clamp(26px, 2.5vw, 34px);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+  .name button,
+  .name textarea,
+  .editSizer {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-family: var(--fl-font-sans);
+    font-size: clamp(26px, 2.5vw, 34px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-align: start;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .editField {
+    display: grid;
+  }
+  .editSizer,
+  .name textarea {
+    grid-area: 1 / 1;
+  }
+  .editSizer {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .name textarea {
+    height: 100%;
+    resize: none;
+    overflow: hidden;
+  }
+  .name button {
+    cursor: text;
+  }
+  .name button:hover {
+    color: var(--fl-text-secondary);
+  }
+  .name button:focus-visible,
+  .name textarea:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 4px;
+  }
+  .name p {
+    margin: 8px 0 0;
+    color: var(--fl-danger);
+    font-size: 12px;
+  }
+
+  .name[data-layout='markdown'],
+  .name[data-layout='block'] {
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .name[data-layout='markdown'] {
+    padding: 76px clamp(20px, 8%, 76px) 8px;
+  }
+  .name[data-layout='block'] {
+    padding-block: 76px 8px;
+  }
+  .name[data-layout='block'] .measure {
+    /* Match the provider's content measure using the editor's font metrics,
+       independently of the title's larger typography. */
+    max-width: 71.36ch;
+    margin-inline: auto;
+    font-family: var(--fl-font-sans);
+    font-size: var(--fl-editor-font-size, 16px);
+  }
+  .name[data-layout='markdown'] .measure {
+    box-sizing: border-box;
+    max-width: 74ch;
+    margin-inline: auto;
+    padding-inline: 12px;
+    font-family: var(--fl-font-sans);
+    font-size: var(--fl-editor-font-size);
+  }
+  .name[data-layout='markdown'] {
+    padding-inline: 0;
+  }
+  .name[data-layout='reading'] {
+    padding: 76px 22px 28px;
+  }
+  .name[data-layout='reading'] .measure {
+    min-width: 0;
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+  .name[data-layout='database'] {
+    margin-bottom: 22px;
+  }
+}

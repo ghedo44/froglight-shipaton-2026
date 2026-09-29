@@ -1,0 +1,136 @@
+/* Froglight Pro paywall — CSS module colocated with ProPaywall.tsx.
+   Classes owned: paywall (+data-state), header, title, lede, benefits,
+   plans, actions, primary-action, notice (+data-kind), success,
+   success-title, success-detail, muted, retry-row. Vars consumed:
+   --fl-surface-*, --fl-text-*, --fl-border-*, --fl-radius-*,
+   --fl-accent-*, --fl-danger-*, --fl-motion/--fl-ease-*. Hosts:
+   react/ProPaywall.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .paywall {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 560px;
+  }
+  .paywall-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .paywall-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .paywall-lede {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--fl-text-secondary);
+    max-width: 60ch;
+  }
+  .paywall-benefits {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .paywall-benefits li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  .paywall-benefits li::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 999px;
+    background: var(--fl-accent-strong);
+  }
+  .paywall-plans {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .paywall-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .paywall-primary-action {
+    min-height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+  }
+  .paywall-restore-action {
+    min-height: 44px;
+  }
+  .paywall-notice {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--fl-radius-lg);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .paywall-notice[data-kind='error'] {
+    background: var(--fl-danger-soft);
+    color: var(--fl-text-primary);
+    border: 1px solid color-mix(in srgb, var(--fl-danger) 35%, transparent);
+  }
+  .paywall-notice[data-kind='info'] {
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-secondary);
+    border: 1px solid var(--fl-border-default);
+  }
+  .paywall-success {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 0;
+  }
+  .paywall-success-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+  }
+  .paywall-success-detail {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fl-text-secondary);
+  }
+  .paywall-muted {
+    margin: 0;
+    font-size: 12px;
+    color: var(--fl-text-muted);
+    line-height: 1.5;
+  }
+  .paywall-retry-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  @media (max-width: 560px) {
+    .paywall-plans {
+      grid-template-columns: 1fr;
+    }
+    .paywall-primary-action,
+    .paywall-restore-action {
+      min-height: 48px;
+      width: 100%;
+    }
+  }
+}

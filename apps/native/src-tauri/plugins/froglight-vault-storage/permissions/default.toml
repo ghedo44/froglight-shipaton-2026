@@ -1,0 +1,15 @@
+[default]
+description = "Default permissions for FrogLight mobile vault storage"
+permissions = [
+  "allow-pick-folder",
+  "allow-forget-folder",
+  "allow-list-folders",
+  "allow-read-dir",
+  "allow-stat",
+  "allow-read-file",
+  "allow-write-file",
+  "allow-mkdir",
+  "allow-remove-file",
+  "allow-remove-dir",
+  "allow-rename",
+]

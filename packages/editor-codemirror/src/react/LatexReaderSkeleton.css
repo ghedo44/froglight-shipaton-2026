@@ -1,0 +1,31 @@
+/* LaTeX reader skeleton — provider stylesheet colocated with LatexReaderSkeleton.tsx
+   and owned by the codemirror editor provider. The React skeleton renders
+   the wrapper plus the sandboxed preview iframe; the engine swaps `srcdoc`
+   and reads the preview document. The iframe content itself is
+   provider-derived content, not React-owned application DOM.
+   Classes owned: froglight-latex-reader, froglight-latex-frame
+   (stable global hooks consumed by the engine and tests; scoped under @layer components).
+   Hosts: react/LatexReaderSkeleton.tsx.
+   This file must not define :root tokens. */
+@layer components {
+  .froglight-latex-reader {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--fl-surface-editor, #fff);
+  }
+  .froglight-latex-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: var(--fl-surface-editor, #fff);
+    flex: 1;
+    min-height: 0;
+  }
+}

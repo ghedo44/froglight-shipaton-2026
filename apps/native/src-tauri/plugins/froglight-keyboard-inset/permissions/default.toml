@@ -1,0 +1,7 @@
+[default]
+description = "Default permissions for the Froglight overlay keyboard-inset plugin"
+permissions = [
+  "allow-hide",
+  "allow-show",
+  "allow-get-state",
+]

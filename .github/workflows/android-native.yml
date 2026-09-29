@@ -1,0 +1,97 @@
+name: Android native compile
+
+on:
+  # push/pull triggers temporarily disabled for manual runs - restore to re-enable:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - '.github/workflows/android-native.yml'
+  #     - 'apps/native/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+  # pull_request:
+  #   paths:
+  #     - '.github/workflows/android-native.yml'
+  #     - 'apps/native/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-compile:
+    name: Kotlin + Rust Android targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NODE_VERSION: '24'
+      PNPM_VERSION: '11.20.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Rust for Android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build native frontend (Tauri frontendDist)
+        working-directory: ./
+        run: pnpm --filter @froglight/native build
+
+      - name: Generate Tauri Android project
+        working-directory: apps/native
+        run: pnpm exec tauri android init --ci --skip-targets-install
+
+      - name: Validate Kotlin plugin sources present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f apps/native/src-tauri/plugins/froglight-stylus/android/src/main/java/io/froglight/stylus/FroglightStylusPlugin.kt
+          test -f apps/native/src-tauri/plugins/froglight-keyboard-inset/android/src/main/java/FroglightKeyboardInsetPlugin.kt
+
+      - name: Gradle configuration + Kotlin compile
+        working-directory: apps/native/src-tauri/gen/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Rust Android target check
+        working-directory: apps/native/src-tauri
+        run: cargo check --target aarch64-linux-android

@@ -1,0 +1,9 @@
+# Standalone backend package (own lockfile, not part of the app workspace).
+# Supply-chain policy mirrors the root `pnpm-workspace.yaml`: dependency
+# build scripts are denied by default; only the trusted scripts the
+# Emulator Suite and Firebase SDK clients require may run. Never add a
+# wildcard here.
+allowBuilds:
+  '@firebase/util': true
+  protobufjs: true
+  re2: true

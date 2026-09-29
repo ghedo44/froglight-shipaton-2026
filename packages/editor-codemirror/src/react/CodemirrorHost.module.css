@@ -1,0 +1,61 @@
+/* CodeMirror host — CSS module colocated with
+   CodemirrorMarkdownSkeleton.tsx and owned by the codemirror editor
+   provider. The React skeleton renders the visible host structure; the
+   engine mounts the CodeMirror view into it.
+   Third-party CodeMirror-owned DOM (`.cm-*`) is matched through `:global`
+   hooks scoped under the local host — engine internals stay exempt from
+   the React rule; only the visible host wrapper is component-owned.
+   Classes owned: froglight-cm-host (+global .cm-* descendants). Vars
+   consumed: --fl-font-sans, --fl-editor-font-size. Hosts:
+   react/CodemirrorMarkdownSkeleton.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .froglight-cm-host {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .froglight-cm-host :global(.cm-editor) {
+    height: 100%;
+    min-height: 0;
+  }
+  :global(.cm-editor.cm-focused) {
+    outline: none;
+  }
+  /* The writing surface shares the paper column: proportional ink, centered
+     measure, generous top space — the headspace scrolls beneath floating
+     tools without moving the editor viewport. */
+  .froglight-cm-host :global(.cm-scroller) {
+    font-family: var(--fl-font-sans);
+    flex-wrap: wrap;
+    padding: 0 0 45vh;
+  }
+  .froglight-cm-host :global([data-fl-document-title-slot='editor']) {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+  .froglight-cm-host :global(.cm-content) {
+    max-width: 74ch;
+    margin: 0 auto;
+  }
+  .froglight-cm-host :global(.cm-line) {
+    padding: 0 10px;
+  }
+  .froglight-cm-host :global(.cm-activeLine) {
+    background: none;
+  }
+
+  .froglight-cm-host :global(.cm-line) {
+    min-height: 1.75em;
+  }
+
+  /* Editor content areas must remain selectable despite the shell's global
+     no-select reset. */
+  .froglight-cm-host :global(.cm-content),
+  .froglight-cm-host :global(.cm-line) {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}

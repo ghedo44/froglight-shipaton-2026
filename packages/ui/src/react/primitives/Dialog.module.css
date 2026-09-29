@@ -1,0 +1,83 @@
+@layer components {
+  .backdrop {
+    z-index: 1100;
+  }
+  .backdrop.backdrop {
+    animation: fl-dialog-backdrop-in var(--fl-motion-fast)
+      var(--fl-ease-standard) both;
+  }
+  .backdrop.backdrop[data-closing] {
+    animation: fl-dialog-backdrop-out var(--fl-motion-normal)
+      var(--fl-ease-standard) both;
+    pointer-events: none;
+  }
+  .backdrop.backdrop > [role='dialog'],
+  .backdrop.backdrop > [role='alertdialog'] {
+    animation: fl-dialog-content-in var(--fl-motion-normal)
+      var(--fl-ease-spring) both;
+  }
+  .backdrop.backdrop[data-closing] > [role='dialog'],
+  .backdrop.backdrop[data-closing] > [role='alertdialog'] {
+    animation: fl-dialog-content-out var(--fl-motion-normal)
+      var(--fl-ease-standard) both;
+  }
+  @keyframes fl-dialog-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fl-dialog-backdrop-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes fl-dialog-content-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fl-dialog-content-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(8px) scale(0.985);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop,
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop[data-closing],
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop > [role='dialog'],
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop > [role='alertdialog'],
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop[data-closing] > [role='dialog'],
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop[data-closing] > [role='alertdialog'] {
+      animation: none;
+    }
+  }
+  .content {
+    composes: frame surface from '../DialogSurface.module.css';
+    width: min(480px, 100%);
+    max-height: 100%;
+    outline: none;
+  }
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+}

@@ -1,0 +1,4 @@
+# The Android dev loop regenerates files under gen/ and target/ on every
+# build; without this the tauri-cli watcher rebuilds in an endless loop.
+gen/
+target/

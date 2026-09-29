@@ -1,0 +1,101 @@
+/* Settings section primitives — CSS module colocated with
+   SettingsView.tsx and shared explicitly by CommunityPluginsView.tsx
+   (`import styles from './SettingsView.module.css'`), so the import trail
+   names the stylesheet; correctness comes from the `components` cascade
+   layer, never source order.
+   Classes owned: settings-section-title/row/text/label/description,
+   settings-control/select/slider/about/section. Vars consumed:
+   --fl-border-*, --fl-text-*, --fl-accent-*. Hosts:
+   react/SettingsView.tsx, react/CommunityPluginsView.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .settings-section-title {
+    font-size: 20px;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 26px;
+    padding: 12px 2px;
+  }
+  .settings-row + .settings-row {
+    border-top: 1px solid var(--fl-border-default);
+  }
+  /* Structural hook: the label/description stack carries no styles of its
+     own, but the name is part of the component contract for tests and
+     tooling. */
+  .settings-row-text {
+  }
+  .settings-row-label {
+    font-weight: 500;
+    font-size: 13.5px;
+  }
+  .settings-row-description {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+    max-width: 64ch;
+  }
+  .settings-control {
+    min-width: 170px;
+    max-width: 100%;
+  }
+  /* Themed select: native popup, chevron drawn from the icon system. */
+  .settings-select {
+    position: relative;
+    display: inline-flex;
+    min-width: 170px;
+  }
+  .settings-select .settings-control {
+    width: 100%;
+    appearance: none;
+    padding-right: 30px;
+  }
+  .settings-select-chevron {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    color: var(--fl-text-muted);
+    pointer-events: none;
+  }
+  .settings-slider {
+    --fl-slider-width: 190px;
+  }
+  .settings-about {
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    max-width: 64ch;
+  }
+  .settings-section {
+    display: block;
+  }
+
+  @container (max-width: 520px) {
+    .settings-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+  }
+}
+
+@layer components {
+  @media (any-pointer: coarse) {
+    .settings-control {
+      min-height: 44px;
+      font-size: 16px;
+    }
+    .settings-select .settings-control {
+      padding-block: 8px;
+    }
+  }
+}

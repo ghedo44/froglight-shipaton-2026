@@ -1,0 +1,17 @@
+/* Brush preview — colocated with brush-preview.tsx (`import styles from
+   './brush-preview.module.css'`), so the import trail names the stylesheet;
+   correctness comes from the `components` cascade layer, never source order.
+   Tiny vector ribbon only: sizing here, color/opacity come from the resolved
+   brush spec inline. Classes owned: fl-brush-preview. Vars consumed: none
+   (transparent preview surface inherits the card). Hosts:
+   react/brush-preview.tsx, react/saved-style-cards.tsx. This file must only
+   consume var(--fl-*) tokens and must not define :root tokens. */
+@layer components {
+  .fl-brush-preview {
+    display: block;
+    width: 100%;
+    height: 28px;
+    flex: 0 0 auto;
+    pointer-events: none;
+  }
+}

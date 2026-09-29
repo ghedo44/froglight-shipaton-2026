@@ -1,0 +1,29 @@
+{
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devUrl": "http://localhost:5174",
+    "frontendDist": "../dist"
+  },
+  "bundle": { "active": true, "targets": "all" },
+  "productName": "Froglight",
+  "version": "0.0.1",
+  "identifier": "app.froglight.app",
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Froglight",
+        "width": 900,
+        "height": 700,
+        "decorations": false,
+        "dragDropEnabled": false,
+        "disableInputAccessoryView": true
+      }
+    ]
+  },
+  "plugins": {
+    "froglight-purchases": {}
+  }
+}

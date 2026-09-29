@@ -1,0 +1,181 @@
+/* Menus and modal dialogs — CSS module colocated with overlays.tsx.
+   Imported explicitly by the component (`import styles from
+   './Overlays.module.css'`); correctness comes from the `components`
+   cascade layer, never source order. Covers the context-menu overlay plus
+   the prompt/confirm dialogs rendered through the shared overlay host
+   (the host node itself is an unstyled positioning hook).
+   Classes owned: fl-menu (+item/icon/check/label/shortcut/separator,
+   +selected), froglight-modal (+backdrop/small/description/actions).
+   Vars consumed: --fl-surface-*, --fl-text-*, --fl-border-*,
+   --fl-radius-*, --fl-shadow-*, --fl-danger-*, --fl-accent-*,
+   --fl-motion/--fl-ease-*, --fl-keyboard-*. Hosts: react/overlays.tsx.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .fl-menu {
+    composes: surface from './DialogSurface.module.css';
+    position: fixed;
+    z-index: 900;
+    min-width: 180px;
+    max-width: 300px;
+    /* Effective reservation: keyboard inset plus positive
+       visual-viewport pan, so the painted menu (self-translated after
+       layout) still ends above the keyboard. */
+    max-height: min(
+      420px,
+      calc(
+        100vh - 24px -
+          var(
+            --fl-keyboard-overlay-bottom,
+            var(--fl-keyboard-inset-height, 0px)
+          )
+      )
+    );
+    overflow-y: auto;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    animation: fl-pop-in var(--fl-motion-fast) var(--fl-ease-spring);
+    outline: none;
+  }
+  @keyframes fl-pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97) translateY(-3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .fl-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-align: left;
+    padding: 0 10px;
+    height: 30px;
+    border-radius: var(--fl-radius-md);
+    font-size: 13px;
+    font-weight: 450;
+    color: var(--fl-text-secondary);
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .fl-menu-item.selected,
+  .fl-menu-item:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  @media (hover: none), (pointer: coarse) {
+    .fl-menu-item {
+      min-height: 44px;
+    }
+  }
+  .fl-menu-item[data-danger='true'] {
+    color: var(--fl-danger);
+  }
+  .fl-menu-item[data-danger='true'].selected,
+  .fl-menu-item[data-danger='true']:hover {
+    background: var(--fl-danger-soft);
+  }
+  .fl-menu-item[aria-disabled='true'] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .fl-menu-item-icon {
+    width: 16px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    opacity: 0.85;
+  }
+  .fl-menu-item-check {
+    width: 12px;
+    flex: 0 0 auto;
+    color: var(--fl-accent-strong);
+    display: grid;
+    place-items: center;
+  }
+  .fl-menu-item-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fl-menu-item-shortcut {
+    flex: 0 0 auto;
+  }
+  .fl-menu-separator {
+    height: 1px;
+    margin: 5px 6px;
+    background: var(--fl-border-default);
+  }
+
+  .froglight-modal-backdrop { z-index: 1100; }
+  .froglight-modal {
+    composes: frame from './DialogSurface.module.css';
+    composes: surface from './DialogSurface.module.css';
+    width: min(440px, 100%);
+    /* Tall dialogs never exceed the usable content box: short cards stay
+       content-sized, tall cards scroll internally. */
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 24px;
+  }
+  .froglight-modal-small {
+    width: min(380px, 100%);
+  }
+  .froglight-modal h2 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    font-weight: 650;
+  }
+  .froglight-modal-description {
+    margin: 4px 0 14px;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .froglight-modal input {
+    width: 100%;
+    margin: 8px 0 4px;
+  }
+  .froglight-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  @media (max-width: 760px) {
+    /* Phone: prompts become a bottom sheet riding above the overlay
+ keyboard, matching the new-note picker treatment. The
+       backdrop already ends at the keyboard top; the sheet sits at its end. */
+    .froglight-modal,
+    .froglight-modal-small {
+      width: min(480px, 100%);
+    }
+  }
+}
+
+/* Viewport-overlay geometry (containing-block fix). The fixed
+   surface keeps the real viewport as its containing block first (keyboard
+   inset defines the usable rectangle via `bottom`), then receives the iOS
+   visual-viewport pan compensation afterward. `translate` (not `transform`)
+   is load-bearing: overlay entrance animations already own `transform`, and
+   a `transform` here would overwrite them. The host itself must never
+   establish a containing block for fixed descendants (no transform, filter,
+   perspective, or layout/paint containment; no `will-change: transform`). */
+@layer platform {
+  :global(.froglight-overlay-host) {
+    transform: none;
+    filter: none;
+    perspective: none;
+    contain: none;
+  }
+}

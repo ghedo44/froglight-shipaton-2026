@@ -1,0 +1,76 @@
+/* Froglight default dark theme — charcoal ink world (#1d1d21 on
+   #151518), explicit choice via `[data-theme='dark']` or the system
+   preference when no explicit world is set. Values only, like
+   `themes/light.css`. */
+
+/* Charcoal ink world — explicit choice */
+:root[data-theme='dark'] {
+  --fl-vault-violet: #b4a7ff;
+  --fl-vault-blue: #8bb9ec;
+  --fl-vault-orange: #efab78;
+  --fl-vault-teal: #80cecb;
+  --fl-surface-app: #1d1d21;
+  --fl-surface-sidebar: #151518;
+  --fl-surface-sunken: #222227;
+  --fl-surface-raised: #26262c;
+  --fl-surface-hover: rgba(255, 255, 255, 0.055);
+  --fl-surface-active: rgba(255, 255, 255, 0.09);
+  --fl-surface-editor: #1d1d21;
+  --fl-surface-input: #19191d;
+  --fl-text-primary: #dcdde3;
+  --fl-text-secondary: rgba(220, 221, 227, 0.72);
+  --fl-text-muted: rgba(220, 221, 227, 0.6);
+  --fl-accent: #4ade80;
+  --fl-accent-strong: #86efac;
+  --fl-accent-contrast: #0f1f14;
+  --fl-accent-soft: rgba(74, 222, 128, 0.16);
+  --fl-danger: #ef7a72;
+  --fl-danger-soft: rgba(239, 122, 114, 0.13);
+  --fl-success: #6ec493;
+  --fl-warning: #dfb95e;
+  --fl-border-default: rgba(255, 255, 255, 0.08);
+  --fl-border-strong: rgba(255, 255, 255, 0.16);
+  --fl-shadow-low: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.4);
+  --fl-shadow-medium:
+    0 4px 14px rgba(0, 0, 0, 0.38), 0 2px 5px rgba(0, 0, 0, 0.24);
+  --fl-shadow-overlay:
+    0 14px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
+/* System preference resolves the un-set world */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --fl-vault-violet: #b4a7ff;
+    --fl-vault-blue: #8bb9ec;
+    --fl-vault-orange: #efab78;
+    --fl-vault-teal: #80cecb;
+    --fl-surface-app: #1d1d21;
+    --fl-surface-sidebar: #151518;
+    --fl-surface-sunken: #222227;
+    --fl-surface-raised: #26262c;
+    --fl-surface-hover: rgba(255, 255, 255, 0.055);
+    --fl-surface-active: rgba(255, 255, 255, 0.09);
+    --fl-surface-editor: #1d1d21;
+    --fl-surface-input: #19191d;
+    --fl-text-primary: #dcdde3;
+    --fl-text-secondary: rgba(220, 221, 227, 0.72);
+    --fl-text-muted: rgba(220, 221, 227, 0.6);
+    --fl-accent: #4ade80;
+    --fl-accent-strong: #86efac;
+    --fl-accent-contrast: #0f1f14;
+    --fl-accent-soft: rgba(74, 222, 128, 0.16);
+    --fl-danger: #ef7a72;
+    --fl-danger-soft: rgba(239, 122, 114, 0.13);
+    --fl-success: #6ec493;
+    --fl-warning: #dfb95e;
+    --fl-border-default: rgba(255, 255, 255, 0.08);
+    --fl-border-strong: rgba(255, 255, 255, 0.16);
+    --fl-shadow-low: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.4);
+    --fl-shadow-medium:
+      0 4px 14px rgba(0, 0, 0, 0.38), 0 2px 5px rgba(0, 0, 0, 0.24);
+    --fl-shadow-overlay:
+      0 14px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    color-scheme: dark;
+  }
+}

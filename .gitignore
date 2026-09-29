@@ -1,0 +1,102 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+*.tsbuildinfo
+
+# dependencies
+node_modules
+.pnpm-store/
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.claude/worktrees
+.claude/settings.local.json
+
+vitest.config.*.timestamp*
+test-results/
+playwright-report/
+# agent tooling and local build artifacts
+.env
+.impeccable/
+.tmp-*/
+dev-dist
+src-tauri/gen/
+__pycache__/
+**/src-tauri/gen/
+
+# Keep the generated Apple project required for reproducible iOS builds.
+!apps/native/src-tauri/gen/
+apps/native/src-tauri/gen/*
+!apps/native/src-tauri/gen/apple/
+!apps/native/src-tauri/gen/apple/**
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
+
+.nx/polygraph
+
+firebase-debug.log
+
+# Reference-only third-party BlockNote tree (MPL-2.0 core, GPL xl-*); never imported into first-party sources.
+BlockNote/
+
+# Local tooling, credentials and native build output
+.agents/
+.agentic/
+.codex/
+.opencode/
+.claude/
+.impeccable/
+.local/
+.scratch/
+.pytest_cache/
+target/
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+*.ipa
+*.apk
+*.aab
+!.env.example
+!**/.env.example
+# Non-secret RevenueCat extension parameters required by Firebase.
+!infra/firebase/extensions/firestore-revenuecat-purchases.env

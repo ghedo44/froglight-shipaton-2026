@@ -1,0 +1,116 @@
+name: Firebase rules
+
+# Emulator Suite tests for the Pro sync backend.
+# No production project, no secrets: everything runs against Auth +
+# Firestore + Storage emulators under a `demo-*` project.
+on:
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'infra/firebase/**'
+  #     - 'packages/foundation/src/sync/**'
+  #     - 'packages/provider-firebase/**'
+  #     - '.github/workflows/firebase-rules.yml'
+  # pull_request:
+  #   paths:
+  #     - 'infra/firebase/**'
+  #     - 'packages/foundation/src/sync/**'
+  #     - 'packages/provider-firebase/**'
+  #     - '.github/workflows/firebase-rules.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-rules-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emulator-rules:
+    name: Emulator rules tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: infra/firebase
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Java (Emulator Suite)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache emulator binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ runner.os }}-${{ hashFiles('infra/firebase/pnpm-lock.yaml') }}
+          restore-keys: |
+            firebase-emulators-${{ runner.os }}-
+
+      - name: Install dependencies (standalone backend package)
+        # No --ignore-workspace: infra/firebase/pnpm-workspace.yaml makes
+        # this directory its own workspace root so the allowBuilds policy
+        # there (only the trusted Emulator Suite/SDK build scripts) applies.
+        run: pnpm install --frozen-lockfile
+
+      - name: Run rules tests against emulators
+        run: pnpm test:emulators
+
+  emulator-provider:
+    name: Emulator provider tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Java (Emulator Suite)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache emulator binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ runner.os }}-${{ hashFiles('infra/firebase/pnpm-lock.yaml') }}
+          restore-keys: |
+            firebase-emulators-${{ runner.os }}-
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install backend dependencies (standalone package)
+        working-directory: infra/firebase
+        run: pnpm install --frozen-lockfile
+
+      - name: Run provider tests against emulators
+        working-directory: infra/firebase
+        run: pnpm test:emulators:provider

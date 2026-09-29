@@ -1,0 +1,61 @@
+{
+  "name": "@froglight/native",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Tauri host — native providers over the shared Froglight workbench",
+  "nx": {
+    "name": "native",
+    "tags": [
+      "layer:app",
+      "platform:native",
+      "authority:native",
+      "domain:workspace"
+    ],
+    "targets": {
+      "typecheck": {
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "native:run": "pnpm build && cargo run --manifest-path src-tauri/Cargo.toml",
+    "native:build": "pnpm tauri build",
+    "native:check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@froglight/application": "workspace:*",
+    "@froglight/editor-blockpage": "workspace:*",
+    "@froglight/editor-codemirror": "workspace:*",
+    "@froglight/editor-ink": "workspace:*",
+    "@froglight/editor-notebook": "workspace:*",
+    "@froglight/editor-whiteboard": "workspace:*",
+    "@froglight/foundation": "workspace:*",
+    "@froglight/index-sqlite": "workspace:*",
+    "@froglight/plugin-platform": "workspace:*",
+    "@froglight/provider-firebase": "workspace:*",
+    "@froglight/provider-latexjs": "workspace:*",
+    "@froglight/provider-native-fs": "workspace:*",
+    "@froglight/provider-opfs": "workspace:*",
+    "@froglight/provider-pdf-lib": "workspace:*",
+    "@froglight/provider-pdfjs": "workspace:*",
+    "@froglight/runtime": "workspace:*",
+    "@froglight/ui": "workspace:*",
+    "@tauri-apps/api": "^2.11.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "@vitejs/plugin-react": "^4.7.0",
+    "happy-dom": "^20.12.0",
+    "typescript": "~6.0.3",
+    "vite": "^6.0.0"
+  }
+}

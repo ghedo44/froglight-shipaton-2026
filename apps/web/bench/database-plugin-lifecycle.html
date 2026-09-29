@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Froglight database plugin lifecycle acceptance</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, sans-serif;
+        --surface: #fff;
+        --surface-subtle: #f4f5f2;
+        --surface-hover: #eceee9;
+        --text: #20231f;
+        --text-secondary: #62685e;
+        --border: #d7dbd3;
+        --accent: #426a35;
+        --accent-subtle: #e2eddd;
+        --danger: #a43b32;
+        --shadow: 0 8px 24px rgb(0 0 0 / 10%);
+      }
+      body {
+        margin: 0;
+        background: var(--surface-subtle);
+        color: var(--fl-text-primary);
+      }
+      #plugin-database-root {
+        max-width: 1100px;
+        margin: 32px auto;
+        padding: 0 24px;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="plugin-database-root"></main>
+    <script type="module" src="./database-plugin-lifecycle.tsx"></script>
+  </body>
+</html>

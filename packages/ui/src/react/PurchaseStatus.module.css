@@ -1,0 +1,49 @@
+/* Purchase status row — CSS module colocated with
+   PurchaseStatus.tsx.
+   Classes owned: purchase-status (+data-state), dot, texts, title,
+   subtitle. Vars consumed: --fl-surface-*, --fl-text-*, --fl-border-*,
+   --fl-radius-*, --fl-accent-*, --fl-success. Hosts:
+   react/PurchaseStatus.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .purchase-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0 12px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .purchase-status[data-state='pro'] {
+    color: var(--fl-accent-strong);
+  }
+  .purchase-status-dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--fl-text-muted);
+  }
+  .purchase-status[data-state='pro'] .purchase-status-dot {
+    background: var(--fl-accent-strong);
+  }
+  .purchase-status[data-state='unknown'] .purchase-status-dot {
+    background: var(--fl-text-muted);
+    opacity: 0.55;
+  }
+  .purchase-status-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .purchase-status-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .purchase-status-subtitle {
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+}

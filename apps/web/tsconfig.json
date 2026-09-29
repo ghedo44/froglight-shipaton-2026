@@ -1,0 +1,76 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "lib": ["es2022", "dom"],
+    "types": ["vite/client"],
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "vite.config.ts",
+    "vitest.config.mts",
+    "playwright.config.ts"
+  ],
+  // Browser-harness fixtures are vite build inputs, not app program
+  // sources: they import workspace source across project boundaries (which
+  // project-reference output checks reject), and are validated instead by
+  // the Playwright beforeAll production build + the Chromium run itself.
+  "exclude": ["tests/fixtures/**/*"],
+  "references": [
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/runtime"
+    },
+    {
+      "path": "../../packages/provider-pdfjs"
+    },
+    {
+      "path": "../../packages/provider-pdf-lib"
+    },
+    {
+      "path": "../../packages/provider-opfs"
+    },
+    {
+      "path": "../../packages/provider-latexjs"
+    },
+    {
+      "path": "../../packages/provider-firebase"
+    },
+    {
+      "path": "../../packages/plugin-platform"
+    },
+    {
+      "path": "../../packages/index-sqlite"
+    },
+    {
+      "path": "../../packages/foundation"
+    },
+    {
+      "path": "../../packages/editor-whiteboard"
+    },
+    {
+      "path": "../../packages/editor-notebook"
+    },
+    {
+      "path": "../../packages/editor-ink"
+    },
+    {
+      "path": "../../packages/editor-codemirror"
+    },
+    {
+      "path": "../../packages/editor-blockpage"
+    },
+    {
+      "path": "../../packages/application"
+    }
+  ]
+}

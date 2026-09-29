@@ -1,0 +1,109 @@
+/* Vault Sync settings section — CSS module colocated with
+   VaultSyncSettingsView.tsx.
+   Classes owned: sync-lede/status/meta/notice/actions/privacy.
+   Hosts: react/VaultSyncSettingsView.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .sync-lede {
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    max-width: 64ch;
+    margin: 0 0 24px;
+    line-height: 1.6;
+  }
+  .sync-status {
+    font-size: 13px;
+    margin: 0;
+    padding: 14px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 20px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .sync-summary {
+    min-width: 0;
+  }
+  .sync-summary strong {
+    text-align: right;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .sync-status-label {
+    flex-shrink: 0;
+    color: var(--fl-text-secondary);
+  }
+  .sync-meta {
+    color: var(--fl-text-muted);
+    font-size: 12px;
+    max-width: 64ch;
+    margin: 14px 0 0;
+    line-height: 1.6;
+  }
+  .sync-notice {
+    font-size: 13px;
+    margin: 8px 0;
+  }
+  .sync-notice[data-kind='error'] {
+    color: var(--fl-danger);
+  }
+  .sync-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .sync-conflicts {
+    border-top: 1px solid var(--fl-border-default);
+    margin-top: 14px;
+    padding: 14px 0 0;
+  }
+  .sync-conflicts h3 {
+    font-size: 13px;
+    margin: 0;
+  }
+  .sync-conflict-list {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+  }
+  .sync-conflict-item {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .sync-conflict-item strong,
+  .sync-conflict-detail {
+    overflow-wrap: anywhere;
+  }
+  .sync-conflict-detail {
+    color: var(--fl-text-muted);
+    font-size: 12px;
+  }
+  .sync-conflict-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .sync-conflict-actions button {
+    min-height: 40px;
+  }
+  @media (any-pointer: coarse) {
+    .sync-conflict-actions button {
+      min-height: 44px;
+    }
+  }
+  .sync-privacy {
+    color: var(--fl-text-muted);
+    font-size: 12px;
+    max-width: 64ch;
+    margin: 28px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--fl-border-default);
+    line-height: 1.6;
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "@froglight/editor-notebook",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "editor-notebook",
+    "tags": [
+      "layer:provider",
+      "platform:shared",
+      "authority:trusted",
+      "domain:editors"
+    ]
+  },
+  "dependencies": {
+    "@froglight/editor-ink": "workspace:*",
+    "@froglight/foundation": "workspace:*",
+    "@froglight/surface-default": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "vitest": "~4.1.0"
+  }
+}

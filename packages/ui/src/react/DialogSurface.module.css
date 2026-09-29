@@ -1,0 +1,88 @@
+/* Shared overlay material, viewport reservation and fixed-header layout. */
+@layer components {
+  .surface {
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-xl);
+    box-shadow: var(--fl-shadow-overlay);
+    color: var(--fl-text-primary);
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .surface {
+      background: color-mix(in srgb, var(--fl-surface-raised) 98%, transparent);
+      -webkit-backdrop-filter: blur(28px) saturate(150%) brightness(125%);
+      backdrop-filter: blur(28px) saturate(150%) brightness(125%);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .surface {
+      background: var(--fl-surface-raised);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(16px, var(--fl-safe-area-top, 0px))
+      max(16px, var(--fl-safe-area-right, 0px))
+      calc(
+        var(--fl-keyboard-overlay-bottom, var(--fl-keyboard-inset-height, 0px)) +
+          max(16px, var(--fl-keyboard-aware-bottom, 0px))
+      )
+      max(16px, var(--fl-safe-area-left, 0px));
+    background: rgba(25, 23, 17, 0.32);
+  }
+  :global([data-theme='dark']) .backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  :global([data-fl-keyboard-open='true']) .backdrop {
+    padding-bottom: var(--fl-keyboard-overlay-bottom, var(--fl-keyboard-inset-height, 0px));
+  }
+  /* Only the empty rounded tail goes behind the keyboard. Keep the body's
+     usable height intact by reserving the same amount inside the card. */
+  .backdrop > [data-fl-keyboard-contact] {
+    height: calc(100% + var(--fl-dialog-keyboard-tail));
+    max-height: calc(100% + var(--fl-dialog-keyboard-tail));
+    margin-bottom: calc(-1 * var(--fl-dialog-keyboard-tail));
+    padding-bottom: calc(var(--fl-dialog-bottom-padding) + var(--fl-dialog-keyboard-tail));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .surface.surface,
+    :global(:root:not([data-fl-motion='on'])) .backdrop.backdrop {
+      animation: none;
+      transition: none;
+    }
+  }
+  .frame {
+    min-height: 0;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--fl-border-strong) transparent;
+  }
+}
+
+/* Apply pan compensation to the fixed viewport owner, never its portal host. */
+@layer platform {
+  [data-fl-viewport-overlay] {
+    translate: 0px var(--fl-visual-viewport-pan-y, 0px);
+  }
+}

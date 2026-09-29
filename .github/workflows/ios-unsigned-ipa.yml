@@ -1,0 +1,213 @@
+name: Build unsigned iOS and iPadOS IPA
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   paths:
+  #     - '.github/workflows/ios-unsigned-ipa.yml'
+  #     - 'apps/native/**'
+  #     - 'packages/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+  # push trigger temporarily disabled for manual runs - restore to re-enable:
+  # push:
+  #   branches:
+  #     - main
+  #     - ios
+  #   paths:
+  #     - '.github/workflows/ios-unsigned-ipa.yml'
+  #     - 'apps/native/**'
+  #     - 'packages/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - 'pnpm-workspace.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unsigned-ios-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ipa:
+    name: Build unsigned arm64 IPA
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      NODE_VERSION: '24'
+      PNPM_VERSION: '11.20.0'
+      XCODE_PROJECT: apps/native/src-tauri/gen/apple/froglight-native.xcodeproj
+      XCODE_SCHEME: froglight-native_iOS
+      DERIVED_DATA_PATH: /tmp/froglight-derived-data
+      PACKAGE_PATH: /tmp/froglight-ipa
+      IPA_NAME: Froglight-iOS-iPadOS-arm64-unsigned.ipa
+      # swift-rs builds every local Swift package from Cargo build scripts.
+      # Serializing Cargo prevents several `swift build` processes from
+      # contending for SwiftPM state on hosted macOS runners.
+      CARGO_BUILD_JOBS: '1'
+      # Preserve a useful trace if swift-rs itself panics again.
+      RUST_BACKTRACE: '1'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup Rust for iOS devices
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            apps/native/src-tauri/target
+          key: ios-arm64-${{ runner.os }}-${{ hashFiles('apps/native/src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ios-arm64-${{ runner.os }}-
+
+      - name: Reset cached swift-rs build state
+        shell: bash
+        run: |
+          set -euo pipefail
+          # `actions/cache` intentionally restores Cargo target output for
+          # speed, but swift-rs nests SwiftPM workspaces inside build-script
+          # OUT_DIRs. Those workspaces are not safe to reuse blindly across
+          # hosted runners/Xcode processes. Keep Rust artifacts and invalidate
+          # only the SwiftPM sub-builds so every local iOS plugin starts clean.
+          rm -rf apps/native/src-tauri/target/aarch64-apple-ios/release/build/*/out/swift-rs
+          rm -rf apps/native/src-tauri/target/release/build/*/out/swift-rs
+
+      - name: Verify Xcode and iOS SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          test -d "$XCODE_PROJECT"
+
+      - name: Verify iOS Swift hardening sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          # New Swift helpers must compile as part
+          # of the native build (TypeScript tests cannot validate Swift
+          # enum availability). Fail fast when a helper is missing.
+          test -f apps/native/src-tauri/plugins/froglight-keyboard-inset/ios/Sources/KeyboardViewportLock.swift
+          test -f apps/native/src-tauri/plugins/froglight-keyboard-inset/ios/Sources/FroglightKeyboardInsetPlugin.swift
+          test -f apps/native/src-tauri/plugins/froglight-stylus/ios/Sources/FroglightStylusPlugin.swift
+          grep -q 'froglightPreferredActionName' apps/native/src-tauri/plugins/froglight-stylus/ios/Sources/FroglightStylusPlugin.swift
+          grep -q 'KeyboardViewportLock' apps/native/src-tauri/plugins/froglight-keyboard-inset/ios/Sources/FroglightKeyboardInsetPlugin.swift
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Synchronize Tauri iOS project
+        working-directory: apps/native
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Mobile plugins with Swift implementations are linked into the Apple
+          # project by Tauri's iOS initialization step. Building a stale
+          # checked-in Xcode project can otherwise compile the Rust half while
+          # omitting the native iOS plugin implementation at runtime.
+          pnpm exec tauri ios init --ci --skip-targets-install
+
+      - name: Build unsigned device app
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$DERIVED_DATA_PATH"
+          xcodebuild build \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' \
+            DEVELOPMENT_TEAM='' \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$DERIVED_DATA_PATH/Build/Products/release-iphoneos/Froglight.app"
+          test -d "$APP_PATH"
+
+          rm -rf "$PACKAGE_PATH"
+          mkdir -p "$PACKAGE_PATH/Payload"
+          ditto "$APP_PATH" "$PACKAGE_PATH/Payload/Froglight.app"
+          rm -rf "$PACKAGE_PATH/Payload/Froglight.app/_CodeSignature"
+          rm -f "$PACKAGE_PATH/Payload/Froglight.app/embedded.mobileprovision"
+
+          (
+            cd "$PACKAGE_PATH"
+            /usr/bin/zip -qry "$IPA_NAME" Payload
+          )
+
+      - name: Verify IPA contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          IPA_PATH="$PACKAGE_PATH/$IPA_NAME"
+          APP_PATH="$PACKAGE_PATH/Payload/Froglight.app"
+          INFO_PLIST="$APP_PATH/Info.plist"
+          EXECUTABLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$INFO_PLIST")
+          DEVICE_FAMILY=$(/usr/libexec/PlistBuddy -c 'Print :UIDeviceFamily' "$INFO_PLIST")
+
+          test -s "$IPA_PATH"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INFO_PLIST")" = 'app.froglight.app'
+          printf '%s\n' "$DEVICE_FAMILY" | grep -q '1'
+          printf '%s\n' "$DEVICE_FAMILY" | grep -q '2'
+          lipo -info "$APP_PATH/$EXECUTABLE" | grep -q 'arm64'
+
+          if codesign -dv "$APP_PATH" >/dev/null 2>&1; then
+            echo 'Expected an unsigned app, but a code signature was found.' >&2
+            exit 1
+          fi
+
+          shasum -a 256 "$IPA_PATH" | tee "$IPA_PATH.sha256"
+          unzip -l "$IPA_PATH"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Froglight-iOS-iPadOS-arm64-unsigned-${{ github.sha }}
+          path: |
+            ${{ env.PACKAGE_PATH }}/${{ env.IPA_NAME }}
+            ${{ env.PACKAGE_PATH }}/${{ env.IPA_NAME }}.sha256
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Write build summary
+        shell: bash
+        run: |
+          {
+            echo '## Froglight unsigned IPA'
+            echo
+            echo '- Supports iPhone and iPad (arm64, iOS/iPadOS 15+)'
+            echo '- Download the workflow artifact and open the IPA with Sideloadly'
+            echo '- Sideloadly will apply the Apple ID signature during installation'
+          } >> "$GITHUB_STEP_SUMMARY"

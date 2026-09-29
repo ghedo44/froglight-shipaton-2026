@@ -1,0 +1,272 @@
+/* Markdown reading surface — CSS module shared by MarkdownReaderView.tsx and
+   MarkdownComposition.tsx. The host surface is module-owned; rendered
+   markdown element rules scope beneath it. String-emitted hooks from
+   `renderMarkdown` (`md-frontmatter-*`, `wiki-link`) stay `:global` — the
+   framework-free projection cannot import the module — while the
+   `fl-pane-preview` / `fl-markdown-reader` host hooks stay literal.
+   Classes owned: preview (+element descendants) + string hooks (global).
+   Vars consumed: --fl-surface-*, --fl-text-*, --fl-border-*,
+   --fl-radius-*, --fl-accent-*, --fl-editor-font-size,
+   --fl-motion/--fl-ease-*. Hosts: react/MarkdownReaderView.tsx and
+   react/MarkdownComposition.tsx. The phone reading measure moved here from
+   shell/responsive.css with the component.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .preview {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 0 0 42vh;
+    color: var(--fl-text-primary);
+    font-size: clamp(16px, calc(var(--fl-editor-font-size) + 2px), 18px);
+    line-height: 1.78;
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: auto;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard);
+  }
+  .compositionPreview {
+    flex: none;
+    max-height: min(560px, 65vh);
+    overflow: auto;
+    padding: 0;
+    font-size: clamp(13px, var(--fl-editor-font-size), 16px);
+    line-height: 1.65;
+  }
+  .content {
+    box-sizing: border-box;
+    max-width: calc(42rem + 44px);
+    margin-inline: auto;
+    padding-inline: 22px;
+  }
+  .compositionContent {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .compositionContent > :first-child {
+    margin-top: 0;
+  }
+  .compositionActions {
+    margin-top: 8px;
+  }
+  @keyframes fl-view-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Editor content areas must remain selectable despite the shell's global
+     no-select reset. */
+  .content > :first-child {
+    margin-top: 0;
+  }
+  .content > * {
+    max-width: 72ch;
+    margin-inline: 0;
+  }
+  .content h1,
+  .content h2,
+  .content h3,
+  .content h4,
+  .content h5,
+  .content h6 {
+    font-weight: 620;
+    letter-spacing: -0.025em;
+    line-height: 1.28;
+    margin: 1.8em 0 0.48em;
+    scroll-margin-top: 20px;
+  }
+  .content h1 {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    margin-top: 0.15em;
+  }
+  .content h2 {
+    font-size: 1.45em;
+  }
+  .content h3 {
+    font-size: 1.2em;
+  }
+  .content h4 {
+    font-size: 1.05em;
+  }
+  .content p {
+    margin: 0.82em 0;
+  }
+  .content ul,
+  .content ol {
+    padding-left: 1.6em;
+    margin: 0.55em 0;
+    max-width: 68ch;
+  }
+  .content li {
+    margin: 0.22em 0;
+  }
+  .content :global(li.md-task) {
+    list-style: none;
+  }
+  .content :global(.md-task-line) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4em;
+    margin-inline-start: -1.4em;
+  }
+  .content :global(.md-task-line input[type='checkbox']) {
+    flex: 0 0 1em;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    margin: 0;
+    accent-color: var(--fl-accent);
+  }
+  .content :global(.md-task-text) {
+    min-width: 0;
+    flex: 1;
+  }
+  .content blockquote {
+    margin: 1em 0;
+    padding: 0.1em 1.1em;
+    border-inline-start: 2px solid var(--fl-border-strong);
+    color: var(--fl-text-secondary);
+    max-width: 68ch;
+  }
+  .content code {
+    font-family: var(--fl-font-mono);
+    font-size: 0.84em;
+    background: var(--fl-surface-sunken);
+    border-radius: var(--fl-radius-sm);
+    padding: 0.14em 0.4em;
+    color: var(--fl-text-primary);
+  }
+  .content pre {
+    background: var(--fl-surface-sunken);
+    border: 0;
+    border-radius: var(--fl-radius-md);
+    padding: 16px 18px;
+    overflow: auto;
+    margin-block: 1.2em;
+  }
+  .content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.86em;
+    line-height: 1.62;
+    color: inherit;
+  }
+  .content a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--fl-text-muted);
+    text-underline-offset: 3px;
+    transition: text-decoration-color var(--fl-motion-fast)
+      var(--fl-ease-standard);
+  }
+  .content a:hover {
+    text-decoration-color: var(--fl-text-primary);
+  }
+  .content :global(a.wiki-link) {
+    font-weight: 450;
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--fl-accent) 55%,
+      transparent
+    );
+  }
+  .content :global(a.wiki-link):hover {
+    text-decoration-color: var(--fl-accent);
+  }
+  .content img {
+    max-width: 100%;
+    border-radius: var(--fl-radius-md);
+  }
+  .content :global(.md-embed) {
+    display: block;
+    max-width: 72ch;
+    margin: 0.8em 0;
+    padding: 0.75em 1em;
+    border-block: 1px solid var(--fl-border-default);
+    color: var(--fl-text-muted);
+  }
+  .content hr {
+    border: none;
+    border-top: 1px solid var(--fl-border-default);
+    margin: 2em 0;
+  }
+  .content table {
+    border-collapse: collapse;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1.35em 0;
+    font-size: 0.95em;
+  }
+  .content th,
+  .content td {
+    border-block-end: 1px solid var(--fl-border-default);
+    padding: 9px 14px;
+    text-align: left;
+  }
+  .content th {
+    border-block-end-color: var(--fl-border-strong);
+    color: var(--fl-text-secondary);
+    font-weight: 550;
+  }
+  .content :global(.md-frontmatter) {
+    display: block;
+    width: fit-content;
+    margin: 0 0 1.8em;
+    padding: 0 0 0.8em;
+    border-block-end: 1px solid var(--fl-border-default);
+    font-size: 12.5px;
+  }
+  .content :global(.md-frontmatter-row) {
+    display: flex;
+    gap: 16px;
+    line-height: 1.6;
+  }
+  .content :global(.md-frontmatter) dt {
+    color: var(--fl-text-muted);
+    font-weight: 550;
+    min-width: 72px;
+  }
+  .content :global(.md-frontmatter) dd {
+    margin: 0;
+    color: var(--fl-text-secondary);
+  }
+
+  @media (max-width: 760px) {
+    .preview {
+      padding-bottom: 30vh;
+      font-size: clamp(16px, calc(var(--fl-editor-font-size) + 2px), 18px);
+    }
+    .content {
+      padding-inline: 22px;
+    }
+    .content h1 {
+      font-size: 2rem;
+    }
+    .content pre {
+      padding: 14px;
+      margin-inline: 0;
+    }
+    .content table {
+      font-size: 0.9em;
+    }
+  }
+}
+
+@layer components {
+  .content :global(.katex-display) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 0.25em;
+  }
+}

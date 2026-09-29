@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-release-drop-file"
+description = "Enables the release_drop_file command without any pre-configured scope."
+commands.allow = ["release_drop_file"]
+
+[[permission]]
+identifier = "deny-release-drop-file"
+description = "Denies the release_drop_file command without any pre-configured scope."
+commands.deny = ["release_drop_file"]

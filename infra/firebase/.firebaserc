@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "prod": "froglight-prod"
+  },
+  "targets": {},
+  "etags": {}
+}

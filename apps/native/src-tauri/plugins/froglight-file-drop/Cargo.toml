@@ -1,0 +1,16 @@
+[package]
+name = "froglight-file-drop"
+version = "0.1.0"
+description = "Froglight-owned external file ingress for Android drag/drop with desktop no-op backends (browser HTML5 path primary)"
+edition = "2021"
+rust-version = "1.77.2"
+publish = false
+links = "froglight-file-drop"
+
+[dependencies]
+tauri = { version = "2.10.3" }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[build-dependencies]
+tauri-plugin = { version = "2.5.4", features = ["build"] }

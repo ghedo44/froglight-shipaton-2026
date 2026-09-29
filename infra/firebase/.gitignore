@@ -1,0 +1,13 @@
+# Local-only artifacts. Secrets must never be committed (plan1 §43).
+.env
+.env.local
+*.secret.local
+extensions/*.env.local
+extensions/*.secret.local
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log
+*.log
+.emulators/
+test-output/

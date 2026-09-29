@@ -1,0 +1,273 @@
+/* Saved-style cards — colocated with saved-style-cards.tsx (`import styles
+   from './saved-style-cards.module.css'`), so the import trail names the
+   stylesheet; correctness comes from the `components` cascade layer, never
+ source order. First-class visual cards per: preview, name,
+   family, color, width, selected, favorite. React owns visible structure
+providers own state through the command channel. Classes
+   owned: fl-saved-styles*. Vars consumed: --fl-surface-*, --fl-text-*,
+   --fl-border-*, --fl-radius-*, --fl-accent-*, --fl-shadow-*. Hosts:
+   react/saved-style-cards.tsx via react/tool-controls.tsx popover. This file
+   must only consume var(--fl-*) tokens and must not define :root tokens. */
+@layer components {
+  .fl-saved-styles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .fl-saved-styles-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+  .fl-saved-styles-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+  }
+  .fl-saved-styles-modified {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+    border-radius: var(--fl-radius-sm);
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .fl-saved-styles-empty {
+    margin: 0;
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+  .fl-saved-styles-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+    min-width: 0;
+  }
+  .fl-saved-style-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fl-saved-style-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+    min-height: 88px;
+    padding: 8px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-primary);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .fl-saved-style-card:hover:not(:disabled) {
+    background: var(--fl-surface-hover);
+  }
+  .fl-saved-style-card:focus-visible,
+  .fl-saved-style-star:focus-visible,
+  .fl-saved-styles-action:focus-visible,
+  .fl-saved-styles-field input:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .fl-saved-style-cell[data-selected='true'] .fl-saved-style-card {
+    border-color: var(--fl-accent);
+    box-shadow: 0 0 0 1px var(--fl-accent);
+    background: var(--fl-accent-soft);
+  }
+  .fl-saved-style-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fl-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fl-saved-style-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fl-saved-style-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--fl-border-strong);
+    box-shadow: inset 0 0 0 1px var(--fl-border-strong);
+  }
+  .fl-saved-style-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .fl-saved-style-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-raised);
+    border: 1px solid var(--fl-border-default);
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+  }
+  .fl-saved-style-badge[data-badge='favorite'] {
+    background: var(--fl-accent-soft);
+    border-color: transparent;
+    color: var(--fl-accent-strong);
+  }
+  .fl-saved-style-badge[data-badge='selected'] {
+    background: var(--fl-accent-strong);
+    border-color: transparent;
+    color: var(--fl-accent-contrast);
+  }
+  .fl-saved-style-star {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: transparent;
+    color: var(--fl-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0 8px;
+    touch-action: manipulation;
+  }
+  .fl-saved-style-star:hover:not(:disabled) {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .fl-saved-style-star[aria-pressed='true'] {
+    background: var(--fl-accent-soft);
+    border-color: transparent;
+    color: var(--fl-accent-strong);
+  }
+  .fl-saved-styles-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid var(--fl-border-default);
+    padding-top: 8px;
+    min-width: 0;
+  }
+  .fl-saved-styles-working {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fl-saved-styles-working-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+  }
+  .fl-saved-styles-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .fl-saved-styles-action {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .fl-saved-styles-action:hover:not(:disabled) {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .fl-saved-styles-action:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .fl-saved-styles-action[data-action='delete']:hover:not(:disabled) {
+    border-color: var(--fl-accent);
+    color: var(--fl-accent-strong);
+  }
+  .fl-saved-styles-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 0;
+  }
+  .fl-saved-styles-field {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fl-saved-styles-field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+    white-space: nowrap;
+  }
+  .fl-saved-styles-field input {
+    height: 32px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 0 8px;
+    background: var(--fl-surface-sunken);
+    color: var(--fl-text-primary);
+    font: inherit;
+    font-size: 12px;
+    min-width: 0;
+    width: 100%;
+  }
+  .fl-saved-styles-working-note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+
+  @media (max-width: 560px) {
+    .fl-saved-styles-grid {
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .fl-saved-style-card,
+    :global(:root:not([data-fl-motion='on'])) .fl-saved-style-star,
+    :global(:root:not([data-fl-motion='on'])) .fl-saved-styles-action {
+      transition: none;
+    }
+  }
+}

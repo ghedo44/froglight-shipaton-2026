@@ -1,0 +1,9 @@
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+/.nx/cache
+/.nx/workspace-data/pnpm-lock.yaml
+# pnpm owns the lockfile format; prettier --write produces thousand-line
+# churn that fights the package manager (and the committed file is already
+# not prettier-clean). `pnpm install --frozen-lockfile` is the real gate.
+pnpm-lock.yaml

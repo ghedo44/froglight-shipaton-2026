@@ -1,0 +1,117 @@
+/* Titlebar — CSS module colocated with Titlebar.tsx.
+   Imported explicitly by the component (`import styles from
+   './Titlebar.module.css'`); correctness comes from the `components`
+   cascade layer, never source order. The bar shell, drag-region behavior,
+   and host-drawn window controls live here; the toggle, inspector lane,
+   and tab strips composed inside it belong to WorkspaceView (which hooks
+   composition through `data-fl-component="titlebar"`), and the brand
+   lockup belongs to LauncherView.
+   Classes owned: fl-titlebar (+main/spacer), fl-wincontrols/control
+   (+close). The no-drag group opts interactive descendants out of native
+   window dragging; tab slots hook through `[data-no-window-drag]` set by
+   WorkspaceView rather than a class name. Vars consumed:
+   --fl-surface-*, --fl-border-*, --fl-text-*, --fl-accent-*,
+   --fl-danger-*, --fl-surface-hover, --fl-motion/--fl-ease-*. Hosts:
+   react/Titlebar.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .fl-titlebar {
+    grid-area: titlebar;
+    display: flex;
+    align-items: stretch;
+    height: var(--fl-layout-tab-height);
+    background: var(--fl-surface-sidebar);
+    border-bottom: 1px solid var(--fl-border-default);
+    min-width: 0;
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+  }
+  .fl-titlebar[data-tauri-drag-region] {
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+  .fl-titlebar-main {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+  .fl-titlebar-spacer {
+    display: none;
+  }
+
+  /* Under window-controls-overlay the whole titlebar area drags by default;
+     interactive elements must opt out or their clicks become window drags.
+     Harmless where the property is unsupported. */
+  .fl-titlebar
+    :is(
+      button,
+      a,
+      [role='button'],
+      [role='tab'],
+      input,
+      select,
+      textarea,
+      [role='separator'],
+      [data-no-window-drag]
+    ) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+
+  /* Window controls (hosts whose chrome the app draws). */
+  .fl-wincontrols {
+    display: flex;
+    align-items: stretch;
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: 2;
+  }
+  .fl-wincontrol {
+    width: 44px;
+    display: grid;
+    place-items: center;
+    color: var(--fl-text-secondary);
+    border-radius: 0;
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .fl-wincontrol:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .fl-wincontrol.close:hover {
+    background: var(--fl-danger);
+    color: #fff;
+  }
+
+  @media (max-width: 760px) {
+    /* Compact iPad/phone mode uses the intentionally taller touch header
+       while retaining the same safe-area contract. */
+    .fl-titlebar {
+      height: calc(var(--fl-layout-header-height) + var(--fl-safe-area-top));
+      padding-top: var(--fl-safe-area-top);
+    }
+  }
+}
+
+/* Platform/window-geometry overrides (safe areas). iPadOS can expose a top
+   safe area even above the phone breakpoint, so the titlebar reserves it in
+   normal flow rather than underlapping the system status bar. Lives in the
+   platform layer so geometry wins structurally over component defaults. */
+@layer platform {
+  .fl-titlebar {
+    height: calc(var(--fl-layout-tab-height) + var(--fl-safe-area-top));
+    padding-top: var(--fl-safe-area-top);
+  }
+
+  @media (max-width: 760px) {
+    .fl-titlebar {
+      height: calc(var(--fl-layout-header-height) + var(--fl-safe-area-top));
+      padding-top: var(--fl-safe-area-top);
+    }
+  }
+}

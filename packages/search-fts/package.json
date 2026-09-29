@@ -1,0 +1,21 @@
+{
+  "name": "@froglight/search-fts",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "search-fts",
+    "tags": ["layer:capability", "platform:shared", "authority:portable", "domain:search"]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*"
+  }
+}

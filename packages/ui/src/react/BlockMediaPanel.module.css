@@ -1,0 +1,137 @@
+.toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--fl-border-default);
+  border-radius: var(--fl-radius-lg);
+  background: var(--fl-surface-raised);
+  box-shadow: var(--fl-shadow-medium);
+  pointer-events: auto;
+}
+
+.toolbar button,
+.tabs button,
+.panel button {
+  min-height: 30px;
+  border: 0;
+  border-radius: var(--fl-radius-md);
+  padding: 5px 10px;
+  background: transparent;
+  color: var(--fl-text-primary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toolbar button:hover,
+.tabs button:hover,
+.panel button:hover {
+  background: var(--fl-surface-hover);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 89;
+  border: 0;
+  background: transparent;
+}
+
+.panel {
+  position: fixed;
+  z-index: 90;
+  width: min(320px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--fl-border-default);
+  border-radius: var(--fl-radius-lg);
+  background: var(--fl-surface-raised);
+  box-shadow: var(--fl-shadow-medium);
+}
+
+.heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fl-text-primary);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--fl-border-default);
+  padding-bottom: 5px;
+}
+
+.tabs button[aria-selected='true'] {
+  background: var(--fl-accent-soft);
+  color: var(--fl-accent-strong);
+}
+
+.dropzone {
+  min-height: 96px;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  border: 1px dashed var(--fl-border-strong);
+  border-radius: var(--fl-radius-lg);
+  color: var(--fl-text-muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+.dropzone button,
+.fields > button,
+.remote button[type='submit'] {
+  background: var(--fl-accent-soft);
+  color: var(--fl-accent-strong);
+}
+
+.fields,
+.remote {
+  display: grid;
+  gap: 8px;
+}
+
+.fields label,
+.remote label {
+  display: grid;
+  gap: 4px;
+  color: var(--fl-text-secondary);
+  font-size: 12px;
+}
+
+.fields input,
+.remote input {
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid var(--fl-border-default);
+  border-radius: var(--fl-radius-md);
+  padding: 6px 9px;
+  background: var(--fl-surface-editor);
+  color: var(--fl-text-primary);
+  font: inherit;
+}
+
+.error {
+  margin: 0;
+  color: var(--fl-danger);
+  font-size: 12px;
+}
+
+.retry {
+  justify-self: start;
+}
+
+@media (pointer: coarse) {
+  .toolbar button,
+  .tabs button,
+  .panel button,
+  .fields input,
+  .remote input {
+    min-height: 44px;
+  }
+}

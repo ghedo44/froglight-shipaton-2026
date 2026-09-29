@@ -1,0 +1,19 @@
+/* Froglight layout metrics — application geometry, not theme API.
+   A theme may change colors, typography, depth and radii; it must not
+   accidentally change sidebar geometry. These variables live in the
+   tokens layer beside the theme tokens (same precedence) but are
+   categorically excluded from theme overrides: `defineTheme` and
+   `defineThemeTokenPlugin` accept only theme tokens (see
+   theme-contract.ts). */
+
+:root {
+  --fl-layout-ribbon-width: 46px;
+  --fl-layout-sidebar-width: 264px;
+  --fl-layout-right-sidebar-width: 284px;
+  --fl-layout-header-height: 44px;
+  --fl-layout-tab-height: 38px;
+  --fl-layout-bottomnav-height: 56px;
+  /* Scrollable headspace for edit-mode document content beneath the floating
+     toolbar. The editor viewport itself remains full-height and stationary. */
+  --fl-layout-floating-top: 58px;
+}

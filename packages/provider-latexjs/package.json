@@ -1,0 +1,27 @@
+{
+  "name": "@froglight/provider-latexjs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "provider-latexjs",
+    "tags": ["layer:provider", "platform:shared", "authority:trusted", "domain:latex"]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "latex.js": "0.12.6"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1",
+    "vitest": "~4.1.0"
+  }
+}

@@ -1,0 +1,92 @@
+/* Account settings section — CSS module colocated with
+   AccountSettingsView.tsx.
+   Classes owned: account-lede/hint/notice/actions/mode-row/field.
+   Hosts: react/AccountSettingsView.tsx.
+   This file must only consume var(--fl-*) tokens and must not define
+   :root tokens. */
+@layer components {
+  .account-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 16px;
+  }
+  .account-identity span {
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+  }
+  .account-identity strong {
+    font-size: 18px;
+    font-weight: 550;
+    overflow-wrap: anywhere;
+  }
+  .account-signout {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .account-signout h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .account-lede {
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    max-width: 64ch;
+    line-height: 1.6;
+    margin: 0 0 12px;
+  }
+  .account-hint {
+    color: var(--fl-text-muted);
+    font-size: 12px;
+    max-width: 64ch;
+    line-height: 1.6;
+    margin: 0 0 12px;
+  }
+  .account-notice {
+    font-size: 13px;
+    color: var(--fl-danger);
+    margin: 8px 0;
+  }
+  .account-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .account-mode-row {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0 12px;
+  }
+  .account-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .account-field input {
+    font: inherit;
+    font-weight: 400;
+    padding: 8px 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-default, transparent);
+    color: inherit;
+    max-width: 340px;
+  }
+  /* Input focus ring is owned by styles/globals.css (border + halo).
+     No local :focus-visible override: a duplicate outline would double
+     the ring and still clip inside scrollable dialog bodies. */
+  @media (any-pointer: coarse) {
+    .account-field input {
+      min-height: 44px;
+      padding-inline: 12px;
+      font-size: 16px;
+    }
+  }
+}

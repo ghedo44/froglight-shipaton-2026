@@ -1,0 +1,231 @@
+/* Ink surface skeleton — provider stylesheet colocated with InkSurfaceSkeleton.tsx
+   and owned by the ink editor provider. The React skeleton renders the
+   visible ink structure; the engine consumes refs and owns only ephemeral
+   nodes (offscreen canvases, text overlay, file picker, export infra).
+   Classes owned: fl-ink-root, fl-ink-page, fl-ink-canvas, fl-ink-badge
+   (stable global hooks consumed by the engine and tests; scoped under @layer components).
+   Hosts: react/InkSurfaceSkeleton.tsx.
+   This file must not define :root tokens. */
+@layer components {
+  .fl-ink-root {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    min-width: 0;
+    flex: 1;
+    background: var(--fl-surface-app, #fff);
+    outline: none;
+    font-family: var(--fl-font-sans, -apple-system, system-ui, sans-serif);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fl-ink-root:focus-visible {
+    outline: 2px solid var(--fl-accent, #7c6cf0);
+    outline-offset: -2px;
+  }
+  .fl-ink-page {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    background: var(--fl-surface-app, #fff);
+  }
+  [data-theme='dark'] .fl-ink-page {
+    background: var(--fl-surface-app, #1d1d21);
+  }
+  .fl-ink-root[data-presentation='embedded-overlay'],
+  .fl-ink-root[data-presentation='embedded-overlay'] .fl-ink-page {
+    background: transparent;
+  }
+  .fl-ink-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .fl-ink-root[data-navigation='embedded'] .fl-ink-canvas {
+    touch-action: none;
+  }
+  .fl-ink-badge {
+    position: absolute;
+    z-index: 4;
+    display: none;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--fl-accent-strong, #604ae0);
+    color: var(--fl-accent-contrast, #fff);
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  .fl-ink-pointer-indicator {
+    position: absolute;
+    z-index: 5;
+    display: none;
+    box-sizing: border-box;
+    border: 1px solid
+      color-mix(in srgb, var(--fl-text-primary, #37352f) 88%, transparent);
+    border-radius: 50%;
+    background: transparent;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .fl-ink-pointer-indicator::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 1px solid
+      color-mix(in srgb, var(--fl-surface-raised, #fff) 92%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .fl-ink-pointer-indicator[data-dashed='true'],
+  .fl-ink-pointer-indicator[data-dashed='true']::before {
+    border-style: dashed;
+  }
+  .fl-ink-pointer-indicator[data-pointer='pen'] {
+    border-color: color-mix(
+      in srgb,
+      var(--fl-text-primary, #37352f) 88%,
+      transparent
+    );
+  }
+  .fl-ink-pointer-indicator[data-precision='true']::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    background:
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        center top / 1px 3px no-repeat,
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        center bottom / 1px 3px no-repeat,
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        left center / 3px 1px no-repeat,
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        right center / 3px 1px no-repeat;
+  }
+  .fl-ink-pointer-indicator[data-marker='stroke-eraser']::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: -3px;
+    width: 6px;
+    border-top: 2px solid var(--fl-text-primary, #37352f);
+    transform: rotate(-35deg);
+  }
+  .fl-ink-pointer-indicator[data-cursor-shape='lasso'] {
+    border: 0;
+    border-radius: 0;
+  }
+  .fl-ink-pointer-indicator[data-cursor-shape='lasso']::before {
+    inset: auto 0 0 auto;
+    width: 9px;
+    height: 7px;
+    border: 1px dashed var(--fl-text-primary, #37352f);
+    border-radius: 50%;
+    transform: rotate(-18deg);
+  }
+  .fl-ink-pointer-indicator[data-cursor-shape='lasso']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 9px;
+    height: 9px;
+    background:
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        center / 1px 9px no-repeat,
+      linear-gradient(
+          var(--fl-text-primary, #37352f),
+          var(--fl-text-primary, #37352f)
+        )
+        center / 9px 1px no-repeat;
+  }
+  .fl-ink-text-input {
+    position: absolute;
+    z-index: 6;
+    border: 1px solid var(--fl-accent, #7c6cf0);
+    border-radius: 6px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--fl-text-primary, #37352f);
+    font-family: var(--fl-font-sans, -apple-system, system-ui, sans-serif);
+    /* Geometry parity with the canvas text backend: the
+       engine sets font-size/line-height/width per record; these defaults
+       only cover the pre-JS paint. Line height stays unitless 1.25 so the
+       overlay envelope matches the frozen Surface text envelope. */
+    line-height: 1.25;
+    padding: 0;
+    outline: none;
+    min-width: 120px;
+  }
+  .fl-ink-text-overlay-root {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .fl-ink-text-overlay-root > .fl-ink-text-input {
+    pointer-events: auto;
+    /* Keyboard clamp: the host-owned inset shortens the
+       page; the editor additionally never overflows the overlay box, so
+       the caret stays above the keyboard without resizing the WebView. */
+    max-width: calc(100% - 8px);
+    box-sizing: border-box;
+  }
+  .fl-ink-text-area {
+    resize: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  .fl-ink-text-resize-handle {
+    position: absolute;
+    z-index: 7;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: 1px solid var(--fl-accent, #7c6cf0);
+    border-radius: 3px;
+    background: var(--fl-surface-raised, #fff);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+    cursor: ew-resize;
+    pointer-events: auto;
+    touch-action: none;
+  }
+}
+
+/* Form defaults are unlayered; the inline editor must reveal the actual paper. */
+.fl-ink-text-input {
+  background: transparent;
+  padding: 0;
+  min-height: 0;
+  box-shadow: none;
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": false
+  },
+  "references": [
+    {
+      "path": "../runtime/tsconfig.lib.json"
+    },
+    {
+      "path": "../foundation/tsconfig.lib.json"
+    }
+  ]
+}

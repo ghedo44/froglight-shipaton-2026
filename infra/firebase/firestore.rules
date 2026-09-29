@@ -1,0 +1,117 @@
+/**
+ * Froglight Pro vault sync — Firestore Security Rules (plan1 §36–§38).
+ *
+ * Control plane only: one small HEAD document per vault at
+ * `users/{uid}/vaults/{cloudVaultId}` (plan1 §19). Manifests and blobs
+ * live in Storage; they are never stored here.
+ *
+ * Authorization model:
+ *
+ * - Reads (`get`, `list`) require the authenticated owner only, so an
+ *   expired/cancelled subscription never holds user data hostage: the
+ *   owner can always read/download the existing cloud replica (plan1 §37).
+ * - Creates/updates require the authenticated owner AND the trusted
+ *   RevenueCat entitlement claim (`revenueCatEntitlements` containing
+ *   `"pro"`), written server-side by the RevenueCat Firebase Extension
+ *   (plan1 §12–§14). Client `PurchaseService` state is UI-only and is
+ *   never consulted here (plan1 §38).
+ * - Deletes are denied in V1: `Disable Sync` stops the local replica, it
+ *   never erases remote objects (plan1 §79).
+ * - HEAD documents are structurally validated (types, bounds, monotonic
+ *   revision) so malformed or oversized metadata cannot be stored.
+ */
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Owner of the path: the UID segment must equal the authenticated UID.
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Trusted Pro entitlement from the RevenueCat Firebase Extension,
+    // which writes active entitlement IDs into the `revenueCatEntitlements`
+    // custom claim (plan1 §14). Missing claims, wrong types, and absent
+    // `pro` entries all deny — never throw, never default-allow.
+    function hasProEntitlement() {
+      return request.auth != null
+        && request.auth.token.keys().hasAny(['revenueCatEntitlements'])
+        && request.auth.token.revenueCatEntitlements is list
+        && request.auth.token.revenueCatEntitlements.hasAny(['pro']);
+    }
+
+    // Structural HEAD validation (plan1 §19 shape, §36 limits). Revision
+    // is monotonic: creates start at 1, updates advance by exactly 1, so
+    // a stale or forked writer cannot rewind or skip history. Timestamps
+    // accept ISO-8601 strings (what the slice-H provider writes) or
+    // native timestamps; both are backend-visible, neither is trusted for
+    // ordering — revision is the ordering authority. Owner identity comes
+    // from the path/auth only: no UID field is trusted from the document.
+    function isValidHead(uid, vaultId, data, isCreate) {
+      return data.keys().hasOnly([
+        'protocolVersion', 'name', 'revision', 'manifestHash',
+        'manifestObject', 'fileCount', 'totalBytes',
+        'createdAt', 'updatedAt', 'updatedByDeviceId'
+      ])
+        && data.protocolVersion == 1
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 256
+        && data.revision is int
+        && (isCreate ? data.revision == 1 : data.revision >= 1)
+        && data.manifestHash is string
+        && data.manifestHash.matches('^sha256:[0-9a-f]{64}$')
+        && data.manifestObject is string
+        && data.manifestObject.size() >= 1 && data.manifestObject.size() <= 512
+        // The pointer must address this vault's own manifests prefix so a
+        // compromised writer cannot point one vault's HEAD at another
+        // vault's (or another user's) manifest object.
+        && data.manifestObject.matches(
+          '^users/' + uid + '/vaults/' + vaultId + '/manifests/[1-9][0-9]*-[0-9a-f]{64}\\.json$'
+        )
+        && data.fileCount is int && data.fileCount >= 0 && data.fileCount <= 100000
+        && data.totalBytes is int && data.totalBytes >= 0
+        && data.updatedByDeviceId is string
+        && data.updatedByDeviceId.size() >= 1 && data.updatedByDeviceId.size() <= 256
+        && (data.createdAt is string || data.createdAt is timestamp)
+        && (data.updatedAt is string || data.updatedAt is timestamp);
+    }
+
+    function isMonotonicUpdate(data, existing) {
+      return data.revision == existing.revision + 1;
+    }
+
+    // No user-level documents exist in V1: vaults live under the per-user
+    // subcollection only. Explicit deny keeps the surface minimal.
+    match /users/{uid} {
+      allow read, write: if false;
+    }
+
+    match /users/{uid}/vaults/{vaultId} {
+      // Owner reads always (plan1 §37 retention): authenticated owner,
+      // Pro or not.
+      allow get, list: if isOwner(uid);
+
+      // Sync writes require owner + trusted Pro claim (plan1 §36).
+      allow create: if isOwner(uid)
+        && hasProEntitlement()
+        && isValidHead(uid, vaultId, request.resource.data, true);
+
+      allow update: if isOwner(uid)
+        && hasProEntitlement()
+        && isValidHead(uid, vaultId, request.resource.data, false)
+        && isMonotonicUpdate(request.resource.data, resource.data)
+        // createdAt is backend-issued at creation and immutable
+        // afterwards: a writer must preserve it byte-for-byte.
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      // V1 has no remote deletion (plan1 §79).
+      allow delete: if false;
+    }
+
+    // Default deny for everything else (including any RevenueCat
+    // event/customer collections, which stay disabled per plan1 §42).
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

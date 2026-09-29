@@ -1,0 +1,21 @@
+{
+  "identifier": "window",
+  "description": "Minimal window capability for the custom titlebar — drag region, window controls, maximized state. No broad fs/shell/env grant.",
+  "windows": ["main"],
+  "permissions": [
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
+    "core:window:allow-internal-toggle-maximize",
+    "core:window:allow-is-maximized",
+    "core:event:allow-listen",
+    "froglight-vault-storage:default",
+    "froglight-keyboard-inset:default",
+    "froglight-stylus:default",
+    "froglight-purchases:default",
+    "froglight-file-drop:default"
+  ]
+}

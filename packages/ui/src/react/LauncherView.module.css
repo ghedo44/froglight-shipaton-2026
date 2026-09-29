@@ -1,0 +1,556 @@
+/* Vault launcher — CSS module colocated with LauncherView.tsx.
+   Imported explicitly by the component (`import styles from
+   './LauncherView.module.css'`); correctness comes from the `components`
+   cascade layer, never source order. Includes the titlebar-brand and
+   vault-modal rules this view renders (moved from shell/titlebar.css and
+   shell/modals.css with it) plus the touch rule for recent-vault-forget.
+   Classes owned: froglight-launcher-root, the vault-launcher and
+   recent-vault families, the fl-titlebar-brand pair, the vault-modal
+   family, workspace-vault-mark (shared with the sidebar; duplicated here
+   so each owner imports its own styles). Vars consumed: --fl-surface-*,
+   --fl-text-*, --fl-border-*, --fl-radius-*, --fl-shadow-*,
+    --fl-accent-*, --fl-danger-*, --fl-motion/--fl-ease-*,
+    --fl-safe-area-*, --fl-keyboard-*. Hosts:
+    react/LauncherView.tsx.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .froglight-launcher-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: var(--fl-surface-sidebar);
+  }
+  /* The launcher page never scrolls: pinned brand and actions, and the
+     recent-vaults list below absorbs any overflow by scrolling internally. */
+  .froglight-launcher-root .vault-launcher {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .vault-launcher {
+    display: flex;
+    flex-direction: column;
+    width: min(640px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: clamp(28px, 8vh, 100px) 0 24px;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard);
+  }
+  @keyframes fl-view-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .vault-launcher-brand {
+    flex: none;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  /* The one authored moment: the frog lands with a small settle, then the
+     wordmark rises in behind it. */
+  .vault-launcher-mark {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(
+      0 10px 22px color-mix(in srgb, #023727 28%, transparent)
+    );
+    animation: fl-mark-in 420ms var(--fl-ease-spring) both;
+  }
+  .vault-launcher-mark :global(.froglight-frog-mark) {
+    width: 100%;
+    height: 100%;
+  }
+  @keyframes fl-mark-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .vault-launcher-brand h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard) 60ms
+      both;
+  }
+  .vault-launcher-brand p {
+    margin: 7px 0 0;
+    color: var(--fl-text-secondary);
+    font-size: 13.5px;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard) 110ms
+      both;
+  }
+  .vault-launcher-actions {
+    flex: none;
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    margin-inline: auto;
+    margin-bottom: 8px;
+  }
+  .vault-launcher-message {
+    flex: none;
+    min-height: 22px;
+    text-align: center;
+    color: var(--fl-text-muted);
+    font-size: 12px;
+    margin-bottom: 14px;
+  }
+  .vault-launcher-message.error {
+    color: var(--fl-danger);
+  }
+  /* The list hugs its rows and only caps (scrolling inside) once it runs out
+     of room below the actions. */
+  .recent-vaults {
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--fl-border-default);
+    padding-top: 16px;
+  }
+  .vault-tabs {
+    display: flex;
+    flex: none;
+    gap: 24px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .vault-tabs button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 4px;
+    border-bottom: 2px solid transparent;
+    color: var(--fl-text-secondary);
+    font-size: 14px;
+    font-weight: 550;
+  }
+  .vault-tabs button[aria-selected='true'] {
+    border-bottom-color: var(--fl-accent-strong);
+    color: var(--fl-accent-strong);
+  }
+  .vault-tabs button:hover {
+    background: var(--fl-surface-hover);
+  }
+  .vault-count {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .vault-panel {
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 16px;
+  }
+  .vault-description {
+    margin: 18px 4px 8px;
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+  }
+  .vault-panel .recent-vaults {
+    border-top: 0;
+  }
+  .vault-panel .recent-vault-list {
+    overflow: visible;
+    flex: none;
+  }
+  .cloud-vault-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 10px;
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+  .recent-vault-row:focus-within .recent-vault-forget {
+    opacity: 1;
+  }
+  @media (max-width: 400px) {
+    .vault-launcher-actions {
+      grid-template-columns: 1fr;
+    }
+    .cloud-vault-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    .cloud-vault-row button {
+      justify-self: start;
+    }
+  }
+  .recent-vaults[hidden] {
+    display: none;
+  }
+  .recent-vaults-heading {
+    flex: none;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fl-text-muted);
+    margin: 0 0 8px 4px;
+  }
+  .recent-vault-list {
+    display: grid;
+    gap: 2px;
+    align-content: start;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* A list arriving as a list: brief stagger, hard-capped. */
+  .recent-vault-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    border-radius: var(--fl-radius-md);
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+    animation: fl-view-in var(--fl-motion-normal) var(--fl-ease-standard) both;
+  }
+  .recent-vault-row:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  .recent-vault-row:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .recent-vault-row:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .recent-vault-row:nth-child(4) {
+    animation-delay: 160ms;
+  }
+  .recent-vault-row:nth-child(n + 5) {
+    animation-delay: 200ms;
+  }
+  .recent-vault-row:hover {
+    background: var(--fl-surface-hover);
+  }
+  .recent-vault-card {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-align: left;
+    min-height: 52px;
+    padding: 8px 10px;
+    border-radius: var(--fl-radius-md);
+    touch-action: manipulation;
+  }
+  .recent-vault-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+    border: 1px solid var(--fl-border-default);
+  }
+  .cloud-vault-identity {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+  }
+  .recent-vault-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .recent-vault-text strong {
+    font-size: 13px;
+    font-weight: 550;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .recent-vault-text small {
+    color: var(--fl-text-muted);
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Hover-revealed forget action: box geometry comes from the IconButton
+     primitive; this hook adds reveal + danger treatment. */
+  .recent-vault-forget {
+    opacity: 0;
+    transition: opacity var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .recent-vault-row:hover .recent-vault-forget {
+      opacity: 1;
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .recent-vault-forget {
+      opacity: 1;
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+  .recent-vault-forget:hover {
+    background: var(--fl-surface-active);
+    color: var(--fl-danger);
+  }
+  .recent-vault-row:focus-within {
+    background: var(--fl-surface-hover);
+  }
+  .recent-vault-empty {
+    display: grid;
+    gap: 3px;
+    color: var(--fl-text-muted);
+    font-size: 13px;
+    padding: 24px 12px;
+    text-align: center;
+    border: 1px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+  }
+  .recent-vault-empty strong {
+    color: var(--fl-text-secondary);
+    font-weight: 550;
+  }
+  .launcher-footer {
+    flex: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px max(20px, var(--fl-safe-area-right, 0px))
+      max(16px, var(--fl-safe-area-bottom, 0px))
+      max(20px, var(--fl-safe-area-left, 0px));
+  }
+  .launcher-footer-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 40px;
+    max-width: min(42vw, 320px);
+    padding: 0 12px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-secondary);
+    font-size: 13px;
+    font-weight: 550;
+    white-space: nowrap;
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .launcher-footer-button:hover,
+  .launcher-footer-button[aria-expanded='true'] {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-primary);
+  }
+  .launcher-footer-button:focus-visible,
+  .launcher-account-menu button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+  .launcher-footer-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .launcher-account {
+    position: relative;
+    min-width: 0;
+  }
+  .launcher-account-label,
+  .launcher-account-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .launcher-account-menu {
+    composes: surface from './DialogSurface.module.css';
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    width: min(280px, calc(100vw - 40px));
+    padding: 6px;
+    z-index: 10;
+  }
+  .launcher-account-email {
+    padding: 8px 10px;
+    color: var(--fl-text-muted);
+    font-size: 12px;
+  }
+  .launcher-account-menu button {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: var(--fl-radius-md);
+    text-align: left;
+    font-size: 13px;
+  }
+  .launcher-account-menu button:hover {
+    background: var(--fl-surface-hover);
+  }
+  .launcher-account-menu p {
+    margin: 6px 10px;
+    color: var(--fl-danger);
+    font-size: 12px;
+  }
+
+  /* Titlebar brand lockup (rendered by the launcher header). */
+  .fl-titlebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    align-self: center;
+    margin-left: 6px;
+    padding: 4px 8px;
+  }
+  .fl-titlebar-brand-name {
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .workspace-vault-mark {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+  }
+  .workspace-vault-mark :global(.froglight-frog-mark) {
+    width: 100%;
+    height: 100%;
+  }
+  .workspace-vault-name {
+    font-size: 13px;
+    font-weight: 550;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Create-vault modal (rendered by this view, not the overlay host).
+ Keyboard-usable viewport: the containing block ends above
+     the keyboard so the dialog fits the usable region. The effective
+     reservation subtracts the keyboard inset plus positive
+     visual-viewport pan so the final painted frame stays above the
+     keyboard. */
+  .vault-modal-backdrop { z-index: 1100; }
+  .vault-modal {
+    composes: frame from './DialogSurface.module.css';
+    composes: surface from './DialogSurface.module.css';
+    width: min(520px, 100%);
+    flex: 0 1 520px;
+    /* Never exceed the usable content box: short cards stay
+       content-sized, tall cards scroll internally. */
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 24px;
+  }
+  .vault-modal h2 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    font-weight: 650;
+  }
+  .vault-modal-description {
+    margin: 4px 0 14px;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .vault-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 14px 0;
+    font-size: 12px;
+    font-weight: 550;
+    color: var(--fl-text-secondary);
+  }
+  .vault-field input {
+    width: 100%;
+  }
+  .vault-location-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .vault-location-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: var(--fl-surface-sunken);
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    padding: 8px 10px;
+    font-weight: 400;
+  }
+  .vault-location-value.empty {
+    color: var(--fl-text-muted);
+  }
+  .vault-modal-error {
+    min-height: 18px;
+    color: var(--fl-danger);
+    font-size: 12px;
+  }
+  .vault-restore-confirmation {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 16px 0;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .vault-restore-confirmation input {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    accent-color: var(--fl-accent);
+  }
+  .vault-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  @media (pointer: coarse) {
+    /* Recent-vault forget is always visible on touch devices (no hover). */
+    .recent-vault-forget {
+      opacity: 1;
+    }
+    .launcher-footer-button,
+    .launcher-account-menu button {
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 600px) {
+    .vault-launcher {
+      padding-top: clamp(24px, 6vh, 56px);
+    }
+    .vault-launcher-brand {
+      margin-bottom: 24px;
+    }
+    .launcher-footer {
+      padding-inline: max(12px, var(--fl-safe-area-left, 0px))
+        max(12px, var(--fl-safe-area-right, 0px));
+    }
+  }
+}

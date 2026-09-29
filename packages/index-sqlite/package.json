@@ -1,0 +1,36 @@
+{
+  "name": "@froglight/index-sqlite",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./browser": {
+      "froglight": "./src/browser.ts",
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
+    }
+  },
+  "nx": {
+    "name": "index-sqlite",
+    "tags": [
+      "layer:provider",
+      "platform:shared",
+      "authority:trusted",
+      "domain:search"
+    ]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "@froglight/runtime": "workspace:*",
+    "sql.js": "^1.14.2"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.11"
+  }
+}

@@ -1,0 +1,3 @@
+[default]
+description = "Default permissions for the Froglight purchases plugin. Seven narrow commerce commands with no filesystem/shell/env authority; purchase state reaches the webview as normalized DTOs and low-frequency customer-info events."
+permissions = ["allow-configure", "allow-get-customer-info", "allow-get-offerings", "allow-purchase-package", "allow-restore-purchases", "allow-log-in", "allow-log-out", "allow-register-listener", "allow-remove-listener"]

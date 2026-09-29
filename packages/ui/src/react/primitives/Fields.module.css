@@ -1,0 +1,35 @@
+@layer components {
+  .field {
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: 6px;
+    background: var(--fl-surface-input);
+    color: var(--fl-text-primary);
+    font: inherit;
+  }
+  .field:focus-visible,
+  .checkbox:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+  .field:disabled,
+  .checkbox:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .checkbox {
+    accent-color: var(--fl-accent);
+  }
+  .formField {
+    display: grid;
+    gap: 6px;
+    color: var(--fl-text-primary);
+  }
+  .formField small {
+    color: var(--fl-text-muted);
+  }
+  .formField .error {
+    color: var(--fl-danger);
+  }
+}

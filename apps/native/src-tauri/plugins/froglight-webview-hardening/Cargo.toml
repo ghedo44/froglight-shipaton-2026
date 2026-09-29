@@ -1,0 +1,19 @@
+[package]
+name = "froglight-webview-hardening"
+version = "0.1.0"
+description = "Froglight-owned WebView default-action suppression for the native shell"
+edition = "2021"
+rust-version = "1.77.2"
+publish = false
+
+[dependencies]
+tauri = { version = "2.10.3" }
+bitflags = "2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.61", optional = true }
+webview2-com = { version = ">=0.37, <=0.38", optional = true }
+
+[features]
+default = []
+platform-windows = ["dep:windows", "dep:webview2-com"]

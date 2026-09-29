@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": ["es2022"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "customConditions": ["froglight"],
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@froglight/foundation": ["packages/foundation/src/index.ts"],
+      "@froglight/foundation/testing": [
+        "packages/foundation/src/testing/index.ts"
+      ],
+      "@froglight/foundation/purchases": [
+        "packages/foundation/src/purchases/index.ts"
+      ],
+      "@froglight/foundation/account": [
+        "packages/foundation/src/account/index.ts"
+      ],
+      "@froglight/ui/testing": ["packages/ui/src/testing/index.ts"],
+      "@froglight/runtime": ["packages/runtime/src/index.ts"],
+      "@froglight/*": ["packages/*/src/index.ts"]
+    }
+  }
+}

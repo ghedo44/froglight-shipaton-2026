@@ -1,0 +1,48 @@
+{
+  "name": "@froglight/provider-firebase",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config-env": {
+      "froglight": "./src/config-env.ts",
+      "types": "./dist/config-env.d.ts",
+      "import": "./dist/config-env.js",
+      "default": "./dist/config-env.js"
+    },
+    "./sync-storage": {
+      "froglight": "./src/sync-storage.ts",
+      "types": "./dist/sync-storage.d.ts",
+      "import": "./dist/sync-storage.js",
+      "default": "./dist/sync-storage.js"
+    }
+  },
+  "nx": {
+    "name": "provider-firebase",
+    "tags": [
+      "layer:provider",
+      "platform:shared",
+      "authority:trusted"
+    ]
+  },
+  "dependencies": {
+    "@froglight/foundation": "workspace:*",
+    "firebase": "^12.18.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "firebase-admin": "^14.3.0",
+    "vitest": "~4.1.0"
+  }
+}

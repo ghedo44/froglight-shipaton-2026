@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Squeeze palette dismissal fixture</title>
+    <style>
+      :root {
+        --fl-surface-raised: #fff;
+        --fl-surface-hover: #eee;
+        --fl-surface-sunken: #eee;
+        --fl-text-primary: #111;
+        --fl-text-secondary: #333;
+        --fl-border-default: #ddd;
+        --fl-radius-md: 8px;
+        --fl-shadow-overlay: 0 4px 16px rgba(0, 0, 0, 0.2);
+        --fl-shadow-small: 0 1px 4px rgba(0, 0, 0, 0.15);
+        --fl-accent: #0066cc;
+        --fl-accent-strong: #0055aa;
+        --fl-accent-soft: #e6f0ff;
+        --fl-safe-area-top: 0px;
+        --fl-safe-area-bottom: 0px;
+        --fl-safe-area-left: 0px;
+        --fl-safe-area-right: 0px;
+        --fl-keyboard-safe-bottom: 0px;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      #canvas {
+        position: fixed;
+        inset: 0;
+      }
+      #panel {
+        position: fixed;
+        left: 8px;
+        top: 8px;
+        z-index: 10;
+        display: flex;
+        gap: 8px;
+      }
+      #log {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        z-index: 10;
+        max-width: 40ch;
+        font: 12px monospace;
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 8px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Canvas stand-in behind the palette: records pointer input that
+      leaks through the overlay (draw-through must stay empty). -->
+    <div id="canvas" aria-label="canvas"></div>
+    <div id="panel">
+      <button id="show" type="button">Show palette</button>
+      <button id="commit-eraser" type="button">Commit eraser</button>
+      <button id="probe" type="button">Probe 0</button>
+      <input id="editor" aria-label="editor" value="" />
+    </div>
+    <div id="log" aria-label="event log"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

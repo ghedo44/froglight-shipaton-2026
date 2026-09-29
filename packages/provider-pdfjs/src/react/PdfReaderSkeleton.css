@@ -1,0 +1,56 @@
+/* PDF reader skeleton — provider stylesheet colocated with PdfReaderSkeleton.tsx
+   and owned by the pdfjs provider. The React skeleton renders the stable
+   reader wrapper; the PDF.js engine mounts page canvases, text layers, and
+   link overlays into it (see pdf-provider.ts mountDomPage).
+   Classes owned: fl-pdf-reader (global hook preserved for engine/tests),
+   fl-pdf-reader-placeholder and fl-pdf-reader-retry (scoped under
+   @layer components).
+   Hosts: react/PdfReaderSkeleton.tsx.
+   This file must not define :root tokens. */
+@layer components {
+  .fl-pdf-reader {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    place-items: start center;
+  }
+
+  .fl-pdf-reader-placeholder {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    margin: 48px 16px;
+    padding: 20px 24px;
+    border: 1px dashed var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+  }
+
+  .fl-pdf-reader-placeholder p {
+    margin: 0;
+  }
+
+  .fl-pdf-reader-retry {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .fl-pdf-reader-retry:hover {
+    background: var(--fl-surface-hover);
+  }
+
+  .fl-pdf-reader-retry:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 2px;
+  }
+}

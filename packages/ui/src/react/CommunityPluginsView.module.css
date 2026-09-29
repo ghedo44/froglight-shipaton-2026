@@ -1,0 +1,216 @@
+/* Community plugins — CSS module colocated with CommunityPluginsView.tsx.
+   Imported explicitly by the component (`import styles from
+   './CommunityPluginsView.module.css'`); correctness comes from the
+   `components` cascade layer, never source order. Includes the toggle
+   switch rendered by this view (moved from theme-base.css primitives).
+   Classes owned: community-banner/icon/toolbar/feedback (+error)/list/
+   empty/plugin-row/main/title/controls/perm-chips/chip/error/state-badge
+   (+state-*), toggle (+on)/toggle-knob. Vars consumed: --fl-surface-*,
+   --fl-text-*, --fl-border-*, --fl-radius-*, --fl-success/*,
+   --fl-danger-*, --fl-warning/*, --fl-accent-*, --fl-motion/--fl-ease-*.
+   Hosts: react/CommunityPluginsView.tsx. The phone stacking rules moved
+   here from shell/responsive.css with the component.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  .community-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: var(--fl-radius-lg);
+    padding: 11px 13px;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .community-banner.warning {
+    background: color-mix(in srgb, var(--fl-warning) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--fl-warning) 24%, transparent);
+    color: var(--fl-text-primary);
+  }
+  .community-banner-icon {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    opacity: 0.9;
+  }
+
+  .community-toolbar {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0 4px;
+    flex-wrap: wrap;
+  }
+  .community-feedback {
+    min-height: 18px;
+    font-size: 12.5px;
+    color: var(--fl-success);
+    margin-bottom: 4px;
+  }
+  .community-feedback.error {
+    color: var(--fl-danger);
+  }
+  .community-feedback[data-empty='true'] {
+    min-height: 0;
+  }
+
+  .community-list {
+    display: grid;
+    gap: 0;
+    margin-top: 10px;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .community-empty {
+    color: var(--fl-text-muted);
+    font-size: 13px;
+    padding: 12px 0;
+    border-top: 1px solid var(--fl-border-default);
+  }
+  .community-plugin-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--fl-border-default);
+    padding: 14px 8px;
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .community-plugin-row:hover {
+    background: var(--fl-surface-hover);
+  }
+  .community-plugin-main {
+    min-width: 0;
+    display: grid;
+    gap: 7px;
+  }
+  .community-plugin-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13.5px;
+    font-weight: 550;
+  }
+  .community-plugin-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .community-perm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .community-perm-chip {
+    font-family: var(--fl-font-mono);
+    font-size: 10.5px;
+    color: var(--fl-text-muted);
+    overflow-wrap: anywhere;
+  }
+  .community-plugin-error {
+    margin: 0;
+    font-size: 12px;
+    color: var(--fl-danger);
+    overflow-wrap: anywhere;
+  }
+
+  .community-state-badge {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    padding: 2.5px 8px;
+    white-space: nowrap;
+  }
+  .community-state-badge.state-active {
+    background: color-mix(in srgb, var(--fl-success) 13%, transparent);
+    color: var(--fl-success);
+  }
+  .community-state-badge.state-disabled {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-muted);
+  }
+  .community-state-badge.state-failed,
+  .community-state-badge.state-blocked-crash-loop {
+    background: var(--fl-danger-soft);
+    color: var(--fl-danger);
+  }
+  .community-state-badge.state-blocked-safe-mode {
+    background: var(--fl-accent-soft);
+    color: var(--fl-accent-strong);
+  }
+
+  /* Toggle switch (owned by this view's Toggle control). */
+  .toggle {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--fl-surface-active);
+    transition: background var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--fl-accent-contrast);
+    box-shadow: var(--fl-shadow-low);
+    transition: transform var(--fl-motion-normal) var(--fl-ease-spring);
+  }
+  .toggle.on {
+    background: var(--fl-accent);
+  }
+  .toggle.on .toggle-knob {
+    transform: translateX(14px);
+  }
+  .toggle:focus-visible {
+    outline: 2px solid var(--fl-accent-strong);
+    outline-offset: 2px;
+  }
+
+  @media (any-pointer: coarse) {
+    .community-toolbar button,
+    .community-plugin-controls button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .toggle,
+    .toggle.on {
+      width: 44px;
+      height: 44px;
+      background: transparent;
+    }
+    .toggle::before {
+      content: '';
+      position: absolute;
+      width: 34px;
+      height: 20px;
+      left: 5px;
+      top: 12px;
+      border-radius: inherit;
+      background: var(--fl-surface-active);
+    }
+    .toggle.on::before {
+      background: var(--fl-accent);
+    }
+    .toggle-knob {
+      top: 14px;
+      left: 7px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .community-plugin-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .community-plugin-controls {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+}

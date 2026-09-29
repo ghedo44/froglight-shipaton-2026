@@ -1,0 +1,67 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/runtime"
+    },
+    {
+      "path": "./packages/foundation"
+    },
+    {
+      "path": "./packages/provider-native-fs"
+    },
+    {
+      "path": "./packages/provider-opfs"
+    },
+    {
+      "path": "./packages/editor-codemirror"
+    },
+    {
+      "path": "./packages/index-sqlite"
+    },
+    {
+      "path": "./packages/search-fts"
+    },
+    {
+      "path": "./packages/plugin-platform"
+    },
+    {
+      "path": "./packages/sdk"
+    },
+    {
+      "path": "./packages/application"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/surface-default"
+    },
+    {
+      "path": "./packages/editor-blockpage"
+    },
+    {
+      "path": "./packages/editor-ink"
+    },
+    {
+      "path": "./packages/editor-notebook"
+    },
+    {
+      "path": "./packages/provider-pdf-lib"
+    },
+    {
+      "path": "./packages/provider-pdfjs"
+    },
+    {
+      "path": "./packages/editor-whiteboard"
+    },
+    {
+      "path": "./packages/provider-latexjs"
+    },
+    {
+      "path": "./packages/provider-firebase"
+    }
+  ]
+}

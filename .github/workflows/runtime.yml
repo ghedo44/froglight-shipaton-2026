@@ -1,0 +1,331 @@
+name: Architecture CI
+
+# Fast required PR checks. Slow packaging (unsigned IPA, future APK/desktop
+# bundles, PWA precache verification) lives in dedicated workflows and is
+# explicitly NOT a merge gate — see ios-unsigned-ipa.yml.
+on:
+  # push:
+  #   branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: architecture-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint affected (PR) / all (main)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm nx affected -t lint --base=origin/main --head=HEAD --parallel=3
+          else
+            pnpm nx run-many -t lint --all --parallel=3
+          fi
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck affected (PR) / all (main)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm nx affected -t typecheck --base=origin/main --head=HEAD --parallel=3
+          else
+            pnpm nx run-many -t typecheck --all --parallel=3
+          fi
+
+  test:
+    name: Test (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test affected (PR) / all (main)
+        run: |
+          # @froglight/firebase-infra is excluded here on purpose: its rules
+          # specs require the Emulator Suite plus its standalone lockfile
+          # install, and are owned by the dedicated firebase-rules.yml
+          # workflow (test:emulators). Bare `nx test` can never pass there.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm nx affected -t test --base=origin/main --head=HEAD --parallel=3 --exclude=@froglight/firebase-infra
+          else
+            pnpm nx run-many -t test --all --parallel=3 --exclude=@froglight/firebase-infra
+          fi
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build affected (PR) / all (main)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm nx affected -t build --base=origin/main --head=HEAD --parallel=3
+            # The dist-consumer CSS gate below needs these dist/ outputs even
+            # when they are unaffected (fresh runners have no dist/). Keep the
+            # PR build scoped instead of falling back to --all.
+            pnpm nx run-many -t build --projects=ui,editor-ink,editor-notebook,editor-blockpage,editor-codemirror,provider-pdfjs --parallel=3
+          else
+            pnpm nx run-many -t build --all --parallel=3
+          fi
+
+      - name: Verify built-package CSS gate (ADR 0040)
+        run: node scripts/verify-dist-css-consumer.mjs
+
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm nx format:check
+
+  python-workflow-tests:
+    name: Python workflow tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run pytest
+        run: python -m pip install pytest && python -m pytest tests/ -v
+
+  rust-checks:
+    name: Rust fmt/clippy/test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/native/src-tauri
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Linux system dependencies (Tauri)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            curl \
+            wget \
+            file \
+            pkg-config \
+            libssl-dev \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build native frontend (Tauri frontendDist)
+        # `tauri::generate_context!()` embeds `apps/native/dist` at compile
+        # time and panics when it is missing. The Rust checks must build the
+        # Vite frontend first. Direct pnpm filter (not `nx run
+        # native:build`, which ambiguously resolves to the `native:build`
+        # Tauri-bundle script instead of the `build` Vite script).
+        working-directory: ./
+        run: pnpm --filter @froglight/native build
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            apps/native/src-tauri/target
+          key: rust-checks-${{ runner.os }}-${{ hashFiles('apps/native/src-tauri/Cargo.lock') }}
+          restore-keys: |
+            rust-checks-${{ runner.os }}-
+
+      - name: Format check
+        run: cargo fmt --check
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Rust tests
+        run: cargo test
+
+  opfs-browser:
+    name: OPFS browser contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build OPFS browser dependencies
+        run: pnpm nx run-many -t build --projects=foundation,runtime,provider-opfs
+
+      - name: Install Chromium
+        run: pnpm --filter @froglight/provider-opfs exec playwright install --with-deps chromium
+
+      - name: Run OPFS contract suite
+        run: pnpm --filter @froglight/provider-opfs test:e2e
+
+  pwa-offline:
+    name: PWA offline shell (production build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production PWA
+        run: pnpm nx run web:build
+
+      - name: Install Chromium
+        run: pnpm --filter @froglight/web exec playwright install --with-deps chromium
+
+      - name: Run offline shell suite
+        run: pnpm --filter @froglight/web test:e2e

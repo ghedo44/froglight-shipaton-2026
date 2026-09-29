@@ -1,0 +1,1820 @@
+/* Workspace shell — CSS module colocated with WorkspaceView.tsx.
+   Imported explicitly by the component (`import styles from
+   './WorkspaceView.module.css'`); correctness comes from the `components`
+   cascade layer, never source order. This is the application frame:
+   layout grid, activity rail, vault sidebar, document sidebar shell,
+   main column, dock (splits, strips, pane chrome, tabs, toasts,
+   drawers), titlebar composition hooks, and the mobile bottom nav.
+   Panel content (outline, document settings) lives in
+   RightSidebarPanels.module.css; the document toolbar in
+   DocumentToolbarShell.module.css; editor hosts in their provider
+   packages. Cross-component composition (tab strips inside the
+   titlebar) hooks through `data-fl-component="titlebar"`; window
+   geometry and safe areas stay in platform/platform.css targeting
+   `data-fl-component` hooks. Private layout tracks use `--_*` and are
+   never theme API.
+   Classes owned: froglight-layout and fl-body, fl-activity and activity
+   rail classes, fl-sidebar and sidebar-inner plus vault-row, workspace
+   vault, sidebar-collapse and sidebar-content classes,
+   fl-right-sidebar and right-sidebar tabs, tab and content classes plus
+   mobile tabs, fl-main, fl-split and topbar and strip families plus
+   titlebar-inspector, titlebar-toggle and inspector-toggle,
+   fl-sidebar-resizer, fl-band-strips,
+   titlebar-toggle/inspector-toggle, fl-sidebar-resizer, fl-band-strips,
+   fl-pane-body and header, nav and actions classes, fl-pane-view
+   and fill class, editor-area, fl-dropzones and zone classes plus ghost,
+   pane-empty family, tabstrip family, fl-tab family, tab-new,
+   tabstrip-actions, fl-toast*, fl-backdrop, fl-bottomnav*. Vars consumed:
+   --fl-layout-*, --fl-surface-*, --fl-text-*, --fl-border-*,
+   --fl-radius-*, --fl-shadow-*, --fl-accent-*, --fl-success/*,
+   --fl-danger-*, --fl-motion/--fl-ease-*, --fl-safe-area-*,
+   --fl-keyboard-*. Hosts:
+   react/WorkspaceView.tsx.
+   This file must only consume var(--fl-*) tokens (plus documented fixed
+   scrims) and must not define :root tokens. */
+@layer components {
+  /* ============ Layout frame ============ */
+  /* Desktop: ribbon + sidebar span both rows; the top bar (tab strips)
+     sits exactly over the main column so every strip aligns 1:1 with its
+ pane. */
+  .froglight-layout {
+    --_left-sidebar-track: var(--fl-layout-sidebar-width);
+    --_right-sidebar-track: var(--fl-layout-right-sidebar-width);
+    position: fixed;
+    top: 0;
+    inset-inline: 0;
+    display: grid;
+    grid-template-columns:
+      var(--fl-layout-ribbon-width) minmax(0, var(--_left-sidebar-track))
+      minmax(0, 1fr)
+      minmax(0, var(--_right-sidebar-track));
+    grid-template-rows: var(--fl-layout-tab-height) minmax(0, 1fr);
+    grid-template-areas:
+      'activity sidebar titlebar titlebar'
+      'activity sidebar main inspector';
+    width: 100%;
+    max-width: 100vw;
+    height: 100%;
+    overflow: clip;
+    contain: layout paint;
+    background: var(--fl-surface-app);
+    animation: fl-shell-in var(--fl-motion-slow) var(--fl-ease-standard);
+    transition: grid-template-columns var(--fl-motion-slow)
+      var(--fl-ease-standard);
+  }
+  .froglight-layout.sidebar-collapsed {
+    --_left-sidebar-track: 0px;
+  }
+  .froglight-layout.sidebar-collapsed .fl-sidebar {
+    pointer-events: none;
+    opacity: 0;
+  }
+  .froglight-layout.right-sidebar-collapsed {
+    --_right-sidebar-track: 0px;
+  }
+  .froglight-layout.right-sidebar-collapsed .fl-right-sidebar {
+    pointer-events: none;
+    opacity: 0;
+  }
+  .froglight-layout.sidebar-resizing,
+  .froglight-layout.sidebar-resizing :is(.fl-sidebar, .fl-right-sidebar) {
+    transition: none;
+  }
+  /* Breakpoint flips restyle the shell at the crossing instant (drawer
+     transforms, grid column tracks), which would otherwise animate a phantom
+     open/close across the sidebars and squeeze the main area even when nothing
+     was ever shown. Snap instead. `!important` wins over the drawers' own
+     transition shorthands below. */
+  .froglight-layout.sidebar-switching,
+  .froglight-layout.sidebar-switching
+    :is(.fl-sidebar, .fl-right-sidebar, .sidebar-inner, .fl-backdrop) {
+    transition: none !important;
+  }
+  .froglight-layout.sidebar-resizing {
+    cursor: col-resize;
+    user-select: none;
+  }
+  .fl-body {
+    display: contents;
+  }
+  @keyframes fl-shell-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ============ Ribbon (activity rail) ============ */
+  .fl-activity {
+    grid-area: activity;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    /* The first control shares the titlebar band; the remaining rail actions
+       begin immediately below it. */
+    padding: calc((var(--fl-layout-tab-height) - 34px) / 2) 0 12px;
+    background: var(--fl-surface-sidebar);
+    border-right: 1px solid var(--fl-border-default);
+  }
+  .activity-button {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      transform var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .activity-button:hover {
+    background: var(--fl-surface-hover);
+    color: var(--fl-text-secondary);
+  }
+  .activity-button:active {
+    transform: scale(0.92);
+  }
+  .activity-button:disabled {
+    opacity: 0.32;
+  }
+  .activity-button:disabled:hover {
+    background: none;
+    color: var(--fl-text-muted);
+  }
+  .activity-button.active {
+    color: var(--fl-accent-strong);
+  }
+  .activity-button.active::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 8px;
+    bottom: 8px;
+    width: 2.5px;
+    border-radius: 2px;
+    background: var(--fl-accent);
+    animation: fl-indicator-in var(--fl-motion-normal) var(--fl-ease-spring);
+  }
+  @keyframes fl-indicator-in {
+    from {
+      transform: scaleY(0.3);
+      opacity: 0;
+    }
+    to {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+  .activity-spacer {
+    flex: 1;
+  }
+  .activity-window {
+    position: fixed;
+    z-index: 1100;
+    top: 24%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-primary);
+    border: 1px solid var(--fl-border-strong);
+    border-radius: var(--fl-radius-lg);
+    box-shadow: var(--fl-shadow-overlay);
+  }
+  .activity-window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px 8px 14px;
+    border-bottom: 1px solid var(--fl-border-default);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .activity-window-header:active { cursor: grabbing; }
+  .activity-window-header button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--fl-radius-md); }
+  .activity-window-header button:hover { background: var(--fl-surface-hover); }
+  .ribbon-separator {
+    width: 18px;
+    height: 1px;
+    margin: 4px 0;
+    background: var(--fl-border-strong);
+  }
+
+  /* ============ Sidebar ============ */
+  .fl-sidebar {
+    grid-area: sidebar;
+    width: 100%;
+    overflow: hidden;
+    background: var(--fl-surface-sidebar);
+    border-right: 1px solid var(--fl-border-default);
+    min-width: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    transition: opacity var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  /* The shell wipes; the content tucks: it fades and drifts toward the
+     closing edge so a collapse reads as deliberate, not a hard clip. The
+     inner keeps a fixed width, so only the clip edge moves — no internal
+     reflow while the shell animates. */
+  .sidebar-inner {
+    width: var(--fl-layout-sidebar-width);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard);
+    transition:
+      opacity var(--fl-motion-normal) var(--fl-ease-standard),
+      transform var(--fl-motion-slow) var(--fl-ease-standard),
+      visibility 0s;
+  }
+  .fl-sidebar.closed .sidebar-inner {
+    opacity: 0;
+    transform: translateX(-8px);
+    /* Flips after the collapse finishes: closed content leaves the tab order
+       and the accessibility tree instead of staying focusable-but-invisible. */
+    visibility: hidden;
+    transition:
+      opacity var(--fl-motion-normal) var(--fl-ease-standard),
+      transform var(--fl-motion-slow) var(--fl-ease-standard),
+      visibility 0s linear var(--fl-motion-slow);
+  }
+  @keyframes fl-view-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Vault identity row — the Notion-style workspace switcher */
+  .vault-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 10px 2px;
+    padding: 5px 6px;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-primary);
+    text-align: left;
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .vault-row:hover {
+    background: var(--fl-surface-hover);
+  }
+  .vault-row-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    border-radius: var(--fl-radius-md);
+    text-align: left;
+  }
+  .sidebar-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* The slot remounts per view; the settle marks the Files↔Search switch. */
+    animation: fl-view-in var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .vault-row-chevron {
+    display: grid;
+    place-items: center;
+    color: var(--fl-text-muted);
+    flex: 0 0 auto;
+    transition: transform var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .vault-row:hover .vault-row-chevron {
+    transform: translateY(1px);
+  }
+  /* The frog mark fills its container; the container only sizes it. */
+  .workspace-vault-mark {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+  }
+  .workspace-vault-mark :global(.froglight-frog-mark) {
+    width: 100%;
+    height: 100%;
+  }
+  .workspace-vault-name {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sidebar-collapse {
+    flex: 0 0 auto;
+    opacity: 0;
+    transition: opacity var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .vault-row:hover .sidebar-collapse,
+  .sidebar-collapse:focus-visible {
+    opacity: 1;
+  }
+  @media (hover: none), (pointer: coarse) {
+    .vault-row {
+      min-height: 44px;
+    }
+    .sidebar-collapse {
+      width: 32px;
+      height: 32px;
+      opacity: 1;
+    }
+  }
+  /* ============ Document sidebar shell ============ */
+  .fl-right-sidebar {
+    grid-area: inspector;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--fl-surface-sidebar);
+    border-left: 1px solid var(--fl-border-default);
+    transition: opacity var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .right-sidebar-tabs {
+    flex: 0 0 var(--fl-layout-tab-height);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 7px;
+    border-bottom: 1px solid var(--fl-border-default);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .right-sidebar-tabs-inner {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .right-sidebar-more {
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .right-sidebar-more > button {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+  }
+  .right-sidebar-more > button:hover,
+  .right-sidebar-more > button[aria-expanded='true'] {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .right-sidebar-more-menu {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 156px;
+    padding: 4px;
+    border: 1px solid var(--fl-border-default);
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  }
+  .right-sidebar-more-menu > button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: var(--fl-radius-sm);
+    text-align: left;
+    white-space: nowrap;
+    color: var(--fl-text-primary);
+  }
+  .right-sidebar-more-menu > button:hover,
+  .right-sidebar-more-menu > button:focus-visible {
+    background: var(--fl-surface-hover);
+  }
+  [data-fl-component='titlebar'] .right-sidebar-tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    border-bottom: 0;
+  }
+  .fl-right-sidebar-mobile-tabs {
+    display: none;
+  }
+  .right-sidebar-tab {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-muted);
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      transform var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .right-sidebar-tab:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .right-sidebar-tab:active {
+    transform: scale(0.93);
+  }
+  .right-sidebar-tab.active {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+  }
+  .right-sidebar-tab:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  .right-sidebar-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden auto;
+    animation: fl-view-in var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+
+  /* ============ Main area ============ */
+  /* The overlay keyboard never resizes the WebView: instead the
+     central dock area shortens once, here. `.fl-main` is already only the
+     dock/content grid area — the titlebar, top-level tab strips, activity
+     rail, sidebars, and window frame stay full-size outside it. The entire
+     dock tree (splits, dividers, inline band strips, every pane) inherits
+     the shorter height, so all split panes end at the keyboard top
+     together. Margin — not padding — is load-bearing: as a stretched grid
+     item `.fl-main` receives less height, reducing its border box so editor
+     hosts report the usable height and their internal scrollers remain the
+     sole scroll owners. */
+  .fl-main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    background: var(--fl-surface-app);
+    min-width: 0;
+    min-height: 0;
+    margin-bottom: var(--fl-keyboard-inset-height, 0px);
+  }
+  /* Settings/graph views open below the titlebar; its tab strip stays visible. */
+  .fl-mainview {
+    flex-direction: column;
+  }
+  .fl-mainview > * {
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard);
+  }
+
+  /* Panes (split view) */
+  .fl-panes {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    position: relative;
+  }
+  .fl-pane {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  /* In split view the unfocused pane's chrome recedes a step, so the pane
+     that receives save/edit commands is legible at a glance. */
+  .fl-pane .tabstrip {
+    transition: opacity var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .fl-pane:not(.focused) .tabstrip {
+    opacity: 0.55;
+  }
+  .fl-pane-divider {
+    flex: 0 0 9px;
+    background: transparent;
+    position: relative;
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+    touch-action: manipulation;
+  }
+  .fl-pane-divider::before {
+    content: '';
+    position: absolute;
+    inset: 0 4px;
+    background: var(--fl-border-default);
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .fl-pane-divider:hover::before,
+  .fl-pane-divider.dragging::before,
+  .fl-pane-divider:focus-visible::before {
+    background: var(--fl-accent);
+  }
+
+  /* ============ Dock: splits, topbar strips, pane header, drop zones ===== */
+
+  /* Split containers: a binary dock node lays out its two subtrees along the
+     split direction; the first side carries the ratio as its flex basis. */
+  .fl-split {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
+  .fl-split[data-direction='horizontal'] {
+    flex-direction: row;
+  }
+  .fl-split[data-direction='vertical'] {
+    flex-direction: column;
+  }
+  .fl-split-first,
+  .fl-split-second {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 0%;
+  }
+  .fl-split[data-direction='horizontal'] > .fl-pane-divider {
+    cursor: col-resize;
+    background: linear-gradient(
+      to bottom,
+      var(--fl-surface-sidebar) 30px,
+      transparent 30px
+    );
+  }
+
+  .fl-split[data-direction='vertical'] > .fl-pane-divider {
+    cursor: row-resize;
+  }
+  .fl-split[data-direction='vertical'] > .fl-pane-divider::before {
+    inset: 4px 0;
+  }
+
+  /* Top bar: band 0's strip row only, starting exactly at the main column's
+     left edge. The sidebar toggle lives in the activity rail, so nothing shifts
+     the strips off their pane columns. */
+  .fl-topbar-row {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .fl-titlebar-inspector {
+    display: flex;
+    align-items: center;
+    flex: 0 0 var(--fl-layout-right-sidebar-width);
+    min-width: 0;
+    padding: 0
+      calc(
+        6px + var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      )
+      0 4px;
+    border-left: 1px solid var(--fl-border-default);
+  }
+  .right-sidebar-collapsed .fl-titlebar-inspector {
+    flex-basis: 0;
+    padding: 0;
+    border-left: 0;
+  }
+  .right-sidebar-collapsed .titlebar-inspector-toggle {
+    position: static;
+    z-index: auto;
+    align-self: center;
+    margin-inline-end: calc(
+      6px + var(--fl-titlebar-inset-right, 0px) +
+        var(--fl-window-controls-width, 0px)
+    );
+  }
+  .right-sidebar-collapsed .fl-strip-edge-end .tabstrip {
+    padding-inline-end: 36px;
+  }
+  .fl-topbar-strip {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    overflow: hidden;
+    flex: 1 1 0;
+  }
+  .fl-topbar-strip .tabstrip {
+    flex: 1;
+    min-width: 0;
+  }
+  .fl-strip-split {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .fl-strip-part {
+    display: flex;
+    min-width: 0;
+  }
+  .fl-strip-divider {
+    flex: 0 0 9px;
+    position: relative;
+    background: var(--fl-surface-sidebar);
+  }
+  .fl-strip-divider::before {
+    content: '';
+    position: absolute;
+    inset: 0 4px;
+    background: var(--fl-border-default);
+  }
+  .fl-strip-edge-start .tabstrip {
+    padding-inline-start: var(--fl-titlebar-inset-left, 0px);
+  }
+  .fl-strip-edge-end .tabstrip {
+    padding-inline-end: 36px;
+  }
+  .titlebar-inspector-toggle {
+    position: static;
+    z-index: auto;
+    align-self: center;
+    flex: 0 0 auto;
+    margin-inline: 4px;
+    color: var(--fl-text-muted);
+  }
+
+  /* Sidebar borders are 1px hairlines with a forgiving, invisible drag target. */
+  .fl-sidebar-resizer {
+    position: absolute;
+    z-index: 4;
+    top: 0;
+    bottom: 0;
+    width: 9px;
+    cursor: col-resize;
+    touch-action: none;
+    outline: none;
+  }
+  .fl-sidebar-resizer.left {
+    right: 0;
+    transform: translateX(50%);
+  }
+  .fl-sidebar-resizer.right {
+    left: 0;
+    transform: translateX(-50%);
+  }
+  .fl-sidebar-resizer::after {
+    content: '';
+    position: absolute;
+    inset: 0 4px;
+    background: transparent;
+    transition: background var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .fl-sidebar-resizer:hover::after,
+  .fl-sidebar-resizer:focus-visible::after {
+    background: var(--fl-accent);
+  }
+  .titlebar-inspector-toggle:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+  .titlebar-inspector-toggle.active {
+    color: var(--fl-accent-strong);
+    background: var(--fl-accent-soft);
+  }
+  .titlebar-toggle {
+    align-self: center;
+    margin-left: 8px;
+    flex: 0 0 auto;
+    color: var(--fl-text-muted);
+  }
+  .titlebar-toggle:hover {
+    color: var(--fl-text-primary);
+  }
+
+  /* The main pane's tab strip lives in the titlebar and blends into it. */
+  [data-fl-component='titlebar'] .tabstrip {
+    flex: 1 1 auto;
+    height: auto;
+    border-bottom: none;
+    align-items: stretch;
+  }
+  [data-fl-component='titlebar'] .tabstrip-tabs {
+    padding-left: 2px;
+  }
+  [data-fl-component='titlebar'] .tabstrip .fl-tab::after {
+    bottom: 0;
+  }
+  [data-fl-component='titlebar'] .tabstrip-actions {
+    border-left: 1px solid var(--fl-border-default);
+    height: auto;
+    align-self: stretch;
+  }
+
+  /* Deeper bands: each vertical split's second subtree carries its strip row
+     directly above its panes, aligned by the same gap-spacer math. */
+  .fl-band-strips {
+    flex: 0 0 var(--fl-layout-tab-height);
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    background: var(--fl-surface-sidebar);
+    border-bottom: 1px solid var(--fl-border-default);
+  }
+
+  /* Adapt to the pane, not the window: dock splits can be narrow on desktop. */
+  .fl-pane {
+    container-type: inline-size;
+  }
+
+  /* Pane body: everything below the header. */
+  .fl-pane-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+  }
+  .fl-pane[data-presentation='split'] > .fl-pane-body {
+    flex-direction: row;
+  }
+  .fl-pane[data-presentation='split'] .fl-pane-body > :global(.fl-pane-reader) {
+    border-inline-start: 1px solid var(--fl-border-default);
+    overflow: hidden;
+  }
+  @container (max-width: 600px) {
+    .fl-pane[data-presentation='split'] > .fl-pane-body {
+      flex-direction: column;
+    }
+    .fl-pane[data-presentation='split']
+      .fl-pane-body
+      > :global(.fl-pane-reader) {
+      border-inline-start: 0;
+      border-block-start: 1px solid var(--fl-border-default);
+    }
+  }
+  /* The pane body never consumes keyboard height itself: `.fl-main`
+     already shortened the whole dock once, and every pane inherits it.
+     Subtracting here again would double the inset. */
+  /* Sidebar content viewports: headers/chrome stay fixed; the scrollable
+     region holding a focused input shortens above the keyboard. Sidebar
+     avoidance is independent of the central dock. */
+  .sidebar-content[data-fl-keyboard-viewport]:focus-within {
+    margin-bottom: var(--fl-keyboard-inset-height, 0px);
+  }
+  .right-sidebar-content[data-fl-keyboard-viewport]:focus-within {
+    margin-bottom: var(--fl-keyboard-inset-height, 0px);
+  }
+  /* The editor host fills the pane so document scrollers can pass beneath
+     the floating islands. Writing providers consume this inherited value as
+     scrollable headspace, which protects their first content without moving
+ the host when scrolling or drawing. */
+  .fl-pane-body-floating {
+    --_fl-editor-floating-top: var(--fl-layout-floating-top);
+  }
+
+  /* Pane-local tools and available history; reading has no redundant bar. */
+  .fl-pane-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    padding: 4px 8px 5px;
+    border-bottom: 1px solid var(--fl-border-default);
+    background: var(--fl-surface-sidebar);
+  }
+
+  .fl-pane-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .fl-pane-header-nav [data-fl-component='icon-button']:disabled {
+    opacity: 0.35;
+  }
+  .fl-pane-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-inline-start: auto;
+  }
+
+  .compact-presentation {
+    position: relative;
+    flex: 0 0 auto;
+    align-self: center;
+  }
+  .presentation-segments {
+    display: none;
+    position: relative;
+    grid-template-columns: repeat(var(--_presentation-count), 1fr);
+    height: 28px;
+    box-sizing: border-box;
+    padding: 2px;
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-hover);
+    isolation: isolate;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .presentation-segments button {
+    position: relative;
+    min-width: 46px;
+    min-height: 24px;
+    padding: 0 9px;
+    border-radius: var(--fl-radius-sm);
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+  .presentation-segments button[aria-checked='true'] {
+    color: var(--fl-text-primary);
+    font-weight: 600;
+  }
+  .presentation-segments button:hover {
+    color: var(--fl-text-primary);
+  }
+  .presentation-thumb {
+    position: absolute;
+    inset: 2px auto 2px 2px;
+    width: calc((100% - 4px) / var(--_presentation-count));
+    border-radius: var(--fl-radius-sm);
+    background: var(--fl-surface-raised);
+    box-shadow: var(--fl-shadow-low);
+    transform: translateX(calc(var(--_presentation-index) * 100%));
+    transition: transform var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(:root:not([data-fl-motion='on'])) .presentation-thumb {
+      transition: none;
+    }
+  }
+  .compact-presentation > button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 0 7px;
+    border-radius: var(--fl-radius-md);
+    font-size: 12px;
+    color: var(--fl-text-secondary);
+  }
+  .compact-presentation-menu {
+    composes: surface from './DialogSurface.module.css';
+    position: absolute;
+    z-index: 70;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 152px;
+    padding: 4px;
+  }
+  .compact-presentation-menu button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    min-height: 36px;
+    padding: 0 9px;
+    text-align: left;
+    border-radius: var(--fl-radius-md);
+    color: var(--fl-text-primary);
+  }
+  .compact-presentation-menu button:hover,
+  .compact-presentation-menu button[aria-checked='true'] {
+    background: var(--fl-surface-hover);
+  }
+  .compact-presentation-menu button svg:last-child:not(:first-child) {
+    margin-left: auto;
+  }
+  .compact-presentation button:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: 1px;
+  }
+  @container (min-width: 761px) {
+    .presentation-segments {
+      display: grid;
+    }
+    .compact-presentation > button {
+      display: none;
+    }
+    .compact-presentation-menu {
+      display: none;
+    }
+  }
+  @media (any-pointer: coarse) {
+    .compact-presentation-menu button {
+      min-height: 44px;
+    }
+  }
+
+  .fl-pane-header-actions [data-fl-component='icon-button'].active {
+    color: var(--fl-accent);
+  }
+
+  /* View tabs (graph & co.) render through the same pane body. */
+  .fl-pane-view {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Preview tabs stretch the ViewSlot host so the preview fills the pane
+     instead of collapsing to content height. */
+  .fl-pane-view > .fl-pane-view-fill {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* Edit/reading flips re-render the slot; a brief settle keeps the switch
+     from reading as a hard cut. Runs only when the host becomes visible. */
+  .editor-area {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    animation: fl-fade-in var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  @keyframes fl-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Drop zones: while a tab drags, each pane offers center (move as tab) and
+     four edge zones (split in that direction). The hovered zone lights up. */
+  .fl-dropzones {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-areas:
+      '. top .'
+      'left center right'
+      '. bottom .';
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr 2fr 1fr;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .fl-dropzone {
+    pointer-events: auto;
+  }
+  .fl-dropzone[data-zone='top'] {
+    grid-area: top;
+  }
+  .fl-dropzone[data-zone='bottom'] {
+    grid-area: bottom;
+  }
+  .fl-dropzone[data-zone='left'] {
+    grid-area: left;
+  }
+  .fl-dropzone[data-zone='right'] {
+    grid-area: right;
+  }
+  .fl-dropzone[data-zone='center'] {
+    grid-area: center;
+  }
+  .fl-dropzone.active {
+    background: color-mix(in srgb, var(--fl-accent) 16%, transparent);
+    outline: 2px solid var(--fl-accent);
+    outline-offset: -2px;
+    border-radius: var(--fl-radius-md);
+  }
+  .fl-dropzone-label {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--fl-text-primary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    pointer-events: none;
+    text-shadow: 0 1px 2px var(--fl-surface-editor);
+  }
+  /* While a drag is live every zone shows a faint dashed hint, so it is
+     obvious that dropping there splits (edges) or moves (center). */
+  .fl-dropzones:not(:has(.fl-dropzone.active)) .fl-dropzone {
+    outline: 1px dashed color-mix(in srgb, var(--fl-accent) 35%, transparent);
+    outline-offset: -4px;
+    border-radius: var(--fl-radius-md);
+  }
+
+  /* Drag state: no text selection, grabbing cursor everywhere. */
+  :global(body.fl-dragging) {
+    cursor: grabbing;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  :global(body.fl-dragging *) {
+    cursor: grabbing !important;
+  }
+
+  /* The ghost chip follows the pointer while a tab or pane drags. */
+  .fl-drag-ghost {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    padding: 3px 10px;
+    border-radius: var(--fl-radius-md);
+    background: var(--fl-surface-raised, var(--fl-surface-sidebar));
+    border: 1px solid var(--fl-accent);
+    box-shadow: var(--fl-shadow-medium);
+    font-size: 12px;
+    color: var(--fl-text-primary);
+    white-space: nowrap;
+  }
+
+  .pane-empty {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    place-items: safe center;
+    color: var(--fl-text-muted);
+  }
+  .pane-empty-card {
+    text-align: center;
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    padding: 32px;
+    animation: fl-view-in var(--fl-motion-slow) var(--fl-ease-standard);
+  }
+  .pane-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fl-text-secondary);
+  }
+  .pane-empty-hint {
+    font-size: 12.5px;
+    max-width: 36ch;
+    line-height: 1.6;
+  }
+  .pane-empty-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  /* Tab strips — one per pane; actions live here now */
+  .tabstrip {
+    display: flex;
+    align-items: stretch;
+    height: var(--fl-layout-tab-height);
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--fl-border-default);
+    min-width: 0;
+  }
+  .tabstrip-tabs {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    touch-action: pan-x;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .tabstrip-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fl-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    max-width: 200px;
+    min-width: 132px;
+    color: var(--fl-text-secondary);
+    font-size: 12.5px;
+    font-weight: 500;
+    transition:
+      color var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard);
+    flex: 0 0 auto;
+    touch-action: pan-x;
+    cursor: grab;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+  .fl-tab:active {
+    cursor: grabbing;
+  }
+  .fl-tab-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    flex: 1 1 auto;
+    min-height: 34px;
+    padding: 0 4px 0 14px;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    text-align: left;
+    touch-action: pan-x;
+    -webkit-user-drag: none;
+  }
+  .fl-tab-main:focus-visible {
+    outline: 2px solid var(--fl-accent);
+    outline-offset: -2px;
+    border-radius: var(--fl-radius-sm);
+  }
+  /* Tab file-type glyph (mirrors the explorer's tree-file-icon treatment). */
+  .fl-tab-icon {
+    color: var(--fl-text-muted);
+    display: grid;
+    place-items: center;
+    width: 16px;
+    flex: 0 0 auto;
+  }
+  .fl-tab::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--fl-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .fl-tab:hover {
+    color: var(--fl-text-secondary);
+    background: var(--fl-surface-hover);
+  }
+  .fl-tab.active {
+    color: var(--fl-text-primary);
+    font-weight: 550;
+  }
+  .fl-tab.active::after {
+    transform: scaleX(1);
+  }
+  .fl-tab-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fl-tab-dirty {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fl-accent);
+    flex: 0 0 auto;
+  }
+  .fl-tab-dirty[data-save-error] {
+    background: var(--fl-danger);
+  }
+  .fl-tab-close {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    color: var(--fl-text-muted);
+    opacity: 0;
+    transition:
+      opacity var(--fl-motion-fast) var(--fl-ease-standard),
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+    flex: 0 0 auto;
+    margin-right: 4px;
+    touch-action: manipulation;
+    -webkit-user-drag: none;
+  }
+  .fl-tab.active .fl-tab-close {
+    opacity: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .fl-tab:hover .fl-tab-close {
+      opacity: 1;
+    }
+  }
+  .fl-tab-close:hover {
+    background: var(--fl-surface-active);
+    color: var(--fl-text-primary);
+  }
+  .fl-tab.dragging {
+    opacity: 0.45;
+  }
+  .fl-tab-slot {
+    position: relative;
+    display: flex;
+    min-width: 132px;
+    max-width: 200px;
+    flex: 0 0 auto;
+  }
+  .fl-tab-slot > .fl-tab {
+    flex: 1 0 auto;
+  }
+  .fl-tab-insert {
+    position: absolute;
+    z-index: 3;
+    inset: 5px auto 5px -1px;
+    width: 2px;
+    border-radius: 999px;
+    background: var(--fl-accent);
+    box-shadow: 0 0 0 2px var(--fl-accent-soft);
+    pointer-events: none;
+  }
+  .fl-tab-insert.end {
+    position: relative;
+    inset: auto;
+    align-self: stretch;
+    flex: 0 0 2px;
+    margin: 5px 0;
+  }
+
+  .tab-new {
+    align-self: center;
+    margin: 0 2px 0 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    color: var(--fl-text-muted);
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    transition:
+      background var(--fl-motion-fast) var(--fl-ease-standard),
+      color var(--fl-motion-fast) var(--fl-ease-standard);
+  }
+  .tab-new:hover {
+    color: var(--fl-text-primary);
+    background: var(--fl-surface-hover);
+  }
+
+  /* Per-pane action cluster (right end of the tab strip) */
+  .tabstrip-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 10px 0 6px;
+    flex: 0 0 auto;
+    border-left: 1px solid var(--fl-border-default);
+    margin-left: 2px;
+  }
+
+  /* Toasts replace the old persistent status bar */
+  .fl-toast-region {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .fl-toast {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: min(72vw, 480px);
+    background: var(--fl-surface-raised);
+    color: var(--fl-text-secondary);
+    border: 1px solid var(--fl-border-default);
+    border-radius: 999px;
+    box-shadow: var(--fl-shadow-medium);
+    padding: 7px 14px;
+    font-size: 12.5px;
+    animation: fl-toast-in var(--fl-motion-slow) var(--fl-ease-spring);
+  }
+  .fl-toast.leaving {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+    transition:
+      opacity var(--fl-motion-normal) var(--fl-ease-standard),
+      transform var(--fl-motion-normal) var(--fl-ease-standard);
+  }
+  .fl-toast.error {
+    color: var(--fl-danger);
+  }
+  .fl-toast-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fl-success);
+    flex: 0 0 auto;
+  }
+  .fl-toast.error .fl-toast-dot {
+    background: var(--fl-danger);
+  }
+  @keyframes fl-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .fl-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(25, 23, 17, 0.32);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--fl-motion-slow) var(--fl-ease-standard);
+  }
+  [data-theme='dark'] .fl-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .fl-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ============ Mobile bottom navigation ============ */
+  .fl-bottomnav {
+    display: none;
+  }
+  .froglight-layout[data-density='touch'] .fl-tab,
+  .froglight-layout[data-density='touch'] .fl-tab-main {
+    min-height: var(--fl-layout-tab-height);
+  }
+  .froglight-layout[data-density='touch'] .fl-tab-close,
+  .froglight-layout[data-density='touch'] .tab-new {
+    width: 34px;
+    height: 34px;
+  }
+  .froglight-layout[data-density='touch'] .fl-tab-close {
+    opacity: 1;
+  }
+
+  /* At tablet widths the titlebar has no surrounding tab surface, so give
+     the selected document a visible fill as well as its underline. */
+  @media (min-width: 761px) and (max-width: 1179px) {
+    .fl-tab.active {
+      background: var(--fl-accent-soft);
+      color: var(--fl-accent-strong);
+    }
+    .fl-tab.active::after {
+      height: 3px;
+    }
+    .fl-tab.active .fl-tab-icon {
+      color: inherit;
+    }
+  }
+
+  /* Both phone and tablet inspectors are drawers. Their panel navigation
+     must travel inside the drawer rather than behind its fixed surface. */
+  @media (max-width: 1179px) {
+    .fl-titlebar-inspector {
+      display: none;
+    }
+    .fl-right-sidebar-mobile-tabs {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      border-bottom: 1px solid var(--fl-border-default);
+    }
+    .fl-right-sidebar-mobile-tabs .right-sidebar-tabs {
+      flex: 1;
+      min-width: 0;
+      padding-inline: 2px;
+      gap: 0;
+      border-bottom: 0;
+    }
+    .right-sidebar-tabs {
+      min-height: 40px;
+    }
+    .right-sidebar-tab {
+      width: 32px;
+      height: 32px;
+      flex-basis: 32px;
+    }
+    .right-sidebar-more > button {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  @media (min-width: 761px) and (max-width: 1179px) {
+    .froglight-layout {
+      grid-template-columns: var(--fl-layout-ribbon-width) minmax(0, 1fr);
+      grid-template-areas:
+        'activity titlebar'
+        'activity main';
+    }
+    .titlebar-toggle {
+      display: inline-grid;
+    }
+    .fl-sidebar,
+    .fl-right-sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      z-index: 46;
+      width: min(340px, 82vw) !important;
+      padding-top: var(--fl-safe-area-top);
+      padding-bottom: var(--fl-keyboard-safe-bottom);
+      visibility: hidden;
+      box-shadow: var(--fl-shadow-overlay);
+      transition:
+        transform var(--fl-motion-slow) var(--fl-ease-standard),
+        visibility 0s linear var(--fl-motion-slow);
+    }
+    .fl-sidebar {
+      left: 0;
+      transform: translateX(-105%);
+    }
+    /* The drawer is wider than the resizable desktop sidebar. Let its
+       content use the drawer width instead of the saved desktop width. */
+    .sidebar-inner {
+      width: 100%;
+    }
+    .fl-right-sidebar {
+      right: 0;
+      transform: translateX(105%);
+    }
+    .fl-sidebar.open,
+    .fl-right-sidebar.open {
+      transform: translateX(0);
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    .fl-sidebar-resizer,
+    .sidebar-collapse {
+      display: none;
+    }
+
+    /* Drawers overlay the main column at this width. Their titlebar controls
+       therefore size to their contents instead of reserving desktop sidebar
+       tracks on either edge of the tab strip. */
+    .fl-titlebar-inspector,
+    .right-sidebar-collapsed .fl-titlebar-inspector {
+      flex: 0 1 auto;
+      padding: 0 4px;
+      border-left: 0;
+    }
+    .fl-titlebar-inspector:empty {
+      display: none;
+    }
+    .titlebar-inspector-toggle,
+    .right-sidebar-collapsed .titlebar-inspector-toggle {
+      position: static;
+      z-index: auto;
+      top: auto;
+      right: auto;
+      flex: 0 0 auto;
+      align-self: center;
+      margin-inline-end: calc(
+        max(4px, var(--fl-safe-area-right)) +
+          var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      );
+    }
+  }
+
+  .froglight-layout[data-layout='wide'] .fl-sidebar {
+    position: relative;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  @media (min-width: 761px) {
+    /* The workspace titlebar begins after the activity/sidebar columns, so a
+       window-edge inset (macOS traffic lights) must not shift its first pane. */
+    .froglight-layout .fl-strip-edge-start .tabstrip {
+      padding-inline-start: 0;
+    }
+    /* The toggle overlays the reserved end of the last strip so it cannot
+       subtract width from the mirrored pane columns. */
+    .titlebar-inspector-toggle,
+    .right-sidebar-collapsed .titlebar-inspector-toggle {
+      position: absolute;
+      z-index: 1;
+      right: calc(
+        4px + var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      );
+      margin: 0;
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .titlebar-inspector-toggle,
+    .right-sidebar-collapsed .titlebar-inspector-toggle {
+      right: calc(
+        var(--_right-sidebar-track) + 4px +
+          var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      );
+    }
+  }
+
+  @media (max-width: 760px) {
+    /* Phone: single column — top bar, body, bottom nav. */
+    .froglight-layout {
+      display: flex;
+      flex-direction: column;
+    }
+    .fl-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    .fl-main {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .fl-titlebar-inspector,
+    .right-sidebar-collapsed .fl-titlebar-inspector {
+      position: static;
+      flex: 0 0 auto;
+      padding: 0 max(4px, var(--fl-safe-area-right)) 0 4px;
+      border-left: 0;
+    }
+    [data-fl-component='titlebar'] .right-sidebar-tabs {
+      display: none;
+    }
+    .right-sidebar-collapsed .titlebar-inspector-toggle {
+      position: static;
+      z-index: auto;
+      top: auto;
+      right: auto;
+      flex: 0 0 auto;
+      align-self: center;
+      margin-inline-end: calc(
+        max(4px, var(--fl-safe-area-right)) +
+          var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      );
+    }
+
+    /* Mobile drawers already own the top safe area. */
+    .fl-sidebar,
+    .fl-right-sidebar {
+      padding-top: var(--fl-safe-area-top);
+    }
+
+    .titlebar-toggle {
+      display: inline-grid;
+    }
+    .workspace-vault-mark {
+      width: 19px;
+      height: 19px;
+    }
+    .workspace-vault-name {
+      display: block;
+      font-size: 13.5px;
+    }
+
+    .fl-activity {
+      display: none;
+    }
+    .sidebar-collapse {
+      display: none;
+    }
+    .vault-row {
+      margin-top: 12px;
+    }
+    .vault-row-chevron {
+      display: none;
+    }
+
+    /* Full-height drawer: slides over the titlebar and bottom bar, with the
+       safe areas padded inside so content never sits under notch, home
+ indicator, or the overlay keyboard. */
+    .fl-sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: min(320px, 86vw) !important;
+      z-index: 46;
+      padding-top: var(--fl-safe-area-top);
+      padding-bottom: var(--fl-keyboard-safe-bottom);
+      transform: translateX(-105%);
+      visibility: hidden;
+      transition:
+        transform var(--fl-motion-slow) var(--fl-ease-standard),
+        visibility 0s linear var(--fl-motion-slow);
+      will-change: transform;
+      box-shadow: var(--fl-shadow-overlay);
+      border-right: 1px solid var(--fl-border-default);
+      min-width: 0;
+      max-width: none;
+    }
+    .fl-sidebar.open {
+      transform: translateX(0);
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    .fl-sidebar.closed {
+      transform: translateX(-105%);
+    }
+    .sidebar-inner {
+      width: 100%;
+    }
+
+    .fl-right-sidebar {
+      position: fixed;
+      inset: 0 0 0 auto;
+      width: min(320px, 88vw) !important;
+      z-index: 46;
+      padding-top: var(--fl-safe-area-top);
+      padding-bottom: var(--fl-keyboard-safe-bottom);
+      transform: translateX(105%);
+      visibility: hidden;
+      border-left: 1px solid var(--fl-border-default);
+      box-shadow: var(--fl-shadow-overlay);
+      transition:
+        transform var(--fl-motion-slow) var(--fl-ease-standard),
+        visibility 0s linear var(--fl-motion-slow);
+      will-change: transform;
+      min-width: 0;
+      max-width: none;
+    }
+    .fl-right-sidebar.open {
+      transform: translateX(0);
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    .fl-right-sidebar.closed {
+      transform: translateX(105%);
+      visibility: hidden;
+    }
+    .fl-sidebar-resizer {
+      display: none;
+    }
+    .right-sidebar-tabs {
+      flex-basis: 52px;
+      min-height: 40px;
+    }
+    .fl-right-sidebar-mobile-tabs {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      border-bottom: 1px solid var(--fl-border-default);
+    }
+    .fl-right-sidebar-mobile-tabs .right-sidebar-tabs {
+      flex: 1;
+      min-width: 0;
+      padding-inline: 2px;
+      gap: 0;
+      border-bottom: 0;
+    }
+    .right-sidebar-tab {
+      width: 32px;
+      height: 32px;
+      flex-basis: 32px;
+    }
+    .right-sidebar-more > button {
+      width: 32px;
+      height: 32px;
+    }
+
+    .fl-bottomnav {
+      grid-area: bottomnav;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-around;
+      padding: 0 max(6px, var(--fl-safe-area-left))
+        var(--fl-keyboard-safe-bottom) max(6px, var(--fl-safe-area-right));
+      background: var(--fl-surface-sidebar);
+      border-top: 1px solid var(--fl-border-default);
+    }
+    .bottomnav-button {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      padding: 8px 0 6px;
+      color: var(--fl-text-secondary);
+      font-size: 10px;
+      font-weight: 550;
+      border-radius: var(--fl-radius-sm);
+      transition: color var(--fl-motion-normal) var(--fl-ease-standard);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bottomnav-button:active {
+      transform: scale(0.94);
+    }
+    .bottomnav-button.active {
+      color: var(--fl-accent-strong);
+    }
+    .fl-panes {
+      flex-direction: column;
+    }
+    .fl-pane-divider {
+      display: none;
+    }
+    .fl-pane:not(.focused) {
+      display: none;
+    }
+    .tabstrip-actions {
+      display: none;
+    }
+    .fl-tab {
+      max-width: 148px;
+      min-height: 34px;
+    }
+  }
+}
+
+/* Platform/window-geometry overrides (safe areas + inspector-toggle
+   placement). iPadOS can expose a top safe area even above the
+   phone/mobile breakpoint (full-screen, Split View, Stage Manager), so the
+   grid reserves it in its own row and the rails clear it independently —
+   keeping titlebar and pane body aligned. The desktop inspector toggle is
+   absolutely positioned, so its offset includes the safe area; in compact
+   mode it joins the titlebar flex row instead. Lives in the platform layer
+   so geometry wins structurally over component defaults. */
+@layer platform {
+  .froglight-layout {
+    grid-template-rows:
+      calc(var(--fl-layout-tab-height) + var(--fl-safe-area-top))
+      minmax(0, 1fr);
+  }
+
+  .fl-activity {
+    padding-top: calc(
+      var(--fl-safe-area-top) + (var(--fl-layout-tab-height) - 34px) / 2
+    );
+  }
+  .fl-sidebar,
+  .fl-right-sidebar {
+    padding-top: var(--fl-safe-area-top);
+  }
+
+  .titlebar-inspector-toggle,
+  .right-sidebar-collapsed .titlebar-inspector-toggle {
+    top: calc(
+      var(--fl-safe-area-top) + (var(--fl-layout-tab-height) - 28px) / 2
+    );
+  }
+
+  @media (max-width: 760px) {
+    /* No inspector tabs are shown in the compact titlebar. Removing their
+       empty flex box leaves the topbar row to consume the available width. */
+    .fl-titlebar-inspector,
+    .right-sidebar-collapsed .fl-titlebar-inspector {
+      display: none;
+    }
+
+    /* The toggle follows the tab row in DOM order. It must be a normal flex
+       item in BOTH open and closed states; the desktop absolute `right`
+       offset placed it over the middle/top of a narrow iPad window when the
+       drawer was open. */
+    .titlebar-inspector-toggle,
+    .right-sidebar-collapsed .titlebar-inspector-toggle {
+      position: static;
+      z-index: auto;
+      top: auto;
+      right: auto;
+      flex: 0 0 auto;
+      align-self: center;
+      margin-inline-end: calc(
+        max(4px, var(--fl-safe-area-right)) +
+          var(--fl-titlebar-inset-right, 0px) +
+          var(--fl-window-controls-width, 0px)
+      );
+    }
+
+    /* Mobile drawers already own the top safe area; repeat the declaration
+       here deliberately so the platform layer never removes it. */
+    .fl-sidebar,
+    .fl-right-sidebar {
+      padding-top: var(--fl-safe-area-top);
+    }
+  }
+}

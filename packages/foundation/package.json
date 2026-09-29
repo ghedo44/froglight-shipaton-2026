@@ -1,0 +1,52 @@
+{
+  "name": "@froglight/foundation",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "froglight": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./testing": {
+      "froglight": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
+    "./purchases": {
+      "froglight": "./src/purchases/index.ts",
+      "types": "./dist/purchases/index.d.ts",
+      "import": "./dist/purchases/index.js",
+      "default": "./dist/purchases/index.js"
+    },
+    "./account": {
+      "froglight": "./src/account/index.ts",
+      "types": "./dist/account/index.d.ts",
+      "import": "./dist/account/index.js",
+      "default": "./dist/account/index.js"
+    }
+  },
+  "nx": {
+    "name": "foundation",
+    "tags": [
+      "layer:capability",
+      "platform:shared",
+      "authority:portable"
+    ]
+  },
+  "dependencies": {
+    "@froglight/runtime": "workspace:*",
+    "polygon-clipping": "0.15.7",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "vitest": "~4.1.0"
+  }
+}
