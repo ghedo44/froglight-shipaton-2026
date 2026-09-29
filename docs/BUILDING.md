@@ -75,6 +75,9 @@ bucket and app ID. Empty settings keep local editing available.
 
 ### Backend setup
 
+See [Firebase setup](../infra/firebase/README.md) for the backend configuration,
+emulator checks and purchase-to-sync troubleshooting.
+
 Use your own Firebase and RevenueCat projects. Enable Email/Password Authentication,
 create Firestore and Storage, and use a Firebase billing plan supporting Storage
 and the RevenueCat extension. The extension region must match your deployment.
