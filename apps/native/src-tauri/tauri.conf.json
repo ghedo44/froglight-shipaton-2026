@@ -5,7 +5,17 @@
     "devUrl": "http://localhost:5174",
     "frontendDist": "../dist"
   },
-  "bundle": { "active": true, "targets": "all" },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
   "productName": "Froglight",
   "version": "0.0.1",
   "identifier": "app.froglight.app",
