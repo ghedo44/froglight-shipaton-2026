@@ -1,5 +1,5 @@
 use base64::Engine as _;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fs::{self, OpenOptions},
@@ -56,7 +56,7 @@ async fn vault_io<T: Send + 'static>(
 
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(1);
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 struct VaultRecord {
     root: PathBuf,
     name: String,
@@ -65,12 +65,89 @@ struct VaultRecord {
     recent: bool,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct NativeVaultStateInner {
     records: HashMap<String, VaultRecord>,
+    registry_path: Option<PathBuf>,
 }
 
 type NativeVaultState = Mutex<NativeVaultStateInner>;
+
+#[derive(Serialize, Deserialize)]
+struct StoredVaultRegistry {
+    version: u32,
+    records: HashMap<String, VaultRecord>,
+}
+
+fn load_native_vault_state(path: PathBuf) -> CommandResult<NativeVaultStateInner> {
+    let records = match fs::read(&path) {
+        Ok(bytes) => {
+            let stored: StoredVaultRegistry = serde_json::from_slice(&bytes).map_err(|error| {
+                VaultCommandError::new(
+                    "IO",
+                    format!("could not read native vault registry: {error}"),
+                )
+            })?;
+            if stored.version != 1 {
+                return Err(VaultCommandError::new(
+                    "IO",
+                    "unsupported native vault registry version",
+                ));
+            }
+            stored.records
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => HashMap::new(),
+        Err(error) => return Err(map_io(error, "could not load native vault registry")),
+    };
+    Ok(NativeVaultStateInner {
+        records,
+        registry_path: Some(path),
+    })
+}
+
+// Persist before publishing the mutation in memory. Failed writes leave the
+// previous registry and identities intact; shutdown needs no best-effort flush.
+fn update_vault_state<T>(
+    state: &NativeVaultState,
+    update: impl FnOnce(&mut NativeVaultStateInner) -> CommandResult<T>,
+) -> CommandResult<T> {
+    let mut locked = lock_state(state)?;
+    let mut draft = locked.clone();
+    let result = update(&mut draft)?;
+    if let Some(path) = &draft.registry_path {
+        let bytes = serde_json::to_vec(&StoredVaultRegistry {
+            version: 1,
+            records: draft.records.clone(),
+        })
+        .map_err(|error| VaultCommandError::new("IO", error.to_string()))?;
+        let parent = path
+            .parent()
+            .ok_or_else(|| VaultCommandError::new("IO", "native vault registry has no parent"))?;
+        fs::create_dir_all(parent)
+            .map_err(|error| map_io(error, "could not create native vault registry directory"))?;
+        let temporary = parent.join(format!(".vault-registry-{}.tmp", uuid::Uuid::new_v4()));
+        let saved = (|| {
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&temporary)
+                .map_err(|error| map_io(error, "could not create native vault registry"))?;
+            file.write_all(&bytes)
+                .and_then(|_| file.sync_all())
+                .map_err(|error| map_io(error, "could not save native vault registry"))?;
+            drop(file);
+            fs::rename(&temporary, path)
+                .map_err(|error| map_io(error, "could not replace native vault registry"))?;
+            Ok(())
+        })();
+        if saved.is_err() {
+            let _ = fs::remove_file(&temporary);
+        }
+        saved?;
+    }
+    *locked = draft;
+    Ok(result)
+}
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -347,22 +424,24 @@ fn native_vault_list_recent_blocking(
 }
 
 fn native_vault_mark_opened_blocking(state: &NativeVaultState, id: String) -> CommandResult<()> {
-    let mut locked = lock_state(&state)?;
-    let record = locked
-        .records
-        .get_mut(&id)
-        .ok_or_else(|| VaultCommandError::new("NOT_FOUND", "unknown native vault"))?;
-    record.last_opened_at = now_millis();
-    record.recent = true;
-    Ok(())
+    update_vault_state(state, |locked| {
+        let record = locked
+            .records
+            .get_mut(&id)
+            .ok_or_else(|| VaultCommandError::new("NOT_FOUND", "unknown native vault"))?;
+        record.last_opened_at = now_millis();
+        record.recent = true;
+        Ok(())
+    })
 }
 
 fn native_vault_forget_blocking(state: &NativeVaultState, id: String) -> CommandResult<()> {
-    let mut locked = lock_state(&state)?;
-    if let Some(record) = locked.records.get_mut(&id) {
-        record.recent = false;
-    }
-    Ok(())
+    update_vault_state(state, |locked| {
+        if let Some(record) = locked.records.get_mut(&id) {
+            record.recent = false;
+        }
+        Ok(())
+    })
 }
 
 fn native_vault_stat_blocking(
@@ -600,34 +679,35 @@ fn register_root(
             "selected vault is not a directory",
         ));
     }
-    let mut locked = lock_state(state)?;
-    if let Some((id, record)) = locked
-        .records
-        .iter_mut()
-        .find(|(_, record)| record.root == canonical)
-    {
-        if recent {
-            record.recent = true;
-            record.last_opened_at = now_millis();
+    update_vault_state(state, |locked| {
+        if let Some((id, record)) = locked
+            .records
+            .iter_mut()
+            .find(|(_, record)| record.root == canonical)
+        {
+            if recent {
+                record.recent = true;
+                record.last_opened_at = now_millis();
+            }
+            return Ok(descriptor(id, record));
         }
-        return Ok(descriptor(id, record));
-    }
-    let id = format!("native-vault-{}", uuid::Uuid::new_v4());
-    let name = canonical
-        .file_name()
-        .map(|value| value.to_string_lossy().into_owned())
-        .filter(|value| !value.is_empty())
-        .unwrap_or_else(|| "Vault".to_string());
-    let record = VaultRecord {
-        root: canonical.clone(),
-        name,
-        location: canonical.to_string_lossy().into_owned(),
-        last_opened_at: now_millis(),
-        recent,
-    };
-    let result = descriptor(&id, &record);
-    locked.records.insert(id, record);
-    Ok(result)
+        let id = format!("native-vault-{}", uuid::Uuid::new_v4());
+        let name = canonical
+            .file_name()
+            .map(|value| value.to_string_lossy().into_owned())
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| "Vault".to_string());
+        let record = VaultRecord {
+            root: canonical.clone(),
+            name,
+            location: canonical.to_string_lossy().into_owned(),
+            last_opened_at: now_millis(),
+            recent,
+        };
+        let result = descriptor(&id, &record);
+        locked.records.insert(id, record);
+        Ok(result)
+    })
 }
 
 fn descriptor(id: &str, record: &VaultRecord) -> VaultDescriptor {
@@ -940,7 +1020,13 @@ pub fn run() {
         // defaults (reload, view-source, context menu, ...) via an init
         // script. No IPC commands, so no new capability grants.
         .plugin(froglight_webview_hardening::debug())
-        .manage(NativeVaultState::default())
+        .setup(|app| {
+            let registry = app.path().app_data_dir()?.join("native-vaults.json");
+            let state = load_native_vault_state(registry)
+                .map_err(|error| std::io::Error::other(error.message))?;
+            app.manage(Mutex::new(state));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             native_vault_pick_directory,
             native_vault_create,
@@ -961,4 +1047,150 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod vault_registry_tests {
+    use super::*;
+
+    struct TestDirectory(PathBuf);
+
+    impl TestDirectory {
+        fn new() -> Self {
+            let path =
+                std::env::temp_dir().join(format!("froglight-registry-{}", uuid::Uuid::new_v4()));
+            fs::create_dir_all(&path).unwrap();
+            Self(path)
+        }
+    }
+
+    impl Drop for TestDirectory {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    #[test]
+    fn downloaded_vault_survives_restart_with_same_identity_and_bytes() {
+        let fixture = TestDirectory::new();
+        let directory = fixture.0.clone();
+        let registry = directory.join("vaults.json");
+        let state = Mutex::new(load_native_vault_state(registry.clone()).unwrap());
+        let parent = register_root(&state, directory.clone(), false).unwrap();
+        let downloaded =
+            native_vault_create_blocking(&state, parent.id, "Downloaded".into()).unwrap();
+        native_vault_write_blocking(
+            &state,
+            downloaded.id.clone(),
+            "note.md".into(),
+            b"downloaded content".to_vec(),
+        )
+        .unwrap();
+        native_vault_mark_opened_blocking(&state, downloaded.id.clone()).unwrap();
+        drop(state);
+
+        let reopened = Mutex::new(load_native_vault_state(registry).unwrap());
+        let recent = native_vault_list_recent_blocking(&reopened).unwrap();
+        assert_eq!(
+            recent.len(),
+            1,
+            "downloaded repository must remain in recents after restart"
+        );
+        assert_eq!(
+            recent[0].id, downloaded.id,
+            "sync binding must retain the local vault identity"
+        );
+        assert_eq!(
+            native_vault_read_blocking(&reopened, downloaded.id.clone(), "note.md".into()).unwrap(),
+            b"downloaded content"
+        );
+        assert_eq!(
+            register_root(&reopened, directory.join("Downloaded"), true)
+                .unwrap()
+                .id,
+            downloaded.id
+        );
+    }
+
+    #[test]
+    fn forgetting_a_vault_survives_restart_without_deleting_its_files() {
+        let directory = TestDirectory::new();
+        let registry = directory.0.join("vaults.json");
+        let vault = directory.0.join("Research");
+        fs::create_dir(&vault).unwrap();
+        fs::write(vault.join("note.md"), b"keep me").unwrap();
+        let state = Mutex::new(load_native_vault_state(registry.clone()).unwrap());
+        let record = register_root(&state, vault.clone(), true).unwrap();
+        native_vault_forget_blocking(&state, record.id.clone()).unwrap();
+        drop(state);
+        let reopened = Mutex::new(load_native_vault_state(registry.clone()).unwrap());
+        assert!(native_vault_list_recent_blocking(&reopened)
+            .unwrap()
+            .is_empty());
+        assert_eq!(fs::read(vault.join("note.md")).unwrap(), b"keep me");
+        native_vault_mark_opened_blocking(&reopened, record.id.clone()).unwrap();
+        let reopened_again = Mutex::new(load_native_vault_state(registry).unwrap());
+        assert_eq!(
+            native_vault_list_recent_blocking(&reopened_again).unwrap()[0].id,
+            record.id
+        );
+    }
+
+    #[test]
+    fn unavailable_folder_keeps_its_identity_and_surfaces_a_read_error() {
+        let directory = TestDirectory::new();
+        let registry = directory.0.join("vaults.json");
+        let vault = directory.0.join("Unavailable");
+        fs::create_dir(&vault).unwrap();
+        let state = Mutex::new(load_native_vault_state(registry.clone()).unwrap());
+        let record = register_root(&state, vault.clone(), true).unwrap();
+        drop(state);
+        fs::remove_dir(vault).unwrap();
+        let reopened = Mutex::new(load_native_vault_state(registry).unwrap());
+        assert_eq!(
+            native_vault_list_recent_blocking(&reopened).unwrap()[0].id,
+            record.id
+        );
+        assert_eq!(
+            native_vault_read_blocking(&reopened, record.id, "note.md".into())
+                .unwrap_err()
+                .code,
+            "NOT_FOUND"
+        );
+    }
+
+    #[test]
+    fn failed_registry_write_does_not_publish_a_forgotten_vault() {
+        let directory = TestDirectory::new();
+        let registry = directory.0.join("vaults.json");
+        let state = Mutex::new(load_native_vault_state(registry.clone()).unwrap());
+        let record = register_root(&state, directory.0.clone(), true).unwrap();
+        // Make the destination unwritable on every OS, including Windows.
+        fs::remove_file(&registry).unwrap();
+        fs::create_dir(&registry).unwrap();
+        assert!(native_vault_forget_blocking(&state, record.id.clone()).is_err());
+        assert_eq!(
+            native_vault_list_recent_blocking(&state).unwrap()[0].id,
+            record.id
+        );
+        assert!(!fs::read_dir(&directory.0).unwrap().any(|entry| entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .ends_with(".tmp")));
+    }
+
+    #[test]
+    fn unreadable_registry_is_reported_without_overwriting_it() {
+        let directory = TestDirectory::new();
+        let registry = directory.0.join("vaults.json");
+        for bytes in [
+            b"broken".as_slice(),
+            b"{\"version\":2,\"records\":{}}".as_slice(),
+        ] {
+            fs::write(&registry, bytes).unwrap();
+            assert!(load_native_vault_state(registry.clone()).is_err());
+            assert_eq!(fs::read(&registry).unwrap(), bytes);
+        }
+    }
 }
